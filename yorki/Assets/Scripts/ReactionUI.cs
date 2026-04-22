@@ -15,5 +15,7 @@ public class ReactionUI : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         GameManager.Instance?.drawingCanvas?.ClearCanvas();
+        // 반응 끝나면 내레이터 화면으로 복귀
+        GameManager.Instance?.SetState(GameManager.GameState.Narrator);
     }
 }

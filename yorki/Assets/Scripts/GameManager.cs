@@ -5,6 +5,9 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
+    public enum GameState { Narrator, Drawing }
+    public GameState currentState { get; private set; }
+
     [Header("손님 데이터")]
     public CustomerData currentCustomer;
 
@@ -12,6 +15,8 @@ public class GameManager : MonoBehaviour
     public DrawingCanvas drawingCanvas;
     public RawImage customerImage;
     public ReactionUI reactionUI;
+    public GameObject toolbar;
+    public NarratorController narratorController;
 
     [Header("하루 데이터")]
     public int todayEarnings = 0;
@@ -25,7 +30,29 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        SetState(GameState.Narrator);
+    }
+
+    // 내레이터 화면 ↔ 드로잉 화면 전환
+    public void SetState(GameState state)
+    {
+        currentState = state;
+        bool drawing = (state == GameState.Drawing);
+
+        if (drawingCanvas != null) drawingCanvas.gameObject.SetActive(drawing);
+        if (customerImage != null) customerImage.gameObject.SetActive(drawing);
+        if (toolbar != null)       toolbar.SetActive(drawing);
+
+        if (state == GameState.Narrator)
+            narratorController?.RestartSequence();
+    }
+
+    // 손님 등장 → 드로잉 화면으로 전환
+    public void StartDrawing()
+    {
         LoadCustomer(currentCustomer);
+        SetState(GameState.Drawing);
+        DialogueUI.Instance?.Clear();
     }
 
     void LoadCustomer(CustomerData data)
@@ -35,7 +62,6 @@ public class GameManager : MonoBehaviour
             customerImage.texture = data.referenceImage;
     }
 
-    // Submit 버튼에서 호출
     public void OnSubmit()
     {
         if (currentCustomer == null || drawingCanvas == null) return;

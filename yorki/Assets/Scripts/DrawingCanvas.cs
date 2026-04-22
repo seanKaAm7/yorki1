@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -16,6 +17,10 @@ public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IDragHandler, I
     private Vector2 lastDrawPos;
     private bool isDrawing = false;
 
+    // Undo
+    private readonly List<Color32[]> undoStack = new List<Color32[]>();
+    private const int MAX_UNDO = 20;
+
     void Start()
     {
         rawImage = GetComponent<RawImage>();
@@ -26,22 +31,52 @@ public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IDragHandler, I
         rawImage.texture = drawTexture;
     }
 
+    void Update()
+    {
+        bool ctrl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+        bool cmd  = Input.GetKey(KeyCode.LeftCommand)  || Input.GetKey(KeyCode.RightCommand);
+        if ((ctrl || cmd) && Input.GetKeyDown(KeyCode.Z))
+        {
+            Undo();
+        }
+    }
+
     void ResetCanvas()
     {
-        Color[] pixels = new Color[canvasWidth * canvasHeight];
+        Color32[] pixels = new Color32[canvasWidth * canvasHeight];
+        Color32 bg = backgroundColor;
         for (int i = 0; i < pixels.Length; i++)
-            pixels[i] = backgroundColor;
-        drawTexture.SetPixels(pixels);
+            pixels[i] = bg;
+        drawTexture.SetPixels32(pixels);
+        drawTexture.Apply();
+    }
+
+    void SaveSnapshot()
+    {
+        Color32[] snapshot = (Color32[])drawTexture.GetPixels32().Clone();
+        undoStack.Add(snapshot);
+        if (undoStack.Count > MAX_UNDO)
+            undoStack.RemoveAt(0);
+    }
+
+    void Undo()
+    {
+        if (undoStack.Count == 0) return;
+        Color32[] prev = undoStack[undoStack.Count - 1];
+        undoStack.RemoveAt(undoStack.Count - 1);
+        drawTexture.SetPixels32(prev);
         drawTexture.Apply();
     }
 
     public void ClearCanvas()
     {
+        SaveSnapshot();
         ResetCanvas();
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        SaveSnapshot(); // 획 시작 전 현재 상태 저장
         isDrawing = true;
         Vector2 coord = ScreenToTexture(eventData);
         lastDrawPos = coord;
@@ -53,7 +88,7 @@ public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IDragHandler, I
     {
         if (!isDrawing) return;
         Vector2 coord = ScreenToTexture(eventData);
-        PaintStroke(lastDrawPos, coord); // PaintStroke 내부에서 Apply() 호출
+        PaintStroke(lastDrawPos, coord);
         lastDrawPos = coord;
     }
 
@@ -67,7 +102,7 @@ public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IDragHandler, I
         Vector2 localPos;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             rectTransform, eventData.position, eventData.pressEventCamera, out localPos);
-        float x = (localPos.x / rectTransform.rect.width + 0.5f) * canvasWidth;
+        float x = (localPos.x / rectTransform.rect.width  + 0.5f) * canvasWidth;
         float y = (localPos.y / rectTransform.rect.height + 0.5f) * canvasHeight;
         return new Vector2(x, y);
     }

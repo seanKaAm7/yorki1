@@ -28,6 +28,19 @@ public class GameSceneBuilder : MonoBehaviour
             Debug.Log("[GameSceneBuilder] ReactionUI -> GameManager에 추가 완료.");
         }
 
+        // NarratorController를 GameManager에 붙임 (없을 때만)
+        if (gmGO.GetComponent<NarratorController>() == null)
+        {
+            NarratorController nc = gmGO.AddComponent<NarratorController>();
+            nc.sequence = new DialogueLine[]
+            {
+                new DialogueLine { speaker = "",       text = "..." },
+                new DialogueLine { speaker = "",       text = "오늘도 자리를 폈다." },
+                new DialogueLine { speaker = "아저씨", text = "어이, 신입. 손님 왔어." },
+            };
+            Debug.Log("[GameSceneBuilder] NarratorController -> GameManager에 추가 완료.");
+        }
+
         // --- DrawingUI 캔버스 찾기 ---
         Canvas canvas = Object.FindAnyObjectByType<Canvas>();
         if (canvas == null)
@@ -55,6 +68,8 @@ public class GameSceneBuilder : MonoBehaviour
             gmRef.drawingCanvas = Object.FindAnyObjectByType<DrawingCanvas>();
             gmRef.customerImage = drawingUI.Find("CustomerImage")?.GetComponent<RawImage>();
             gmRef.reactionUI    = gmGO.GetComponent<ReactionUI>();
+            gmRef.toolbar             = drawingUI.Find("Toolbar")?.gameObject;
+            gmRef.narratorController  = gmGO.GetComponent<NarratorController>();
         }
 
         // --- CustomerData 에셋 자동 생성 및 연결 ---
