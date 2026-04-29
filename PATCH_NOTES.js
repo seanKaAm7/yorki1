@@ -1,5 +1,14 @@
 /*
 ---------
+[2026-04-29] (v15)
+ * Customer_Base.png 삭제 (미사용 파일 정리, 코드 영향 없음)
+---------
+[2026-04-29] (v14)
+ * 미커밋 변경 일주일치를 의미 단위 3개 커밋으로 분리(yorki_moving 정리 / Scene A 구현 / 문서·인프라)
+ * GitHub origin/main으로 수동 push 완료 (4개 커밋 업로드)
+ * auto_commit.sh에 git push origin main 추가 — 매일 17:00 commit 후 자동 push까지
+ * push 실패 시 스크립트는 0 종료 + 로그 남김(다음 실행 시 재시도)
+---------
 [2026-04-29] (v13)
  * scripts/auto_commit.sh 신규 — 변경 있을 때만 자동 커밋, --dry-run 지원
  * crontab 등록 — 매일 17:00 KST 자동 백업 커밋, 로그는 ~/.yorki_auto_commit.log

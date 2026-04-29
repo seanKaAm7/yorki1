@@ -116,10 +116,10 @@ TextureImporter:
       name: Customer_Neutral_Idle_0
       rect:
         serializedVersion: 2
-        x: 72
+        x: 0
         y: 0
-        width: 177
-        height: 313
+        width: 320
+        height: 320
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

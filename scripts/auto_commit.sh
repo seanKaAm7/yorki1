@@ -24,3 +24,10 @@ fi
 git add -A
 git commit -m "[자동] $(date '+%Y-%m-%d %H:%M') 17시 백업"
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] 자동 커밋 완료"
+
+# GitHub로 push (실패해도 다음 실행 때 재시도, 스크립트 자체는 0 종료)
+if git push origin main 2>&1; then
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] push 완료"
+else
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] push 실패 (인터넷? 인증?) — 다음 실행 시 재시도"
+fi

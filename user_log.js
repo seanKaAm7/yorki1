@@ -217,4 +217,27 @@
    - 주의사항: 17:00에 작업 중인 미완성/컴파일 에러 상태도 그대로 자동 커밋됨. 의미 단위 커밋은 사용자가 수동으로 별도 진행 예정. 또 mac sleep 모드면 cron 실행 안 됨(launchd 미사용).
    - 현재 미커밋 변경 다량 누적 상태 — 사용자가 17:00 전 의미 있는 커밋으로 정리하지 않으면 큰 덩어리가 [자동] 메시지로 들어감.
 -----------------------------------------
+[Log #31] [2026-04-29 12:30:00]
+ * 사용자: 1 / 커밋은 한거지? / 깃에 올리는게 커밋이 끝인가? / 그럼 5시에 되는거는 푸쉬도 돼? / 푸쉬도 되게 하면 안됨? 자동으로
+ * 작업: 미커밋 변경 의미 단위 분리 커밋 + 수동 push + 자동 push 셋업.
+   1) 미커밋 변경(일주일치)을 3개 의미 단위로 분리 커밋:
+      - 2d0fd33: yorki_moving + Yorki 8방향 스프라이트 정리 (Coffee Talk 전환, 184 파일 삭제)
+      - c453e30: Scene A 구현 — 손님 대화 씬 (45 파일, 코드 + 스프라이트 6종 + Play Ref/)
+      - df376f2: 기획 문서 재편 + 자동 로드/커밋 인프라 (10 파일)
+   2) 수동 push 성공: origin/main으로 4개 커밋 업로드 (74ef989..df376f2)
+      - credential helper: osxkeychain (macOS Keychain), 인증 자동 처리
+      - 원격: github.com/seanKaAm7/yorki1
+   3) auto_commit.sh에 git push origin main 추가:
+      - commit 후 push, 실패 시 에러 메시지 출력하되 스크립트는 0 종료(다음 실행 시 재시도)
+      - cron 환경에서 osxkeychain 접근 가능한지는 실제 17:00 실행 결과로 검증 필요. 안 되면 ~/.yorki_auto_commit.log에 push 실패 메시지가 누적됨.
+-----------------------------------------
+[Log #32] [2026-04-29 13:00:00]
+ * 사용자: 그 customer neutral idle사진을 costomer base로 바꿀거고 기존 base는 없앨거야 / 지금 코드에서 손손님의 기본사진이 뉴트롤 아이들이야 아니면 베이스야? / 아 그래? 응 그럼 a로
+ * 작업: 미사용 Customer_Base.png 삭제(A안).
+   - 사용자 의도 재확인 결과 코드 수정 없는 단순 미사용 파일 정리로 결정
+   - 확인: Customer_Base.png는 SceneABuilder.cs / CustomerDisplay.cs 어디에서도 참조 안 함 (코드의 손님 기본 그림은 Customer_Neutral_Idle.png)
+   - Unity MCP 연결 끊긴 상태라 manage_asset 실패 → rm으로 직접 삭제(.png + .meta 둘 다)
+   - 코드 수정 없음, 컴파일 영향 없음
+   - 참고: Customer_Talk1.png, Customer_Talk2.png도 코드 미참조 미사용 파일로 남아있음 (사용자 명시 안 해서 이번에 정리 안 함)
+-----------------------------------------
 */

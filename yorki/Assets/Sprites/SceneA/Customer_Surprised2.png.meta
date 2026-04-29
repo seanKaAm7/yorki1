@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: b9005e0382c764e789601925e4b4d36b
+guid: 6361754653db74647bfb4477517c70be
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2010508286964961909
-    second: Customer_Surprised_0
+      213: 4593758963975347038
+    second: Customer_Surprised2_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Customer_Surprised_0
+      name: Customer_Surprised2_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 572968682a2c6eb10800000000000000
-      internalID: 2010508286964961909
+      spriteID: e5b548f507f40cf30800000000000000
+      internalID: 4593758963975347038
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Customer_Surprised_0: 2010508286964961909
+      Customer_Surprised2_0: 4593758963975347038
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

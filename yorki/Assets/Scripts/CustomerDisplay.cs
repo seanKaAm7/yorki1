@@ -6,7 +6,11 @@ public class CustomerDisplay : MonoBehaviour
 {
     [Header("Neutral")]
     public Sprite neutralIdle;
-    public Sprite neutralTalk;
+    public Sprite neutralTalk;   // 폴백용 (talk1/talk2 없을 때)
+
+    [Header("Neutral Talk (토글)")]
+    public Sprite talk1;         // 입 크게 — Talk1
+    public Sprite talk2;         // 입 살짝 — Talk2
 
     [Header("Happy")]
     public Sprite happyIdle;
@@ -69,7 +73,12 @@ public class CustomerDisplay : MonoBehaviour
         bool toggle = false;
         while (true)
         {
-            _img.sprite = toggle ? GetIdleSprite(emotion) : GetTalkSprite(emotion);
+            // neutral: talk1 ↔ talk2 전용 토글 (둘 다 있을 때)
+            if (emotion == "neutral" && talk1 != null && talk2 != null)
+                _img.sprite = toggle ? talk1 : talk2;
+            else
+                _img.sprite = toggle ? GetIdleSprite(emotion) : GetTalkSprite(emotion);
+
             toggle = !toggle;
             yield return new WaitForSeconds(talkFrameInterval);
         }

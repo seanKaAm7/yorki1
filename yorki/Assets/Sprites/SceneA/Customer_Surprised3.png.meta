@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 2589b77c6e7bd450db6d6bd289dd773c
+guid: 43485b0a351684115af64b848b1a94b5
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5089542044131730592
-    second: Customer_Base_0
+      213: 2005470060111452484
+    second: Customer_Surprised3_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Customer_Base_0
+      name: Customer_Surprised3_0
       rect:
         serializedVersion: 2
         x: 72
         y: 0
         width: 177
-        height: 315
+        height: 312
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 06bdc16f9705e59b0800000000000000
-      internalID: -5089542044131730592
+      spriteID: 449df9ce46cd4db10800000000000000
+      internalID: 2005470060111452484
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Customer_Base_0: -5089542044131730592
+      Customer_Surprised3_0: 2005470060111452484
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
