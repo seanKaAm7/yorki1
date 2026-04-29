@@ -1,5 +1,44 @@
 /*
 ---------
+[2026-04-29] (v13)
+ * scripts/auto_commit.sh 신규 — 변경 있을 때만 자동 커밋, --dry-run 지원
+ * crontab 등록 — 매일 17:00 KST 자동 백업 커밋, 로그는 ~/.yorki_auto_commit.log
+ * 의미 단위 커밋은 사용자 수동 진행 (자동 커밋은 보험용)
+---------
+[2026-04-29] (v12)
+ * 초기플랜 .md 삭제 — GAME_PLAN.md에 모든 내용이 더 상세하게 흡수되어 있어 단일 기획서로 정리
+ * CLAUDE.md - "7. 세션 시작 시 자동 로드" 섹션 신설, @GAME_PLAN.md / @SCENE_A_PLAN.md / @SCENE_A_TECH.md / @PROGRESS.md 임포트 등록
+ * 새 채팅 시작 시 4개 핵심 문서가 자동 컨텍스트 로드됨 (매번 Read 안 해도 됨)
+---------
+[2026-04-28] (v11)
+ * Customer_Happy_Talk.png, Customer_Thinking_Idle.png 영구 제거 (Unity manage_asset, .meta 포함)
+ * SceneABuilder.cs - happyTalkPath/thinkingIdlePath 상수 + paths[] + cd 할당 제거
+ * CustomerDisplay.cs - happyTalk/thinkingIdle 필드 제거, GetIdleSprite의 thinking case 제거(neutralIdle 폴백), GetTalkSprite의 happy는 happyIdle 반환
+ * SCENE_A_TECH.md, SCENE_A_PLAN.md, PROGRESS.md - 8종 → 6종 반영
+ * 컴파일 에러/경고 0건
+---------
+[2026-04-27] (v10)
+ * SceneABuilder.cs 수정 - 배경 컨테이너 (1330,720) + preserveAspect=true, 비율 역산으로 레터박스/찌그러짐 제거
+ * SceneABuilder.cs 수정 - 캐릭터 컨테이너 (300,480) → (320,320), 위치 (-320,10) → (-320,-50), 공중부양 수정
+ * SceneADialogue.cs 수정 - 포즈 그룹 시스템 적용 (resting/gesture/thinking/reaction), 그룹 전환 시 0.35초 pause
+ * SceneADialogue.cs 수정 - ▼ ContinueArrow 깜빡임 코루틴 연동, 타이핑 완료 후 표시/진행 시 숨김
+ * DialogueBox.png - 9-slice 임포트 설정 (Single 모드, Bilinear, border L80/R80/T100/B30)
+ * DialogueBox.png - Sprite Editor에서 rect 상단 조정, 삼각형 뿔 포함하도록 수동 수정
+ * DialogueBox.png.meta - Multiple 모드 잔존 데이터 완전 초기화로 "rect lies outside of texture" 경고 해결
+---------
+[2026-04-22] (v9)
+ * SceneABuilder.cs 수정 - 배경 720px/preserveAspect=true, 캐릭터 위치 (-370,-60), neutral_idle = Customer_Neutral_Idle.png
+ * SceneABuilder.cs 수정 - CustomerDisplay 컴포넌트 자동 추가, 스프라이트 슬롯 8종 자동 할당
+ * SceneADialogue.cs 신규 - SceneALine 구조체, 대사 20줄(등장2/일반10/잘그렸을때4/못그렸을때4), 타이핑 출력, 표정/Shake 연동
+ * SceneA.unity 생성 완료 - "Yorki/Build Scene A" 메뉴
+---------
+[2026-04-22] (v8)
+ * NPCWander.cs 추가 - Idle/Walking 상태 반복, wanderRadius 내 랜덤 목적지 이동, SpriteRenderer 없으면 흰 픽셀 자동 생성
+ * SceneB_Test.unity 수정 - NPC_01~03 배치, Yorki scale (3,3,1) → (1.5,1.5,1) 조정
+ * 기획 방향 변경 - 캐릭터 직접 이동 방식 제거, Coffee Talk 방식(고정 배경 + 손님 찾아오는 구조)으로 전환
+ * GAME_PLAN.md 업데이트 - 씬 구조 수정, 비주얼 레퍼런스 재정의(Coffee Talk/황혼의 공주/HLD), 플레이 화면 UI 레이아웃 확정
+ * play ref/ 폴더 추가 - 플레이 화면 샘플 이미지 (초안.png 확정)
+---------
 [2026-04-17] (v7)
  * YorkiMovement.cs 추가 - WASD 8방향 이동, dirIndex/isMoving 파라미터 제어
  * YorkiSetup.cs 추가 (Editor) - 스프라이트 임포트 설정(Point/Uncompressed/68PPU), idle/walk 애니메이션 클립 각 8개 생성, AnyState 기반 AnimatorController 생성, SceneB_Test 씬 자동 생성

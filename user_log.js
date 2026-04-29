@@ -115,4 +115,106 @@
  * 사용자: 이거의 절반정도?
  * 작업: SceneB_Test.unity - Yorki 오브젝트 scale (3, 3, 1) → (1.5, 1.5, 1)로 변경.
 -----------------------------------------
+[Log #18] [2026-04-22 00:00:00]
+ * 사용자: 비주얼방향 그 두개 / hyper Light Drifter / 저걸 어떻게 구현하지..?? / 내가 레퍼런스 이미지들을 찾는게 먼저겠지?
+ * 작업: 비주얼 레퍼런스 재논의 — Hyper Light Drifter(순수 2D 픽셀아트) 확정.
+         HLD 구현 방향 정리: 카메라는 탑다운 유지, 아트 자체를 3/4 시점으로 제작. 배경 픽셀아트 + URP 2D 조명으로 분위기 구현.
+         레퍼런스 수집(스타일 + 코헴 실제 사진) → 팔레트 정의 → PixelLab 테스트 순서 안내.
+-----------------------------------------
+[Log #19] [2026-04-22 00:00:00]
+ * 사용자: 지금 맵에 npc 만들 수 있나? 움직이는거까지? 생긴건 일단 직사각형으로. 근데 계속 움직이진 않고. 일반 게임 npc같이 맵 내에서 멈추기도 하고 움직이고.
+ * 작업: NPCWander.cs 생성 — Idle/Walking 상태, wanderRadius 내 랜덤 목적지 이동, Coroutine 루프.
+         SpriteRenderer 없으면 흰 픽셀 Texture2D로 자동 생성, npcColor로 색상 설정.
+         SceneB_Test.unity에 NPC_01~03 배치 (각기 다른 위치), 씬 저장 완료.
+-----------------------------------------
+[Log #20] [2026-04-22 00:00:00]
+ * 사용자: 혹시 깃에 계속 지속적으로 하고있어? / 해
+ * 작업: v2~v7 작업 전체 통합 커밋 (240개 파일) — YorkiMovement, YorkiSetup, NPCWander, NarratorController, DrawingCanvas Undo, GAME_PLAN.md 업데이트, 초기플랜 삭제, Yorki 스프라이트/애니메이션 전체 포함.
+-----------------------------------------
+[Log #21] [2026-04-22 00:00:00]
+ * 사용자: 굳이 움직이는게 필요한가? / 커피토크 방식으로 가면 어떨까 / 핵심은 손님 앞에 앉아서 그림 그리는 장면이었어 / GAME_PLAN 수정해줘
+ * 작업: GAME_PLAN.md 수정 — 캐릭터 직접 이동 방식 제거, Coffee Talk 방식(고정 배경 + 손님 찾아오는 구조)으로 전환.
+         자리 선택은 맵뷰 일러스트 클릭 방식으로 유지. 쫓겨나는 연출은 대화 이벤트로 구현 방향 확정.
+-----------------------------------------
+[Log #22] [2026-04-22 00:00:00]
+ * 사용자: 배경맵 구성 논의 / 샘플 이미지 Gemini로 생성 / 레퍼런스 방향 논의
+ * 작업: 플레이 화면 레이어 구성 확정 — 1인칭 시점, 손님(좌측 정면), 캔버스(중앙), 툴바(하단), 배경(거리).
+         Coffee Talk 실제 스크린샷 레퍼런스 확인.
+         Gemini로 샘플 이미지 초안 생성 — 레이아웃은 맞으나 감성/색감/손님 특징 부족.
+         비주얼 레퍼런스 방향: Coffee Talk(레이아웃) + 황혼의 공주(색감/분위기) + HLD(픽셀아트) 조합으로 Yorki만의 색깔 구축 예정.
+         레퍼런스 추가 수집 후 프롬프트 재작업 예정.
+-----------------------------------------
+[Log #25] [2026-04-27 14:30:00]
+ * 사용자: md 파일 정리 및 진행상황 문서화 요청, 스프라이트 문제점 기록, CLAUDE.md 업데이트
+ * 작업:
+   - SCENE_A_TECH.md 신규 생성 — SceneA 기술 문서 (오브젝트 구조, 수치값, 컴포넌트 동작)
+   - SCENE_A_PLAN.md 재작성 — 기획 위주로 정리, NameTag 미구현 항목 추가
+   - DIALOGUE_BOX_PLAN.md 삭제 — SCENE_A_TECH.md로 흡수
+   - PROGRESS.md 신규 생성 — 전체 구현 현황, 씬/시스템별 완료/미완료, 스프라이트 문제점, 다음 작업 순서
+   - PROGRESS.md에 스프라이트 정렬 기준 추가 (GPT 제안, 수치는 미확정으로 표기)
+   - PROGRESS.md에 빠진 스크립트 추가 (DrawingSceneBuilder, GameSceneBuilder, YorkiSetup, SceneB_Test)
+   - CLAUDE.md 현재 구현 상태 섹션 업데이트 — SceneA 내용 반영, 기획 문서 목록 수정
+-----------------------------------------
+[Log #24] [2026-04-27 13:50:00]
+ * 사용자: 배경 찌부/캐릭터 공중부양 수정 요청, 대화창 점선 문제, 뿔 포함 Sprite Editor 조정 등
+ * 작업:
+   - SceneABuilder.cs — 캐릭터 컨테이너 (300,480)→(320,320), 위치 (-320,10)→(-320,-50) (공중부양 수정)
+   - SceneABuilder.cs — SpriteMeshType.FullRect 추가 후 사용자 요청으로 되돌림
+   - SceneABuilder.cs — BuildScene() 시작 시 씬 저장 다이얼로그 추가 후 사용자 요청으로 되돌림
+   - DialogueBox.png Sprite Editor에서 rect 상단을 위로 올려 삼각형 뿔 포함 (사용자 직접 수동 조정)
+   - Build Scene A 실행 시 수동 변경사항 덮어쓰기 문제 발생 — 앞으로 명시적 요청 시에만 빌드 실행
+-----------------------------------------
+[Log #23] [2026-04-22 00:00:00]
+ * 사용자: 해봐 계획대로 (SceneA 전체 구현 요청)
+ * 작업:
+   - SceneABuilder.cs 수정 — 배경 preserveAspect=true + 720px, 캐릭터 위치 (-370,-60),
+     neutral_idle = Customer_Neutral_Idle.png, CustomerDisplay 컴포넌트 자동 추가 및 스프라이트 슬롯 8종 자동 할당.
+   - SceneADialogue.cs 신규 생성 — SceneALine 구조체(text/emotion/shake) + 대사 20줄 내장,
+     엔터/스페이스로 진행, 한 글자씩 타이핑 출력, StartTalking/StopTalking/Shake 연동.
+   - SceneABuilder에 SceneADialogue 컴포넌트 추가 및 customerDisplay/dialogueText 자동 연결.
+   - DialogueLine 이름 충돌(NarratorController.cs 기존 정의) → SceneALine으로 rename 해결.
+   - "Yorki/Build Scene A" 실행 완료 — SceneA.unity 생성 확인.
+-----------------------------------------
+[Log #26] [2026-04-27 00:00:00]
+ * 사용자: ㅎㅇ
+ * 작업: 대화 시작 인사 수신. 문맥 동기화 완료 (마지막 작업: SCENE_A_TECH.md 등 문서 정리).
+-----------------------------------------
+[Log #27] [2026-04-28 14:30:00]
+ * 사용자: 아녕 / 파일들 읽어봐 / 잠시만 / 너 이제 파일들 읽을 건데 양이 많으니까 어떻게 읽을건지 계획을 짜고 단계적으로 읽어 계획말해 / 응
+ * 작업: 프로젝트 전체 파일 6단계로 분류해 단계적 정독.
+   1단계 (기획/진행): PROGRESS.md, pivot.md(피벗·베이스라인 정렬 업계 관행 조사), SCENE_A_PLAN.md, SCENE_A_TECH.md
+   2단계 (보조): 초기플랜 .md, 레퍼런스_SuperPaperMario_interludes.md
+   3단계 (코어): GameManager.cs, GameSceneBuilder.cs, DrawingSceneBuilder.cs, SceneABuilder.cs
+   4단계 (대사/손님): SceneADialogue.cs, NarratorController.cs, DialogueUI.cs, CustomerData.cs, CustomerDisplay.cs
+   5단계 (드로잉/판정): DrawingCanvas.cs, DrawingToolbar.cs, ScoreCalculator.cs, ReactionSystem.cs, ReactionUI.cs
+   6단계 (이동/NPC/기타): YorkiMovement.cs, YorkiSetup.cs, NPCWander.cs, FadeIn.cs
+   문맥 동기화 완료. 파일 읽기 작업만 수행, 코드 수정 없음.
+-----------------------------------------
+[Log #28] [2026-04-28 17:30:00]
+ * 사용자: Customer_Thinking_Idle, Customer_Happy_Talk 이거 두개 지울건데 코드도 고쳐 / 그냥 지울거야. 교체아니라. 그래서 코드도 다시 고쳐
+ * 작업: Customer_Happy_Talk, Customer_Thinking_Idle 영구 제거.
+   - PNG 2개 삭제 (Unity manage_asset으로 .meta 포함): Assets/Sprites/SceneA/Customer_Happy_Talk.png, Customer_Thinking_Idle.png
+   - SceneABuilder.cs 수정: happyTalkPath/thinkingIdlePath 상수 제거, paths[] 배열에서 제거, cd.happyTalk/cd.thinkingIdle 할당 제거
+   - CustomerDisplay.cs 수정: happyTalk/thinkingIdle 필드 제거, GetIdleSprite의 thinking case 제거(neutralIdle로 폴백), GetTalkSprite의 happy case는 happyIdle 반환
+   - 컴파일 확인: Unity 컴파일 에러/경고 0건
+   - 문서 업데이트: SCENE_A_TECH.md(5번 매핑 표, 7번 감정별 스프라이트 폴백 설명), SCENE_A_PLAN.md(8종→6종), PROGRESS.md(8종→6종)
+   - 결과: SceneA 손님 스프라이트 8종 → 6종. happy 감정 대사는 idle만 보임(토글 효과 없음), thinking 감정 대사는 neutralIdle 표시.
+-----------------------------------------
+[Log #29] [2026-04-29 11:00:00]
+ * 사용자: 이거 클로드 채팅 새로 킬떄마다 자동으로 프로젝트 파일 읽게 못해? / 우선 초기플랜을 game_plan.md에 겹치지 않게 한 파일로 만들어주고, claude.md, game_PLAN.md, claude.md, scene_a md들, progress.md 이렇게 넣어줄 수 있어?
+ * 작업: 두 가지 작업.
+   1) 초기플랜 .md 통합·삭제 — 두 파일 비교 결과 GAME_PLAN.md가 모든 내용을 더 상세하게 담고 있어 이식할 고유 내용 0건. 초기플랜 .md 삭제(rm)로 단일 기획서 체제로 정리. (Log #13 시점 통합 후 파일이 다시 살아나 있던 상태였음)
+   2) CLAUDE.md에 세션 자동 로드 임포트 추가 — 새 "## 7. 세션 시작 시 자동 로드" 섹션 신설. @GAME_PLAN.md, @SCENE_A_PLAN.md, @SCENE_A_TECH.md, @PROGRESS.md 임포트 등록. 새 채팅 시작 시 4개 문서가 자동으로 컨텍스트에 들어가 매번 읽지 않아도 됨.
+-----------------------------------------
+[Log #30] [2026-04-29 12:00:00]
+ * 사용자: 그럼 일단 오후 5시에 커밋 나오게 해줘 일단, 그리고 의미단위로 내가 수동으로 요청할게
+ * 작업: 매일 17:00 자동 백업 커밋 셋업.
+   - scripts/auto_commit.sh 신규 생성 — 변경사항(tracked + staged + untracked) 감지 후 변경 있을 때만 git add -A && git commit. 메시지 형식: "[자동] YYYY-MM-DD HH:MM 17시 백업". --dry-run 옵션 지원.
+   - chmod +x로 실행 권한 부여
+   - dry-run 테스트 통과 (변경 다수 감지 정상 출력)
+   - crontab 등록: 0 17 * * * 매일 KST 17:00 실행, 결과는 ~/.yorki_auto_commit.log에 누적
+   - 환경: git=/opt/homebrew/bin/git, timezone=KST, 기존 crontab 비어있던 상태
+   - 주의사항: 17:00에 작업 중인 미완성/컴파일 에러 상태도 그대로 자동 커밋됨. 의미 단위 커밋은 사용자가 수동으로 별도 진행 예정. 또 mac sleep 모드면 cron 실행 안 됨(launchd 미사용).
+   - 현재 미커밋 변경 다량 누적 상태 — 사용자가 17:00 전 의미 있는 커밋으로 정리하지 않으면 큰 덩어리가 [자동] 메시지로 들어감.
+-----------------------------------------
 */
