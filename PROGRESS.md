@@ -114,38 +114,6 @@
 
 ---
 
-## 패치 노트
-
-### 2026-04-29 (2) — 미사용 스프라이트 정리
-
-**수정 내용:**
-- `SceneA` 폴더 내 게임에서 사용하지 않는 잉여 스프라이트 삭제
-- 총 8종의 스프라이트만 `CustomerDisplay.cs`에 연결되어 사용 중임을 확인 (Customer_Neutral_Idle/Talk, Customer_Talk1/2, Customer_Happy_Idle, Customer_Surprised, Customer_Gesture_Idle/Talk)
-
-**삭제 파일:**
-- `Customer_Gesture_Idle1.png`
-- `Customer_Gesture_Idle2.png`
-- `Customer_Surprised1.png`
-- `Customer_Surprised2.png`
-- `Customer_Surprised3.png`
-
----
-
-### 2026-04-29 — 스프라이트 크롭 rect 통일 & talk 토글
-
-**수정 내용:**
-- 모든 캐릭터 스프라이트(8개)의 크롭 rect를 `0,0,320,320` (전체 캔버스)으로 통일
-  - 이전: Unity Multiple 모드 자동 크롭으로 컷마다 다른 크기/위치로 잘려서 전환 시 튐
-  - 이후: 전체 캔버스 기준으로 통일하여 전환 시 위치/크기 일관성 확보
-- `CustomerDisplay.cs`에 `talk1`, `talk2` 스프라이트 슬롯 추가
-  - neutral 대사 시 talk1 ↔ talk2 토글로 자연스러운 입 모양 전환
-- `Customer_Gesture_Idle.png` 캔버스 크기를 360×360 → 320×320으로 통일 (수동)
-
-**수정 파일:**
-- `Assets/Sprites/SceneA/Customer_*.png.meta` (8개) — rect 통일
-- `Assets/Scripts/CustomerDisplay.cs` — talk1/talk2 토글 로직 추가
-
----
 
 ## 알려진 문제점
 
