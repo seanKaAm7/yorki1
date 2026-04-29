@@ -42,9 +42,9 @@ public class CustomerDisplay : MonoBehaviour
     public void StartTalking(string emotion)
     {
         _currentEmotion = emotion;
-        SetEmotionSprite(emotion);
+        SetEmotionSprite(emotion);  // idle 스프라이트 고정, 토글 없음
         if (_talkCoroutine != null) StopCoroutine(_talkCoroutine);
-        _talkCoroutine = StartCoroutine(TalkLoop(emotion));
+        _talkCoroutine = null;
     }
 
     // 대사 끝 시 호출
@@ -68,21 +68,9 @@ public class CustomerDisplay : MonoBehaviour
         StartCoroutine(ShakeCoroutine());
     }
 
-    IEnumerator TalkLoop(string emotion)
-    {
-        bool toggle = false;
-        while (true)
-        {
-            // neutral: talk1 ↔ talk2 전용 토글 (둘 다 있을 때)
-            if (emotion == "neutral" && talk1 != null && talk2 != null)
-                _img.sprite = toggle ? talk1 : talk2;
-            else
-                _img.sprite = toggle ? GetIdleSprite(emotion) : GetTalkSprite(emotion);
+    // (토글 비활성화 — 컷 전환 없음)
+    // IEnumerator TalkLoop(string emotion) { ... }
 
-            toggle = !toggle;
-            yield return new WaitForSeconds(talkFrameInterval);
-        }
-    }
 
     IEnumerator ShakeCoroutine()
     {

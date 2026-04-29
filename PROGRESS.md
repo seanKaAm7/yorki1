@@ -116,6 +116,21 @@
 
 ## 패치 노트
 
+### 2026-04-29 (2) — 미사용 스프라이트 정리
+
+**수정 내용:**
+- `SceneA` 폴더 내 게임에서 사용하지 않는 잉여 스프라이트 삭제
+- 총 8종의 스프라이트만 `CustomerDisplay.cs`에 연결되어 사용 중임을 확인 (Customer_Neutral_Idle/Talk, Customer_Talk1/2, Customer_Happy_Idle, Customer_Surprised, Customer_Gesture_Idle/Talk)
+
+**삭제 파일:**
+- `Customer_Gesture_Idle1.png`
+- `Customer_Gesture_Idle2.png`
+- `Customer_Surprised1.png`
+- `Customer_Surprised2.png`
+- `Customer_Surprised3.png`
+
+---
+
 ### 2026-04-29 — 스프라이트 크롭 rect 통일 & talk 토글
 
 **수정 내용:**
