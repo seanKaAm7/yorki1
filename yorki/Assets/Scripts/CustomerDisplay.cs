@@ -23,7 +23,8 @@ public class CustomerDisplay : MonoBehaviour
     public Sprite gestureTalk;
 
     [Header("Settings")]
-    public float talkFrameInterval = 0.12f;
+    public float talkFrameInterval = 0.10f;
+    public float gestureTalkFrameInterval = 0.12f;
     public float shakeMagnitude = 6f;
     public float shakeDuration = 0.25f;
 
@@ -42,8 +43,21 @@ public class CustomerDisplay : MonoBehaviour
     public void StartTalking(string emotion)
     {
         _currentEmotion = emotion;
-        SetEmotionSprite(emotion);  // idle 스프라이트 고정, 토글 없음
         if (_talkCoroutine != null) StopCoroutine(_talkCoroutine);
+
+        if (emotion == "neutral")
+        {
+            _talkCoroutine = StartCoroutine(NeutralTalkLoop());
+            return;
+        }
+
+        if (emotion == "gesture")
+        {
+            _talkCoroutine = StartCoroutine(GestureTalkLoop());
+            return;
+        }
+
+        SetEmotionSprite(emotion);
         _talkCoroutine = null;
     }
 
@@ -68,9 +82,44 @@ public class CustomerDisplay : MonoBehaviour
         StartCoroutine(ShakeCoroutine());
     }
 
-    // (토글 비활성화 — 컷 전환 없음)
-    // IEnumerator TalkLoop(string emotion) { ... }
+    void OnDisable()
+    {
+        if (_talkCoroutine != null) StopCoroutine(_talkCoroutine);
+        _talkCoroutine = null;
+    }
 
+    IEnumerator NeutralTalkLoop()
+    {
+        Sprite[] frames = new Sprite[]
+        {
+            talk2 != null ? talk2 : GetTalkSprite("neutral"),
+            neutralTalk != null ? neutralTalk : GetTalkSprite("neutral"),
+            talk1 != null ? talk1 : GetTalkSprite("neutral"),
+            neutralTalk != null ? neutralTalk : GetTalkSprite("neutral"),
+        };
+
+        int index = 0;
+        while (true)
+        {
+            _img.sprite = frames[index];
+            index = (index + 1) % frames.Length;
+            yield return new WaitForSeconds(talkFrameInterval);
+        }
+    }
+
+    IEnumerator GestureTalkLoop()
+    {
+        Sprite idle = gestureIdle != null ? gestureIdle : neutralIdle;
+        Sprite talk = gestureTalk != null ? gestureTalk : idle;
+        bool useTalk = false;
+
+        while (true)
+        {
+            _img.sprite = useTalk ? talk : idle;
+            useTalk = !useTalk;
+            yield return new WaitForSeconds(gestureTalkFrameInterval);
+        }
+    }
 
     IEnumerator ShakeCoroutine()
     {

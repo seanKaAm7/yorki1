@@ -258,4 +258,197 @@
    4) PATCH_NOTES.js v18 추가(역순), CLAUDE.md 규칙대로 user_log.js 본 항목 append.
    5) 구현 미착수 — 사용자 요청에 따라 계획 단계만 정리.
 -----------------------------------------
+[Log #34] [2026-04-30 09:30:00]
+ * 사용자: '/var/folders/.../스크린샷 2026-04-29 오후 4.56.28.png' 이런 초안들이 생겼어 이거 play ref에 새로운 초안으로 저장해줘 / 왜 플레이모드에서 기본 컷이 입을 벌리는 게 된거지..? / 어 돌려줄래..? / 수동 커밋 ㄱ ㄱ / 그.. 컷을 좀 바꾸고 싶은데 가능할까? 계획을 말해줄까 / 일단 대화컷은 배경도 전체가 나오고 사람, 대화창 이렇게 나와야해 (...) 대화→캔버스→대화 흐름 설명 / 1. A (아예 대화창이 없어져야 함) 2. 중앙, 스프라이트 그대로 위치크기만 변경 3. 전체화면에서 왼쪽으로 이동하면서 자연스럽게 줄어들기 4. 현재 scene a 그대로, 채팅창만 끔. 풀화면에선 키워야 5. 잘 모르는데 좋은걸로 6. 대화 전후 사이에 캔버스 씬이 들어가는 구조 / 1. 400 초반 / 2. 적당히 밸런스 맞게 (게임 창 못 보냐?) / 3. 자동전환, 새 대사 추가 X / 4. 역재 컷 활용 정보 md 참고해서 메커니즘 짜라. 새 md 만들어 자세히
+ * 작업:
+   1) 새 초안 이미지(좌우 2시안 한 장)를 Play Ref/초안 2.png로 저장 (2.4MB)
+   2) 플레이모드 idle이 입 벌린 채 보이는 버그 진단 — 원인은 코드가 아닌 PNG 파일 자체. 안티그래비티 세션의 4개 PNG 재출력이 모두 입 벌린 컷이었음
+   3) git checkout HEAD -- 시도 → 자동 커밋(b9e04b6, 17:00)이 이미 깨진 PNG를 커밋한 상태 발견 → ff2c763에서 4개 PNG 복원
+   4) c56f2eb 수동 커밋 — "fix: Customer Neutral idle/talk 스프라이트 입 다문 버전으로 복원" (origin/main 대비 +2)
+   5) 사용자가 게임 창 볼 수 있냐고 물음 → 못 본다고 명시 (코드/메타/스프라이트만 가능)
+   6) Scene A 대규모 구조 변경 계획 수립:
+      - 두 모드 분리 (대화 풀화면 / 캔버스 분할)
+      - 역재식 컷 메커니즘 적용 — 몸/위치 고정, 입만 교체, 3프레임 ping-pong 0.1초
+      - 보유 컷 4종 입 단계 정리 (Neutral_Idle=닫힘 / Talk2=살짝 / Neutral_Talk=반 / Talk1=활짝)
+      - 사이클: [Talk2 → Neutral_Talk → Talk1 → Neutral_Talk] 0.1초 반복, idle 복귀 시 Neutral_Idle
+   7) SCENE_A_CUT_PLAN.md 신규 작성 — 10개 섹션 (개요/흐름/대화모드/캔버스모드/전환/컷메커니즘/대사매핑/코드영향/미정/참고)
+      - 풀화면 손님 420×420 (0,-40), 대사창 760×200 (0,-260), 배경 1280×720 (0,0)
+      - 캔버스 모드 수치는 기존 그대로 유지
+      - 전환 0.7초 EaseInOutQuad, 코루틴+Tween (DOTween 미사용 가능)
+      - 12번째 대사 "조용히 있을게요." 종료 시 자동 캔버스 전환
+      - 코드 영향 섹션은 작성만, 구현 X (사용자 요청)
+   8) PATCH_NOTES.js v19 추가 (역순), 본 항목 user_log.js append
+-----------------------------------------
+[Log #35] [2026-04-30 14:35:42]
+ * 사용자: 안녕 / 나 작업하고 있는데.. 그 클로드코드로 원래 작업했었꺼든 그러다가 usage가 꽉차서.. 코덱스로 처음하는데 좀 확인해볼래? md들 좀..?
+ * 작업:
+   - CLAUDE.md, PROGRESS.md, GAME_PLAN.md, SCENE_A_PLAN.md, SCENE_A_CUT_PLAN.md, SCENE_A_TECH.md, UI 계획.md, pivot.md, 역재 컷 활용 정보.md, 레퍼런스_SuperPaperMario_interludes.md 확인
+   - 최신 구현 기준은 SCENE_A_CUT_PLAN.md(두 씬 분리/영속 CustomerStage/역재식 컷 토글)와 UI 계획.md(디제틱 드로잉 UI)로 판단
+   - 문서 간 불일치 후보 확인: SCENE_A_TECH.md의 구 단일 SceneA 구조, PROGRESS.md의 스프라이트 8종 표현, SCENE_A_PLAN.md의 대사 줄 수 표기, SCENE_A_TECH.md의 결과 대사 오타
+   - 코드 수정 없음, 문서 검토 및 현황 요약만 수행
+-----------------------------------------
+[Log #36] [2026-04-30 14:39:12]
+ * 사용자: 일단 scene_a_cut plan부분은 클로드 코드가 구현하다가 도중에 usage가 다해져서 끊겼어 이 대화내용 참고해 "(Claude Code 대화 로그: 손님 크기 320x320 유지, TalkScene/SceneA 두 씬 분리, Step 1~3 일괄 진행 중 PersistentBootstrap.cs / SceneABuilder.cs / TalkSceneBuilder.cs 작성 직후 usage limit으로 중단)"
+ * 작업:
+   - Claude Code 중단 지점 이어받기: SCENE_A_CUT_PLAN.md 기준 Step 1~3 실제 파일 상태 확인
+   - PersistentBootstrap.cs 확인 — PersistentCanvas, CustomerStage, Background, CustomerDisplay 참조 보유 및 DontDestroyOnLoad 처리
+   - SceneABuilder.cs 확인 — SceneA에서 손님/배경/DialogueBox 생성 제거, SceneCanvas + RightPanel만 생성하도록 수정된 상태 확인
+   - TalkSceneBuilder.cs 확인 — TalkScene.unity 자동 빌더, PersistentBootstrap/CustomerStage/배경/손님/DialogueBox/DialogueText/ContinueArrow 생성 로직 확인
+   - Unity refresh/compile 요청 및 Editor.log 확인 — 최신 error CS / warning CS 없음
+   - 신규 스크립트 .meta 생성 확인: TalkSceneBuilder.cs.meta, PersistentBootstrap.cs.meta
+   - SCENE_A_PLAN.md 및 SCENE_A_CUT_PLAN.md에 Step 1~3 완료 상태 반영
+   - PATCH_NOTES.js v20 추가
+   - 빌더 메뉴는 실행하지 않음 (SceneA.unity 덮어쓰기 방지)
+-----------------------------------------
+[Log #37] [2026-04-30 14:46:20]
+ * 사용자: 프로젝트 위치:
+   /Users/seanka/Project file/Game/Yorki, the portraitist/2D
+
+  반드시 한국어로 답변하고, 이모티콘 쓰지 말 것.
+  먼저 CLAUDE.md를 읽고 그 규칙을 따라라. 특히 user_log.js는 append-only로 이어 쓰고, PATCH_NOTES.js는 주요 변경 시 최신 항목
+  을 맨 위에 추가한다.
+
+  현재 작업 맥락:
+  Claude Code에서 Scene A 컷/모드 시스템 구현 중 usage limit으로 끊겼고, 이후 Codex가 확인했다.
+
+  최신 기준 문서:
+  - SCENE_A_CUT_PLAN.md
+  - SCENE_A_PLAN.md
+  - UI 계획.md
+  - PROGRESS.md
+  - SCENE_A_TECH.md는 아직 구 단일 SceneA 구조가 섞여 있으니 최신 기준으로 맹신하지 말 것.
+
+  현재 Scene A 방향:
+  - TalkScene.unity: 풀화면 배경 + 손님 + 대사창
+  - SceneA.unity: 좌측 손님 + 우측 작업대, 대사창 없음
+  - 손님/배경은 PersistentCanvas + CustomerStage 영속 객체로 두 씬 사이를 이동
+  - 손님 크기는 두 씬 모두 320x320 유지, 축소 없이 슬라이드만
+  - 대화 → SceneA 그리기 → 제출 → TalkScene 결과 반응 흐름
+  - 대화창은 TalkScene에서 중앙 하단, 760x200, 위치 (0,-260)
+
+  완료 상태:
+  - Step 1 완료: yorki/Assets/Scripts/PersistentBootstrap.cs 신규
+  - Step 2 완료: yorki/Assets/Editor/SceneABuilder.cs 수정, 손님/배경/DialogueBox 제거, RightPanel만 생성
+  - Step 3 완료: yorki/Assets/Editor/TalkSceneBuilder.cs 신규, TalkScene 빌더 작성
+  - Unity refresh/compile 확인 완료, 최신 Editor.log 기준 error CS / warning CS 없음
+  - 신규 .meta 생성 확인
+  - SCENE_A_PLAN.md와 SCENE_A_CUT_PLAN.md에 Step 1~3 완료 표시 반영
+  - PATCH_NOTES.js v20, user_log.js Log #36까지 작성됨
+
+  주의:
+  - 빌더 메뉴는 아직 실행하지 않았다.
+  - Yorki/Build Scene A 또는 Yorki/Build Talk Scene 실행 시 씬을 덮어쓸 수 있으니, 실행 전 사용자에게 확인받아라.
+  - 현재 작업트리에 미커밋 변경이 있으니 git status부터 확인하고, 절대 임의로 되돌리지 마라.
+
+  다음 작업 후보:
+  - Step 4: TalkSceneController 신규, Phase별 대사 PreDraw / ResultGood / ResultBad
+  - Step 5: CustomerDisplay TalkLoop 부활, neutral 3프레임 ping-pong [Talk2 → Neutral_Talk → Talk1 → Neutral_Talk] 0.1초,
+  gesture 2프레임 0.12초
+  - Step 6: SceneTransition 신규, TalkScene ↔ SceneA 슬라이드+페이드+LoadScene
+ * 작업: 진행 중 — CLAUDE.md와 최신 Scene A 문서 확인, git status 확인, Log #37 append-only 기록 완료. 이어서 Step 4~6 구현 범위 확인 및 코드 수정 예정.
+-----------------------------------------
+[Log #38] [2026-04-30 14:58:51]
+ * 사용자: (동일 요청 계속) Scene A 컷/모드 시스템 Step 4~6 후보 구현 진행
+ * 작업:
+   - TalkSceneController.cs 신규 작성: TalkScenePhase(PreDraw / ResultGood / ResultBad), Phase별 대사 배열, 타이핑 출력, 포즈 그룹 pause, ▼ 깜빡임, 12번째 대사 종료 시 SceneTransition.TalkSceneToSceneA 호출
+   - SceneTransition.cs 신규 작성: DontDestroyOnLoad 싱글턴, CustomerStage 0.7초 EaseInOut 슬라이드, DialogueBox / RightPanel CanvasGroup 페이드, 0.5초 시점 SceneManager.LoadScene 처리
+   - CustomerDisplay.cs 수정: neutral 말하기 3프레임 ping-pong [Talk2 → Neutral_Talk → Talk1 → Neutral_Talk] 0.1초, gesture 2프레임 0.12초 토글 부활
+   - TalkSceneBuilder.cs 수정: DialogueBox CanvasGroup, SceneTransition, TalkSceneController 자동 생성/참조 연결
+   - SceneABuilder.cs 수정: RightPanel CanvasGroup, SceneTransition 폴백 객체 생성
+   - GameManager.cs 수정: TalkScene 결과 Phase 전달용 static currentTalkPhase 추가
+   - SCENE_A_PLAN.md / SCENE_A_CUT_PLAN.md / PROGRESS.md 완료 상태 갱신, PATCH_NOTES.js v21 최신 항목 prepend
+   - 검증: 새 스크립트 포함 임시 csproj로 dotnet build 성공(경고 0, 오류 0). Unity batch refresh는 라이선스 초기화 실패로 중단되어 Editor 컴파일 미확인
+   - 빌더 메뉴는 실행하지 않음
+-----------------------------------------
+[Log #39] [2026-04-30 15:04:55]
+ * 사용자: 문제 없어?
+ * 작업:
+   - Step 4~6 구현 후 위험 지점 재검토
+   - GameManager.OnSubmit은 아직 SceneTransition.SceneAToTalkScene으로 연결되지 않았고 기존 ReactionUI 흐름이 남아 있어 Step 7 미완 상태임을 확인
+   - 새 스크립트 포함 dotnet build는 성공했지만 Unity batch refresh는 라이선스 초기화 실패로 Editor 컴파일/실플레이 검증은 미확인 상태임을 정리
+   - 빌더 메뉴 미실행으로 실제 TalkScene.unity / SceneA.unity asset 반영은 아직 사용자 승인 필요 상태임을 확인
+-----------------------------------------
+[Log #40] [2026-04-30 15:08:09]
+ * 사용자: 너 유니티 연결 돼지?
+ * 작업:
+   - Unity MCP 도구 검색 및 연결 확인
+   - manage_editor telemetry_status 성공 응답 확인
+   - manage_scene get_active 성공 응답 확인: 현재 활성 씬은 Assets/Scenes/SceneA.unity, rootCount 2, isDirty false
+-----------------------------------------
+[Log #41] [2026-04-30 15:10:55]
+ * 사용자: 그럼 이어서 하면 되나?
+ * 작업:
+   - Unity MCP 연결 가능 상태를 바탕으로 다음 진행 순서 정리
+   - 권장 순서: Unity refresh/compile 확인 → Step 7 SUBMIT 결과 Phase 전환 연결 → 사용자 승인 후 빌더 실행/씬 반영
+-----------------------------------------
+[Log #42] [2026-04-30 15:11:45]
+ * 사용자: 빌더 실행이 뭐야? 좀 쉽게 말해줘 너가 하려는 순서들
+ * 작업:
+   - 빌더 실행의 의미와 위험성, 다음 작업 순서를 쉬운 용어로 설명 예정
+-----------------------------------------
+[Log #43] [2026-04-30 15:12:36]
+ * 사용자: 일단 지금은 근데 반응이 없지 않아? 대사도 한 흐름밖에없잖아
+ * 작업:
+   - 현재 구현 상태 설명 예정: TalkSceneController 내부에는 결과 Phase 대사 배열이 있으나 SUBMIT 연결 전이라 실제 흐름은 PreDraw 한 줄기만 살아 있음
+   - Step 7에서 GameManager.OnSubmit → 점수 기반 Phase 결정 → SceneTransition.SceneAToTalkScene 연결이 필요함을 정리
+-----------------------------------------
+[Log #44] [2026-04-30 15:13:16]
+ * 사용자: 이미 분기도 만들었어?
+ * 작업:
+   - 현재 구현 범위 설명 예정: TalkScenePhase enum과 ResultGood/ResultBad 대사 묶음은 생성 완료, 제출 결과에 따라 Phase를 선택하는 실제 연결은 아직 미구현
+-----------------------------------------
+[Log #45] [2026-04-30 15:13:46]
+ * 사용자: 아.. ㅇㅋ 그럼 계획에 문제 없어?
+ * 작업:
+   - 현재 Scene A 컷/모드 시스템 계획의 타당성 검토 예정
+   - 계획 자체는 타당하나 Step 7 결과 분기 연결, 빌더 실행 전 씬 덮어쓰기 확인, Unity 실제 컴파일/플레이 검증이 남은 리스크임을 정리
+-----------------------------------------
+[Log #46] [2026-04-30 15:18:28]
+ * 사용자: 응 2분기로 해. 나머지 계획대로 근데, 씬 바뀌는거 너 제대로 알아?
+ * 작업:
+   - 결과 반응은 Good / Bad 2분기로 진행하기로 확정
+   - 씬 전환 이해 설명 예정: TalkScene PreDraw → SceneA, Submit → TalkScene ResultGood/ResultBad, PersistentCanvas/CustomerStage는 DontDestroyOnLoad 유지, 씬 전용 UI만 교체
+   - 이어서 Step 7 구현 예정
+-----------------------------------------
+[Log #47] [2026-04-30 15:21:58]
+ * 사용자: (동일 지시 계속) Good / Bad 2분기와 나머지 계획대로 진행
+ * 작업:
+   - GameManager.OnSubmit 수정: 점수 계산 및 ReactionSystem.Evaluate 후 ReactionLevel이 Satisfied / VerySatisfied면 ResultGood, Neutral 이하면 ResultBad로 결정
+   - 기존 ReactionUI.Show 직접 호출 대신 SceneTransition.EnsureInstance().SceneAToTalkScene(nextPhase) 호출로 TalkScene 결과 Phase 복귀 연결
+   - 기존 ReactionUI 호출은 필요 시 수동 호출 가능한 ShowLegacyReaction 메서드로 분리
+   - Unity MCP force refresh/compile 실행, Assembly-CSharp.dll 갱신 확인, 최신 Editor.log tail 기준 error CS / warning CS 없음
+   - dotnet build Assembly-CSharp.csproj --no-restore 성공(경고 0, 오류 0)
+   - SCENE_A_PLAN.md / SCENE_A_CUT_PLAN.md / PROGRESS.md Step 7 완료 반영, PATCH_NOTES.js v22 prepend
+   - 빌더 메뉴는 실행하지 않음
+-----------------------------------------
+[Log #48] [2026-04-30 15:23:20]
+ * 사용자: 응 문젱벗는지 확인하고 없으면  다음거 진행해
+ * 작업:
+   - 진행 중: Unity 활성 씬 확인(SceneA.unity, dirty false, rootCount 2)
+   - 최신 Editor.log tail에서 error CS / warning CS는 보이지 않으나 MCP 내부 통신 예외 로그가 섞여 있어 컴파일 문제와 분리 확인 중
+   - 이어서 dotnet build, 씬 계층, 다음 단계 진행 가능 여부 확인 예정
+-----------------------------------------
+[Log #49] [2026-04-30 15:48:10]
+ * 사용자: (동일 지시 계속) 문제 확인 후 다음 단계 진행
+ * 작업:
+   - dotnet build Assembly-CSharp.csproj --no-restore 성공(경고 0, 오류 0)
+   - Unity 메뉴 실행: Yorki/Build Talk Scene, Yorki/Build Scene A
+   - Unity refresh/compile 재확인, 최신 로그 기준 error CS / warning CS 없음
+   - TalkScene.unity 생성 확인: PersistentBootstrap / SceneCanvas / SceneTransition / TalkSceneController 루트 구조 확인
+   - SceneA.unity 재생성 확인: Main Camera / EventSystem / SceneCanvas / SceneTransition 루트 구조 확인
+   - Build Settings 문제 발견: SampleScene만 등록되어 있어 런타임 LoadScene 실패 가능성 확인
+   - Build Settings 수정: TalkScene.unity buildIndex 0, SceneA.unity buildIndex 1 등록 후 File/Save Project로 EditorBuildSettings.asset 저장 확인
+   - Unity Scene validate 실행: TalkScene / SceneA 모두 missing script 0, broken prefab 0
+   - TalkScene에서 짧은 Play smoke test 후 정지, 최신 로그 기준 NullReference/MissingReference/씬 로드 실패/CS 오류 없음
+   - 최종 활성 씬은 TalkScene.unity로 돌려둠
+   - Play Ref 폴더의 상위 PNG 삭제 + 분류 폴더 추가 상태 발견. Scene A 작업 범위 밖이며 사용자/외부 정리 가능성이 있어 되돌리지 않음
+   - PROGRESS.md / PATCH_NOTES.js v23 반영
+-----------------------------------------
+[Log #50] [2026-04-30 15:52:55]
+ * 사용자: 문제 없어? 깃 커밋이랑 푸쉬는 자주 해
+ * 작업:
+   - 현재 문제 여부 확인 및 git status 확인
+   - Scene A 관련 변경만 선별 커밋/푸시 예정
+   - Play Ref 폴더의 삭제/분류 변경은 이번 Scene A 작업 범위 밖이라 커밋 제외 예정
+-----------------------------------------
 */

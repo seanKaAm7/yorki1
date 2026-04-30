@@ -1,5 +1,49 @@
 /*
 ---------
+[2026-04-30] (v23)
+ * Unity 빌더 실행 — Yorki/Build Talk Scene, Yorki/Build Scene A 실행으로 TalkScene.unity 생성 및 SceneA.unity 재생성
+ * TalkScene.unity — PersistentBootstrap / PersistentCanvas / CustomerStage / DialogueBox / TalkSceneController / SceneTransition 계층 생성 확인
+ * SceneA.unity — Main Camera / EventSystem / SceneCanvas(RightPanel) / SceneTransition 계층 생성 확인
+ * Build Settings 수정 — TalkScene.unity buildIndex 0, SceneA.unity buildIndex 1로 등록 후 File/Save Project로 EditorBuildSettings.asset 저장
+ * Unity 씬 검증 — TalkScene, SceneA 모두 missing script 0 / broken prefab 0
+ * Play smoke test — TalkScene에서 짧게 Play 진입 후 정지, 최신 로그 기준 NullReference/MissingReference/씬 로드 실패/CS 오류 없음
+ * 주의: Play Ref 폴더는 상위 PNG 삭제 + 분류 폴더 추가 상태가 감지됨. Scene A 작업 범위 밖이라 되돌리지 않음
+---------
+[2026-04-30] (v22)
+ * GameManager.cs — SUBMIT 후 점수 계산 결과를 Good / Bad 2분기로 변환하여 TalkScene 결과 Phase로 복귀하도록 연결
+ * 결과 기준 — Satisfied / VerySatisfied는 ResultGood, Neutral 이하 등급은 ResultBad
+ * 기존 ReactionUI 직접 출력 대신 SceneTransition.SceneAToTalkScene(nextPhase) 호출
+ * Unity MCP force refresh/compile 완료 — Assembly-CSharp.dll 갱신 확인, 최신 Editor.log tail 기준 error CS / warning CS 없음
+ * dotnet build Assembly-CSharp.csproj --no-restore 성공 — 경고 0, 오류 0
+ * SCENE_A_PLAN.md / SCENE_A_CUT_PLAN.md / PROGRESS.md — Step 7 완료 상태 반영
+---------
+[2026-04-30] (v21)
+ * TalkSceneController.cs 신규 — PreDraw / ResultGood / ResultBad Phase별 대사 출력, 타이핑, 포즈 그룹 pause, ▼ 깜빡임, 12번째 대사 후 SceneA 자동 전환
+ * SceneTransition.cs 신규 — TalkScene ↔ SceneA 전환 싱글턴, CustomerStage 0.7초 EaseInOut 슬라이드, DialogueBox / RightPanel 페이드, 0.5초 시점 LoadScene
+ * CustomerDisplay.cs — neutral 말하기 3프레임 ping-pong(Talk2 → Neutral_Talk → Talk1 → Neutral_Talk) 0.1초, gesture 2프레임 0.12초 토글 부활
+ * TalkSceneBuilder.cs / SceneABuilder.cs — CanvasGroup, SceneTransition, TalkSceneController 자동 연결 코드 추가
+ * GameManager.cs — TalkScene 결과 Phase 전달용 currentTalkPhase 추가
+ * SCENE_A_PLAN.md / SCENE_A_CUT_PLAN.md / PROGRESS.md — Step 4~6 완료 상태 반영
+ * 검증: 새 스크립트 포함 임시 csproj로 dotnet build 성공(경고 0, 오류 0). Unity batch refresh는 라이선스 초기화 실패로 중단되어 Editor 컴파일은 미확인
+---------
+[2026-04-30] (v20)
+ * Scene A 컷 시스템 Step 1~3 이어받기 — PersistentBootstrap.cs 신규, TalkSceneBuilder.cs 신규, SceneABuilder.cs 수정 상태 확인
+ * TalkSceneBuilder.cs — TalkScene.unity 자동 빌더 추가: PersistentCanvas + CustomerStage(배경/손님) + 중앙 DialogueBox(760x200) 생성
+ * PersistentBootstrap.cs — 손님/배경 영속 객체 참조 보유 및 DontDestroyOnLoad 처리
+ * SceneABuilder.cs — SceneA를 작업대 전용 씬으로 축소, 손님/배경/대사창 생성 제거, RightPanel만 생성
+ * Unity refresh/compile 확인 — 최신 Editor.log 기준 error CS / warning CS 없음, 신규 스크립트 .meta 생성 확인
+ * SCENE_A_PLAN.md / SCENE_A_CUT_PLAN.md — Step 1~3 완료 상태 반영
+ * 빌더 메뉴 실행은 하지 않음 — SceneA.unity 덮어쓰기 방지
+---------
+[2026-04-30] (v19)
+ * SCENE_A_CUT_PLAN.md 신규 — Scene A 두 모드 분리(대화 풀화면 / 캔버스 분할) + 역재식 컷 토글 메커니즘
+ * 흐름: 대화 모드(인사+잡담 13줄) → 자동 전환 → 캔버스 모드(침묵, 그리기) → SUBMIT → 대화 모드(결과 반응 4줄)
+ * 전환 0.7초 EaseInOutQuad — 손님 좌측 슬라이드+축소(420→320), 배경 좌측 슬라이드, 작업대 페이드인/아웃
+ * 풀화면 대사 모드 수치: 손님 (0,-40)/420×420, 배경 (0,0)/1280×720, 대사창 (0,-260)/760×200
+ * 컷 토글: neutral 감정 3프레임 ping-pong (Talk2→Neutral_Talk→Talk1→Neutral_Talk) 0.1초, idle은 입 다문 컷 고정
+ * Customer Neutral 컷 4종 입 단계 매핑(닫힘/살짝/반/활짝) 정리
+ * 4개 PNG idle 입 다문 버전으로 복원 커밋 (자동 커밋이 입 벌린 상태로 덮어쓴 문제 수정)
+---------
 [2026-04-29] (v18)
  * UI 계획.md 작성 — Scene A 드로잉 UI 디제틱 방향 확정 (초안.png 기반)
  * 도구 3종(펜/붓/지우개), 굵기 슬라이더 2~24px(도구별 따로 기억), 팔레트 8칸(검정/흰색/밝은살색/어두운살색/진한갈색/중간갈색/회색/붉은분홍)

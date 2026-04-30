@@ -4,6 +4,7 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+    public static TalkScenePhase currentTalkPhase = TalkScenePhase.PreDraw;
 
     public enum GameState { Narrator, Drawing }
     public GameState currentState { get; private set; }
@@ -76,7 +77,21 @@ public class GameManager : MonoBehaviour
 
         Debug.Log($"[GameManager] 점수: {score} | 반응: {result.level} | 수입: +€{result.payment}");
 
-        if (reactionUI != null)
+        TalkScenePhase nextPhase = IsGoodResult(result.level)
+            ? TalkScenePhase.ResultGood
+            : TalkScenePhase.ResultBad;
+
+        SceneTransition.EnsureInstance().SceneAToTalkScene(nextPhase);
+    }
+
+    static bool IsGoodResult(ReactionLevel level)
+    {
+        return level == ReactionLevel.Satisfied || level == ReactionLevel.VerySatisfied;
+    }
+
+    public void ShowLegacyReaction(ReactionResult result)
+    {
+        if (reactionUI != null && currentCustomer != null)
             reactionUI.Show(result, currentCustomer.customerName);
     }
 }

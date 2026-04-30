@@ -1,6 +1,6 @@
 # Yorki, the Portraitist — 구현 진행 현황
 
-> 마지막 업데이트: 2026-04-29
+> 마지막 업데이트: 2026-04-30
 
 ---
 
@@ -10,7 +10,7 @@
 |------|------|
 | 드로잉 캔버스 | 기본 완료, UI 연결 미완 |
 | 채점 / 반응 시스템 | 프로토타입 완료 |
-| SceneA (손님 대화 씬) | 진행 중 |
+| SceneA (TalkScene/SceneA 분리) | 진행 중 |
 | 하루 루프 | 미착수 |
 | 자리 선택 | 미착수 |
 | 저녁 정산 화면 | 미착수 |
@@ -19,7 +19,7 @@
 
 ## 씬 현황
 
-### SceneA.unity — 손님 대화 씬
+### Scene A — TalkScene / SceneA 분리
 
 **완료:**
 - [x] Canvas 레이아웃 (1280×720, 좌측 캐릭터 / 우측 드로잉 패널)
@@ -33,10 +33,16 @@
 - [x] 엔터/스페이스로 대사 진행
 - [x] 대사 즉시 출력 (타이핑 중 입력 시)
 - [x] 씬 자동 빌드 메뉴 (Yorki/Build Scene A)
+- [x] PersistentBootstrap — 손님 + 배경을 PersistentCanvas / CustomerStage 영속 객체로 분리
+- [x] TalkSceneController — PreDraw / ResultGood / ResultBad 대사 페이즈 분리
+- [x] SceneTransition — TalkScene ↔ SceneA 슬라이드 + 페이드 전환 코루틴
+- [x] CustomerDisplay — neutral 3프레임 ping-pong, gesture 2프레임 토글 활성화
+- [x] SUBMIT 결과 분기 — Satisfied 이상은 ResultGood, Neutral 이하는 ResultBad로 TalkScene 복귀
+- [x] 씬 반영 — TalkScene.unity 생성, SceneA.unity 작업대 전용 구조로 재생성
+- [x] Build Settings — TalkScene(buildIndex 0), SceneA(buildIndex 1) 등록
 
 **미완료:**
 - [ ] 오른쪽 드로잉 패널 연결 (캔버스 + 팔레트 + 툴바)
-- [ ] 결과 반응 분기 (점수 기반 잘/못 그렸을 때 전환)
 - [ ] 한글 폰트 적용
 - [ ] NameTag (화자 이름 탭)
 - [ ] 손님 교체 (다음 손님 등장 흐름)
