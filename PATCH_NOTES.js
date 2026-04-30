@@ -1,5 +1,12 @@
 /*
 ---------
+[2026-04-30] (v25)
+ * SceneA G/B 임시 결과 전환 입력 미동작 수정
+ * 원인: SceneATestTransitionInput이 SceneTransition 오브젝트에 같이 붙어 있어 TalkScene에서 넘어온 영속 SceneTransition과 중복 처리될 때 오브젝트째 Destroy되어 입력도 사라짐
+ * SceneABuilder.cs — SceneATestTransitionInput을 SceneTransition과 분리된 별도 루트 오브젝트로 생성하도록 수정
+ * SceneA.unity 재생성 확인 — 루트에 SceneTransition과 SceneATestTransitionInput이 각각 별도 오브젝트로 존재
+ * 검증 — dotnet build 성공(경고 0, 오류 0), SceneA validate 통과(missing script 0, broken prefab 0), 활성 씬 TalkScene으로 복귀
+---------
 [2026-04-30] (v24)
  * SceneATestTransitionInput.cs 신규 — UI 구현 전 SceneA → TalkScene 결과 복귀 테스트용 임시 입력 추가
  * 임시 키 입력 — SceneA에서 G 키는 ResultGood, B 키는 ResultBad로 SceneTransition.SceneAToTalkScene 호출

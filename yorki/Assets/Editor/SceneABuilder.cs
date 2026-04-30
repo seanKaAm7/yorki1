@@ -58,7 +58,10 @@ public class SceneABuilder
         // SceneTransition — TalkScene에서 넘어온 싱글턴이 없을 때 직접 실행용 폴백
         var transitionGO = new GameObject("SceneTransition");
         transitionGO.AddComponent<SceneTransition>();
-        transitionGO.AddComponent<SceneATestTransitionInput>();
+
+        // 임시 테스트 입력 — SceneTransition과 분리해야 영속 전환 싱글턴 중복 제거 때 같이 사라지지 않음
+        var testInputGO = new GameObject("SceneATestTransitionInput");
+        testInputGO.AddComponent<SceneATestTransitionInput>();
 
         if (!AssetDatabase.IsValidFolder("Assets/Scenes"))
             AssetDatabase.CreateFolder("Assets", "Scenes");

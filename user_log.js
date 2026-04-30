@@ -493,4 +493,22 @@
    - 활성 씬을 TalkScene.unity로 복귀
    - PATCH_NOTES.js v24 / PROGRESS.md 반영
 -----------------------------------------
+[Log #56] [2026-04-30 16:31:13]
+ * 사용자: 잘 된건가? / g나 b눌러도 뭐 안뜨는데
+ * 작업:
+   - G/B 임시 입력 미동작 원인 조사 시작
+   - 유력 원인: SceneATestTransitionInput을 SceneTransition 오브젝트에 같이 붙였는데, TalkScene에서 넘어올 때 영속 SceneTransition 인스턴스가 이미 살아 있어 SceneA의 중복 SceneTransition 오브젝트가 Destroy되고 입력 컴포넌트도 같이 사라짐
+   - 해결 방향: SceneATestTransitionInput을 SceneTransition 오브젝트에서 분리해 별도 SceneATestTransitionInput 오브젝트로 생성하도록 SceneABuilder 수정 예정
+-----------------------------------------
+[Log #57] [2026-04-30 16:33:47]
+ * 사용자: (동일 문제 계속) G/B 입력 미동작 수정
+ * 작업:
+   - SceneABuilder.cs 수정: SceneATestTransitionInput을 SceneTransition 오브젝트에서 분리해 별도 루트 오브젝트로 생성
+   - Yorki/Build Scene A 재실행 후 SceneA.unity 확인: 루트 5개, SceneTransition과 SceneATestTransitionInput이 각각 별도 오브젝트로 존재
+   - find_gameobjects by_component SceneATestTransitionInput 성공: 1개 발견
+   - SceneA validate 통과(missing script 0, broken prefab 0)
+   - dotnet build 성공(경고 0, 오류 0)
+   - 활성 씬을 TalkScene.unity로 복귀
+   - PATCH_NOTES.js v25 반영
+-----------------------------------------
 */
