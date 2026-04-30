@@ -1,5 +1,12 @@
 /*
 ---------
+[2026-04-30] (v24)
+ * SceneATestTransitionInput.cs 신규 — UI 구현 전 SceneA → TalkScene 결과 복귀 테스트용 임시 입력 추가
+ * 임시 키 입력 — SceneA에서 G 키는 ResultGood, B 키는 ResultBad로 SceneTransition.SceneAToTalkScene 호출
+ * SceneABuilder.cs — SceneTransition 오브젝트에 SceneATestTransitionInput 자동 부착
+ * SceneA.unity 재생성 — SceneTransition에 SceneATestTransitionInput 컴포넌트 반영 확인
+ * 검증 — dotnet build 성공(경고 0, 오류 0), SceneA/TalkScene validate 통과(missing script 0, broken prefab 0), 활성 씬 TalkScene으로 복귀
+---------
 [2026-04-30] (v23)
  * Unity 빌더 실행 — Yorki/Build Talk Scene, Yorki/Build Scene A 실행으로 TalkScene.unity 생성 및 SceneA.unity 재생성
  * TalkScene.unity — PersistentBootstrap / PersistentCanvas / CustomerStage / DialogueBox / TalkSceneController / SceneTransition 계층 생성 확인

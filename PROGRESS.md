@@ -40,6 +40,7 @@
 - [x] SUBMIT 결과 분기 — Satisfied 이상은 ResultGood, Neutral 이하는 ResultBad로 TalkScene 복귀
 - [x] 씬 반영 — TalkScene.unity 생성, SceneA.unity 작업대 전용 구조로 재생성
 - [x] Build Settings — TalkScene(buildIndex 0), SceneA(buildIndex 1) 등록
+- [x] 임시 전환 테스트 입력 — SceneA에서 G/B 키로 ResultGood/ResultBad TalkScene 복귀
 
 **미완료:**
 - [ ] 오른쪽 드로잉 패널 연결 (캔버스 + 팔레트 + 툴바)

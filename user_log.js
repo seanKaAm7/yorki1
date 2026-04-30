@@ -461,4 +461,36 @@
    - 원격 업데이트: ff2c763..2196d43 main -> main
    - 커밋 후 남은 변경은 Play Ref 폴더의 삭제/분류 변경뿐임을 확인
 -----------------------------------------
+[Log #52] [2026-04-30 16:03:32]
+ * 사용자: 다 한거야 그럼?? / ui는 나중에 할거야 일단 그 씬 바뀌는거부터 완성하고서 할거야
+ * 작업:
+   - 현재 완료 범위와 남은 범위 설명
+   - UI 작업은 보류하고 Scene 전환 완성을 우선하기로 정리
+   - 현재 SceneA에는 실제 Submit UI / DrawingCanvas가 없어 SceneA → TalkScene 결과 복귀를 UI 없이 검증하려면 임시 테스트 입력 또는 별도 전환 트리거가 필요함을 확인
+-----------------------------------------
+[Log #53] [2026-04-30 16:04:06]
+ * 사용자: ㅇㅇ
+ * 작업:
+   - UI 구현 전 SceneA → TalkScene 결과 복귀를 테스트할 임시 키 입력 추가 예정
+   - 계획: SceneA에서 G 키는 ResultGood, B 키는 ResultBad로 SceneTransition.SceneAToTalkScene 호출
+   - 나중에 UI Submit 연결 후 제거하기 쉽게 별도 스크립트로 분리 예정
+-----------------------------------------
+[Log #54] [2026-04-30 16:13:05]
+ * 사용자: ㅇㅇ
+ * 작업:
+   - SceneA.unity에 임시 G/B 결과 전환 입력을 실제 반영하도록 Yorki/Build Scene A 실행 예정
+   - 이후 컴파일/씬 계층/씬 검증/짧은 전환 테스트 가능 여부 확인 예정
+-----------------------------------------
+[Log #55] [2026-04-30 16:21:29]
+ * 사용자: (동일 승인 계속) 임시 G/B 결과 전환 입력 반영
+ * 작업:
+   - SceneATestTransitionInput.cs 신규 작성: SceneA에서 G 키는 ResultGood, B 키는 ResultBad로 SceneTransition.SceneAToTalkScene 호출
+   - SceneABuilder.cs 수정: SceneTransition 오브젝트에 SceneATestTransitionInput 자동 부착
+   - Unity refresh/compile 후 dotnet build 성공(경고 0, 오류 0)
+   - Yorki/Build Scene A 재실행: 첫 시도는 MCP 응답 타임아웃, 두 번째 시도 성공
+   - SceneA.unity 확인: SceneTransition 오브젝트에 SceneTransition + SceneATestTransitionInput 컴포넌트 존재
+   - SceneA validate 통과(missing script 0, broken prefab 0), TalkScene validate 통과(missing script 0, broken prefab 0)
+   - 활성 씬을 TalkScene.unity로 복귀
+   - PATCH_NOTES.js v24 / PROGRESS.md 반영
+-----------------------------------------
 */
