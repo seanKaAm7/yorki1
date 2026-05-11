@@ -553,4 +553,18 @@ seanka@ga-eul-ui-MacBookPro 2D %  이래
    - git status 확인: main은 origin/main보다 3커밋 ahead, user_log.js 수정 남아 있음
    - user_log.js 기록을 별도 커밋 후 git push origin main 재시도 예정
 -----------------------------------------
+[Log #63] [2026-05-11 12:34:47]
+ * 사용자: (동일 요청 계속) push 재시도
+ * 작업:
+   - user_log.js 커밋 생성: ac7f676 log github auth retry
+   - git push origin main 재시도 결과: 여전히 GitHub가 4ts955x8sh-cyber 계정으로 인증되어 seanKaAm7/yorki1 push 권한 없음(403)
+   - 다음 조치: macOS keychain의 github.com 인증 삭제 후 seanKaAm7 토큰으로 재인증 필요
+-----------------------------------------
+[Log #64] [2026-05-11 12:40:10]
+ * 사용자: GitHub Personal Access Token 제공 후 "이걸로 ㄱ" 요청(토큰 원문은 보안상 로그에서 제외)
+ * 작업:
+   - 토큰이 대화/터미널 경로에 노출된 것으로 판단
+   - 현재 로컬 main은 origin/main보다 4커밋 ahead, user_log.js 추가 기록만 미커밋 상태 확인
+   - 노출 토큰은 폐기 후 새 토큰으로 로컬 터미널에서 push 인증하는 방식 안내 예정
+-----------------------------------------
 */
