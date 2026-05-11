@@ -23,8 +23,6 @@ public class CustomerDisplay : MonoBehaviour
     public Sprite gestureTalk;
 
     [Header("Settings")]
-    public float talkFrameInterval = 0.10f;
-    public float gestureTalkFrameInterval = 0.12f;
     public float shakeMagnitude = 6f;
     public float shakeDuration = 0.25f;
 
@@ -32,6 +30,8 @@ public class CustomerDisplay : MonoBehaviour
     Coroutine _talkCoroutine;
     string _currentEmotion = "neutral";
     Vector2 _originPos;
+    int _talkFrameIndex;
+    bool _gestureTalkOpen;
 
     void Awake()
     {
@@ -44,21 +44,10 @@ public class CustomerDisplay : MonoBehaviour
     {
         _currentEmotion = emotion;
         if (_talkCoroutine != null) StopCoroutine(_talkCoroutine);
-
-        if (emotion == "neutral")
-        {
-            _talkCoroutine = StartCoroutine(NeutralTalkLoop());
-            return;
-        }
-
-        if (emotion == "gesture")
-        {
-            _talkCoroutine = StartCoroutine(GestureTalkLoop());
-            return;
-        }
-
-        SetEmotionSprite(emotion);
         _talkCoroutine = null;
+        _talkFrameIndex = 0;
+        _gestureTalkOpen = false;
+        SetEmotionSprite(emotion);
     }
 
     // 대사 끝 시 호출
@@ -82,43 +71,45 @@ public class CustomerDisplay : MonoBehaviour
         StartCoroutine(ShakeCoroutine());
     }
 
+    public void AdvanceTalkFrame()
+    {
+        if (_currentEmotion == "neutral")
+        {
+            Sprite[] frames = GetNeutralTalkFrames();
+            _img.sprite = frames[_talkFrameIndex];
+            _talkFrameIndex = (_talkFrameIndex + 1) % frames.Length;
+            return;
+        }
+
+        if (_currentEmotion == "gesture")
+        {
+            _gestureTalkOpen = !_gestureTalkOpen;
+            _img.sprite = _gestureTalkOpen && gestureTalk != null ? gestureTalk : GetIdleSprite("gesture");
+        }
+    }
+
+    public void CloseMouth()
+    {
+        if (_currentEmotion == "neutral" || _currentEmotion == "gesture")
+            SetEmotionSprite(_currentEmotion);
+    }
+
     void OnDisable()
     {
         if (_talkCoroutine != null) StopCoroutine(_talkCoroutine);
         _talkCoroutine = null;
+        CloseMouth();
     }
 
-    IEnumerator NeutralTalkLoop()
+    Sprite[] GetNeutralTalkFrames()
     {
-        Sprite[] frames = new Sprite[]
+        return new Sprite[]
         {
             talk2 != null ? talk2 : GetTalkSprite("neutral"),
             neutralTalk != null ? neutralTalk : GetTalkSprite("neutral"),
             talk1 != null ? talk1 : GetTalkSprite("neutral"),
             neutralTalk != null ? neutralTalk : GetTalkSprite("neutral"),
         };
-
-        int index = 0;
-        while (true)
-        {
-            _img.sprite = frames[index];
-            index = (index + 1) % frames.Length;
-            yield return new WaitForSeconds(talkFrameInterval);
-        }
-    }
-
-    IEnumerator GestureTalkLoop()
-    {
-        Sprite idle = gestureIdle != null ? gestureIdle : neutralIdle;
-        Sprite talk = gestureTalk != null ? gestureTalk : idle;
-        bool useTalk = false;
-
-        while (true)
-        {
-            _img.sprite = useTalk ? talk : idle;
-            useTalk = !useTalk;
-            yield return new WaitForSeconds(gestureTalkFrameInterval);
-        }
     }
 
     IEnumerator ShakeCoroutine()

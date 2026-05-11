@@ -511,4 +511,16 @@
    - 활성 씬을 TalkScene.unity로 복귀
    - PATCH_NOTES.js v25 반영
 -----------------------------------------
+[Log #58] [2026-05-11 12:13:19]
+ * 사용자: 무슨 인형처럼 계속 말하는데.. 이거 왜이래 / 무슨 인형처럼 계속 말하는데.. 이거 왜이래
+ * 작업:
+   - 증상 원인 조사 시작
+   - 가능성 1: CustomerDisplay의 TalkLoop가 대사 종료/씬 전환/비활성화 시 확실히 idle로 복귀하지 않아 입 애니메이션이 계속 도는 문제
+   - 가능성 2: TalkSceneController 또는 PersistentBootstrap/SceneTransition 중복으로 대사 진행이 반복 실행되는 문제
+   - 코드와 씬 계층 확인 후 수정 예정
+   - 원인 판단: 입 애니메이션이 대사 글자 출력과 무관하게 0.1초 독립 루프로 계속 돌아 인형처럼 보이는 연출 문제
+   - CustomerDisplay.cs 수정: TalkLoop 코루틴 방식 제거, StartTalking은 표정 준비만 하고 AdvanceTalkFrame / CloseMouth를 통해 외부에서 입 프레임 제어
+   - TalkSceneController.cs 수정: 타이핑 중 글자 출력 시에만 입 프레임을 넘기고, 공백/마침표/쉼표/물음표/느낌표/말줄임표 등에서는 입을 닫도록 처리
+   - 검증: dotnet build 성공(경고 0, 오류 0), Unity refresh/compile 완료, 최신 Editor.log 기준 error CS / warning CS / NullReference 없음, TalkScene validate 통과
+-----------------------------------------
 */

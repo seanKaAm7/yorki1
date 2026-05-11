@@ -186,6 +186,10 @@ public class TalkSceneController : MonoBehaviour
         {
             if (dialogueText != null)
                 dialogueText.text += c;
+            if (ShouldMoveMouth(c))
+                customerDisplay?.AdvanceTalkFrame();
+            else
+                customerDisplay?.CloseMouth();
             yield return new WaitForSeconds(typeSpeed);
         }
 
@@ -264,6 +268,26 @@ public class TalkSceneController : MonoBehaviour
                 return "thinking";
             default:
                 return "reaction";
+        }
+    }
+
+    static bool ShouldMoveMouth(char c)
+    {
+        if (char.IsWhiteSpace(c))
+            return false;
+
+        switch (c)
+        {
+            case '.':
+            case ',':
+            case '?':
+            case '!':
+            case '…':
+            case '~':
+            case '-':
+                return false;
+            default:
+                return true;
         }
     }
 }

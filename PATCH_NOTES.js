@@ -1,5 +1,11 @@
 /*
 ---------
+[2026-05-11] (v26)
+ * CustomerDisplay.cs — 말하기 입 애니메이션을 독립 루프 방식에서 타이핑 글자 기반 프레임 전환 방식으로 변경
+ * TalkSceneController.cs — 글자가 출력될 때만 입 프레임을 넘기고, 공백/마침표/쉼표/물음표/느낌표/말줄임표 등에서는 입을 닫도록 처리
+ * 의도 — 0.1초 간격으로 계속 입을 벌리는 인형 같은 느낌을 줄이고, 대사 출력 리듬에 맞춰 말하는 느낌으로 조정
+ * 검증 — dotnet build 성공(경고 0, 오류 0), Unity refresh/compile 완료, 최신 Editor.log 기준 error CS / warning CS / NullReference 없음, TalkScene validate 통과
+---------
 [2026-04-30] (v25)
  * SceneA G/B 임시 결과 전환 입력 미동작 수정
  * 원인: SceneATestTransitionInput이 SceneTransition 오브젝트에 같이 붙어 있어 TalkScene에서 넘어온 영속 SceneTransition과 중복 처리될 때 오브젝트째 Destroy되어 입력도 사라짐
