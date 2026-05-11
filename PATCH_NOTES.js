@@ -1,5 +1,10 @@
 /*
 ---------
+[2026-05-11] (v29)
+ * SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md 팔레트 구현 설명 보강
+ * 팔레트는 고정 색상 버튼이 아니라 초기 RGB값을 가진 수정 가능 슬롯 8개로 관리한다고 명시
+ * 슬롯 클릭 시 현재 슬롯 색으로 그리기 색을 바꾸고, COLOR 박스 RGB 조작 시 선택/편집 슬롯의 RGB값과 표시 색, DrawingCanvas 색을 함께 갱신하는 흐름 정리
+---------
 [2026-05-11] (v28)
  * SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md 보강
  * `ui 초안 최종.png`는 단순 참고가 아니라 최종 배치 기준이며, Play Ref/UI 초안의 PNG들을 그대로 활용해야 한다는 원칙 명시
