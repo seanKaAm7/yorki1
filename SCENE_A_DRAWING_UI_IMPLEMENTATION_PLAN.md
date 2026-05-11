@@ -8,7 +8,15 @@
 
 ## 1. 목표
 
-SceneA의 우측 작업대 영역을 `Play Ref/UI 초안/전체/ui 초안 최종.png`에 가깝게 구현한다.
+SceneA의 우측 작업대 영역을 `Play Ref/UI 초안/전체/ui 초안 최종.png`와 같은 배치로 구현한다.
+
+중요 원칙:
+
+- `ui 초안 최종.png`는 단순 참고 이미지가 아니라 최종 배치 기준이다.
+- 각 UI 요소는 가능한 한 `Play Ref/UI 초안` 안의 PNG를 그대로 활용한다.
+- 버튼/슬라이더/팔레트/RGB 피커의 위치, 크기, 간격은 `ui 초안 최종.png`와 맞춘다.
+- 임의로 새 레이아웃을 만들거나 기능 때문에 위치를 바꾸지 않는다.
+- 기능 구현은 이미지 위에 클릭 영역과 드래그 영역을 얹는 방식으로 한다.
 
 핵심은 새 드로잉 기능을 처음부터 다시 만드는 것이 아니라, 이미 존재하는 `DrawingCanvas.cs`를 `ui 고정.png`의 테이프로 붙은 종이 영역 위에 실제 드로잉 레이어로 얹는 것이다.
 
@@ -58,7 +66,7 @@ ui final.png:     1187 x 1325
 ui 초안 최종.png: 1185 x 1327
 ```
 
-구현에서는 원본 픽셀 크기를 그대로 쓰기보다, Unity의 SceneA 우측 패널 기준 좌표로 맞춘다.
+구현에서는 `ui 초안 최종.png`의 픽셀 배치를 기준으로 각 요소의 RectTransform 좌표를 산출한 뒤, Unity의 SceneA 우측 패널 기준 좌표로 변환한다.
 
 SceneA UI 기준:
 
@@ -76,6 +84,25 @@ RightPanel 오른쪽: 320
 RightPanel 위: 360
 RightPanel 아래: -360
 ```
+
+배치 방식:
+
+1. `ui 초안 최종.png`를 기준 레퍼런스 오버레이로 둔다.
+2. `ui 고정.png`를 `DeskBase`로 배치한다.
+3. 좌측 도구, 우측 버튼, 슬라이더 손잡이, RGB 피커 요소를 각 초안 PNG로 얹는다.
+4. 각 오브젝트의 위치는 기준 이미지와 최대한 픽셀 단위로 맞춘다.
+5. 마지막에 `ui 초안 최종.png`와 SceneA 스크린샷을 비교해 어긋난 부분을 조정한다.
+
+허용되는 차이:
+
+- Unity 캔버스 기준 해상도 변환으로 생기는 1~2px 수준의 미세한 차이
+- 실제 드로잉 입력을 위해 종이 안쪽에 투명 클릭 영역을 얹는 것
+
+허용하지 않는 차이:
+
+- 도구/버튼/팔레트/RGB 피커의 위치를 임의 변경
+- PNG 대신 새로 그린 UI로 대체
+- `ui 초안 최종.png`와 다른 레이아웃으로 재해석
 
 ---
 
@@ -678,11 +705,13 @@ Texture2D playerTex = drawingCanvas.GetFlattenedTextureForScoring();
 ### Step 2. SceneABuilder에 정적 작업대 배치
 
 - `DeskBase`를 `RightPanel` 전체에 배치
+- `ui 초안 최종.png`를 임시 레퍼런스 오버레이로 켜고 끌 수 있게 하거나, 씬 캡처와 이미지 비교가 가능하게 기준 좌표를 기록
 - 우선 버튼 기능 없이 이미지 배치만 확인
 
 검증:
 
 - SceneA 열었을 때 `ui 고정.png`가 오른쪽 작업대에 맞게 보이는지
+- `ui 초안 최종.png` 기준과 종이/THICKNESS/PALETTE/COLOR 위치가 같은지
 - 좌측 손님/영속 배경과 충돌하지 않는지
 
 ### Step 3. DrawingCanvas를 종이 위에 배치
@@ -810,10 +839,12 @@ Texture2D playerTex = drawingCanvas.GetFlattenedTextureForScoring();
 문제:
 
 - `ui 고정.png`의 원본 비율과 `RightPanel` 비율이 완전히 같지 않을 수 있다.
+- `ui 고정.png`, `ui final.png`, `ui 초안 최종.png`의 원본 픽셀 크기도 서로 다르다.
 
 대응:
 
-- `DeskBase`를 우측 패널에 맞춘 뒤, 종이/버튼 위치를 수동 RectTransform 값으로 조정
+- `ui 초안 최종.png`를 최종 배치 기준으로 삼고, 실제 Unity 배치는 해당 기준에 맞게 RectTransform 좌표를 조정
+- `ui 고정.png`는 배경판으로 쓰되, 유동 PNG들의 위치는 `ui 초안 최종.png`와 같은 시각 결과가 나오도록 맞춤
 - 필요하면 기준 좌표를 별도 상수로 관리
 
 ### 14.2 DrawingCanvas가 종이 질감을 덮는 문제
@@ -888,4 +919,3 @@ Texture2D playerTex = drawingCanvas.GetFlattenedTextureForScoring();
 2. RGB 피커는 처음부터 완전 구현할지, 1차에서는 숫자 변경 중심으로 갈지
 3. `SceneATestTransitionInput`을 Submit 연결 후 바로 제거할지, 디버그용으로 잠시 남길지
 4. `Yorki/Build Scene A` 실행으로 씬을 덮어써도 되는 시점
-

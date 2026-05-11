@@ -1,5 +1,10 @@
 /*
 ---------
+[2026-05-11] (v28)
+ * SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md 보강
+ * `ui 초안 최종.png`는 단순 참고가 아니라 최종 배치 기준이며, Play Ref/UI 초안의 PNG들을 그대로 활용해야 한다는 원칙 명시
+ * 구현 방식 추가 — 기준 이미지를 오버레이/스크린샷 비교 기준으로 삼아 좌측 도구, 우측 버튼, 팔레트, THICKNESS, COLOR/RGB 피커 위치를 동일하게 맞춤
+---------
 [2026-05-11] (v27)
  * SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md 신규 작성
  * Play Ref/UI 초안 기준으로 SceneA 드로잉 UI 구현 계획 상세화
