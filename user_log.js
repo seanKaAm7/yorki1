@@ -559,4 +559,12 @@
    - 대사 본문 오브젝트는 SceneCanvas > DialogueBox > DialogueText, 현재 Font Size는 22
    - ContinueArrow는 대화 진행 화살표이며 현재 Font Size는 14
 -----------------------------------------
+[Log #64] [2026-05-11 12:59:03]
+ * 사용자: 현재 캔버스 기능이 있는지만 확인 요청
+ * 작업:
+   - DrawingCanvas.cs 존재 확인: 마우스 드로잉, Undo, 지우개, 브러시 크기/색, GetDrawTexture 기능 있음
+   - SampleScene에는 DrawingPanel/DrawingCanvas/DrawingToolbar 흔적 확인
+   - 현재 SceneA.unity에는 DrawingCanvas, DrawingPanel, DrawingToolbar, RawImage 드로잉 캔버스가 배치되어 있지 않음
+   - SceneABuilder 기준 RightPanel만 생성하고 드로잉 UI는 추후로 남겨둔 상태 확인
+-----------------------------------------
 */
