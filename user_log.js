@@ -567,4 +567,12 @@
    - 현재 SceneA.unity에는 DrawingCanvas, DrawingPanel, DrawingToolbar, RawImage 드로잉 캔버스가 배치되어 있지 않음
    - SceneABuilder 기준 RightPanel만 생성하고 드로잉 UI는 추후로 남겨둔 상태 확인
 -----------------------------------------
+[Log #65] [2026-05-11 13:03:41]
+ * 사용자: Play Ref의 ui 고정/ui final/ui 초안 최종/유동 초안/좌우 툴 초안을 기준으로, 기존 DrawingCanvas를 테이프로 붙은 종이 영역에 배치하고 RGB 기능까지 포함하는 최종 UI 구현 계획을 자세히 요청
+ * 작업:
+   - Play Ref/UI 초안 폴더 구조 확인
+   - ui 고정.png, ui final.png, ui 초안 최종.png 및 좌우 툴/슬라이더 이미지 치수 확인
+   - 핵심 기준 정리: ui 고정은 기본 배경판, ui final은 RGB 닫힌 완성형, ui 초안 최종은 RGB 열린 목표 상태
+   - 현재 코드 확인: DrawingCanvas 기능은 존재하나 SceneA에는 미배치, DrawingToolbar는 구식 버튼 구조라 신규 디제틱 UI 컨트롤러로 대체 필요
+-----------------------------------------
 */
