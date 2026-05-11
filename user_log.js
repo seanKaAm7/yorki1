@@ -538,4 +538,12 @@
    - user_log.js의 GitHub 인증 실패/재시도 세부 로그를 개발 맥락용 요약으로 압축
    - Scene A 구현, 전환, 버그 수정 관련 로그는 유지
 -----------------------------------------
+[Log #61] [2026-05-11 12:48:55]
+ * 사용자: 현재 게임의 해상도/화면 비율 질문
+ * 작업:
+   - ProjectSettings.asset 확인: 기본 데스크톱 해상도 1920x1080, Web 기본 960x600
+   - SceneA/TalkScene CanvasScaler 확인: 기준 해상도 1280x720, MatchWidthOrHeight 0.5
+   - SceneA/TalkScene 카메라 확인: Orthographic, Size 5
+   - 현재 Scene A 계열 UI 기준 비율은 16:9로 판단
+-----------------------------------------
 */
