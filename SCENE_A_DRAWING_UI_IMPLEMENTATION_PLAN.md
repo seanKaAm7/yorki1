@@ -10,6 +10,8 @@
 - [x] 1차: `SceneABuilder`에서 `ui 고정.png` 기반 `DeskBase` 생성
 - [x] 1차: `SceneABuilder`에서 종이 영역 위 `DrawingPaper > DrawingSurface` 생성
 - [x] 1차: `DrawingSurface`에 기존 `DrawingCanvas`를 투명 배경 모드로 배치
+- [x] 1.5차: 종이 영역 그리기 동작 확인 (실제로 선이 그려짐)
+- [ ] 1.5차: `DrawingSurface` 영역을 종이 전체와 동일하게 확장 (테이프와 약간 겹쳐도 무방)
 - [ ] 2차: 좌측 도구 / THICKNESS / Undo / Redo / Reset 연결
 - [ ] 3차: 팔레트 / RGB 피커 / Submit 결과 연결
 
@@ -255,7 +257,20 @@ DrawingPaper
 └─ DrawingSurface           // 투명 RawImage + DrawingCanvas
 ```
 
-`DrawingSurface`는 종이의 테두리 안쪽만 클릭되게 한다. 테이프나 종이 밖 나무판에는 선이 그려지지 않아야 한다.
+`DrawingSurface`는 종이 전체 영역을 그대로 드로잉 가능 영역으로 사용한다.
+
+영역 규칙(2026-05-11 업데이트):
+
+- 종이 가장자리와 드로잉 가능 영역이 동일해야 한다.
+- 테이프와 일부 겹치는 부분에서도 그릴 수 있게 허용한다.
+- 종이 바깥 나무판 영역에는 선이 그려지지 않게 한다.
+- 이전 계획에서는 테이프 안쪽만 입력되게 했으나, 1차 구현 결과 드로잉 영역이 종이보다 좁아 보인다는 사용자 피드백을 반영해 종이 전체로 확장한다.
+
+구현 방향:
+
+- `DrawingSurface` RectTransform을 `ui 고정.png` 안 종이 픽셀 경계와 정확히 같게 조정한다.
+- 종이가 약간 기울어져 있다면 우선 axis-aligned bounding box 기준으로 잡고, 시각적으로 잘리는 곳이 없는지 확인한다.
+- 필요 시 종이 모양에 맞춘 마스크/폴리곤 입력 영역으로 보강하되, 1차 목표는 종이 = 드로잉 영역 1:1.
 
 ### 5.3 DrawingCanvas 수정 방향
 
@@ -939,7 +954,20 @@ Texture2D playerTex = drawingCanvas.GetFlattenedTextureForScoring();
 - 구현은 빌더를 기준으로 하되, 실행 전 사용자 확인
 - 수동 씬 수정만 하는 방식은 피하고, 재현 가능한 빌더 코드에 반영
 
-### 14.5 RGB 피커 구현 범위 과대
+### 14.5 종이와 드로잉 영역 불일치
+
+문제:
+
+- 1차 구현 결과 `DrawingSurface`의 입력 영역이 종이보다 좁아, 종이 가장자리 근처에서 선이 끊기는 현상이 발생한다.
+
+대응:
+
+- `DrawingSurface` RectTransform을 종이 픽셀 경계와 동일하게 확장
+- 테이프와 약간 겹치는 부분은 허용
+- 종이 바깥 나무판은 입력에서 제외
+- 변경 후 종이 가장자리에서 선이 끝까지 그어지는지 시각 검증
+
+### 14.6 RGB 피커 구현 범위 과대
 
 문제:
 

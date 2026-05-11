@@ -624,4 +624,37 @@
    - 검증: dotnet build 성공(경고 0, 오류 0), Unity refresh/compile 완료, SceneA validate 통과
    - PROGRESS.md / SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md / PATCH_NOTES.js v30 반영
 -----------------------------------------
+[Log #72] [2026-05-11 15:07:22]
+ * 사용자: 야 프로젝트 보여?
+ * 작업: 현재 프로젝트 전체 진행 상황 정리 및 설명 준비
+
+[Log #73] [2026-05-11 15:14:33]
+ * 사용자: 코덱스에서 1차 완료했습니다. 커밋 048456c implement scene a drawing ui phase 1. 검증 완료. 이제 배치가 맞는지 시각적으로 확인해야 함.
+ * 작업:
+   - 코덱스의 1차 완료 내용 확인 (Play Ref PNG 복사, DeskBase 배치, DrawingCanvas 투명 배경 배치, GetFlattenedTextureForScoring 함수 추가)
+   - 현재 확인 범위: RightPanel 구조 시각화, 작업대 배치와 ui 초안 최종.png 기준 맞춤 확인, 종이 위치 확인
+   - 다음 범위(2차): 좌측 도구/THICKNESS/Undo/Redo/Reset 연결 (SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md Step 4~6)
+-----------------------------------------
+[Log #74] [2026-05-11 15:22:10]
+ * 사용자: 일단 그리니까 그려지긴 해. 그리고 캔버스 드로잉 할 수 있는 공간이 종이보다 조금 작다. 종이와 동일하면 좋겠다. 테이프부분이 겹쳐도 상관없다. 계획을 추가해
+ * 작업:
+   - SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md 5.2 섹션 수정 — DrawingSurface는 종이 전체 영역을 그대로 사용하며, 테이프 겹침 허용, 종이 바깥 나무판은 제외하는 영역 규칙 추가
+   - 14.5 위험 요소 신설 — 종이와 드로잉 영역 불일치 + 대응 방향 기록(기존 14.5 RGB 피커 항목은 14.6으로 번호 이동)
+   - 구현 상태 — 1.5차 항목 신설(DrawingSurface 영역을 종이 전체로 확장)
+   - PATCH_NOTES.js v31 prepend
+   - 코드 수정/빌더 실행은 진행하지 않음 — 사용자 요청에 따라 계획 추가만 수행
+-----------------------------------------
+[Log #75] [2026-05-11 16:00:00]
+ * 사용자: ui 초안 최종.png가 최종버전이고 ui final.png에서 color박스에 너가 ui 초안 최종.png처럼 추가해야해. ui 초안 최종.png와 똑같이 만들어야함. 비슷하게도 아니고 / 1.5차 그만해 2차부터해 / 베이스는 ui 고정이고 좌측 툴 초안, 우측 틀 초안, 유동 초안 이미지들을 다 활용해서 ui 초안 최종.png 모습으로 만들어야해
+ * 작업:
+   - 1.5차 (DrawingSurface 영역 확장) 변경 되돌림 — SceneABuilder 기본값 (-18, 118) / (304, 366) 복원
+   - DrawingCanvas.cs 확장 — DrawingTool enum, SetTool 메서드, 도구별 굵기 기억(Pen/Brush/Eraser), Redo 스택, Picker 색 추출, brushAlpha 옵션 추가
+   - ThicknessSliderHandle.cs 신규 — 세로 슬라이더 드래그 입력, minY/maxY 범위 + ValueChanged 이벤트
+   - SceneADrawingUIController.cs 신규 — 도구 4종 선택, sprite 토글, 슬라이더 값 적용, Undo/Redo/Reset 버튼 처리, ColorPicked 이벤트로 Picker 색 흡수
+   - SceneABuilder.cs 대폭 수정 — 좌측 도구 4종(PenButton/BrushButton/EraserButton/PickerButton), THICKNESS 트랙+SliderHandle+ThicknessText+PreviewDot, UndoButton/RedoButton/ResetButton/SubmitButton, SceneADrawingUIController 자동 부착 + 모든 참조 연결
+   - 위치값 시도 1: 좌측 도구 toolStartY=250, "8 px"=312, undo/redo=12, reset=-98, submit=-210 → ReferenceOverlay 비교 시 도구는 위로, 텍스트/버튼도 위로 튐
+   - 위치값 시도 2: toolStartY=215, "8 px"=268, undo/redo=25, reset=-88, submit=-198 → ui 초안 최종.png와 거의 일치
+   - Yorki/Build Scene A 실행 후 캡처 검증 — 좌측 도구 4종, THICKNESS 슬라이더, Undo/Redo/Reset/Submit 시각 모두 ui 초안 최종.png와 거의 일치
+   - 미구현 (3차): COLOR 박스 안 RGB 피커, 팔레트 8칸 기본 색상
+-----------------------------------------
 */
