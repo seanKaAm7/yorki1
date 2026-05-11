@@ -523,4 +523,34 @@
    - TalkSceneController.cs 수정: 타이핑 중 글자 출력 시에만 입 프레임을 넘기고, 공백/마침표/쉼표/물음표/느낌표/말줄임표 등에서는 입을 닫도록 처리
    - 검증: dotnet build 성공(경고 0, 오류 0), Unity refresh/compile 완료, 최신 Editor.log 기준 error CS / warning CS / NullReference 없음, TalkScene validate 통과
 -----------------------------------------
+[Log #59] [2026-05-11 12:21:16]
+ * 사용자: 인증이 끊겼어? 어떻게 하게
+ * 작업:
+   - git remote 및 credential helper 확인
+   - origin은 https://github.com/seanKaAm7/yorki1.git, credential helper는 osxkeychain, 로컬 main은 origin/main보다 3커밋 ahead 상태 확인
+   - GitHub 인증 복구 방법 설명 예정
+-----------------------------------------
+[Log #60] [2026-05-11 12:27:35]
+ * 사용자: printf "protocol=https\nhost=github.com\n" | git credential-osxkeychain erase .. / 아 미안 / Password for 'https://seanKaAm7@github.com':
+remote: Invalid username or token. Password authentication is not supported for Git operations.
+fatal: Authentication failed for 'https://github.com/seanKaAm7/yorki1.git/'
+seanka@ga-eul-ui-MacBookPro 2D %  이래
+ * 작업:
+   - 사용자가 GitHub 계정 비밀번호를 입력해 HTTPS push 인증이 실패한 상태로 판단
+   - GitHub HTTPS push에는 비밀번호가 아니라 Personal Access Token을 password 자리에 붙여넣어야 함을 안내 예정
+-----------------------------------------
+[Log #61] [2026-05-11 12:33:40]
+ * 사용자: setting에서 developer setting을 못찾겠어 짧게 알려주셈 / 다시 해볼래?
+ * 작업:
+   - GitHub settings tokens 직접 주소 안내
+   - git push origin main 재시도
+   - 결과: 인증은 되었으나 GitHub가 4ts955x8sh-cyber 계정으로 인식, seanKaAm7/yorki1 저장소 push 권한 없음(403)
+   - 해결 필요: macOS keychain의 github.com 인증을 지우고 seanKaAm7 계정 토큰으로 다시 인증하거나, 해당 계정에 repo push 권한 부여
+-----------------------------------------
+[Log #62] [2026-05-11 12:34:11]
+ * 사용자: 다시 하자 / 다시 하자
+ * 작업:
+   - git status 확인: main은 origin/main보다 3커밋 ahead, user_log.js 수정 남아 있음
+   - user_log.js 기록을 별도 커밋 후 git push origin main 재시도 예정
+-----------------------------------------
 */
