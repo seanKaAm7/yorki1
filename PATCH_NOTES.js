@@ -1,5 +1,12 @@
 /*
 ---------
+[2026-05-11] (v27)
+ * SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md 신규 작성
+ * Play Ref/UI 초안 기준으로 SceneA 드로잉 UI 구현 계획 상세화
+ * 기준 이미지 역할 정리 — ui 고정.png는 기본 작업대, ui final.png는 RGB 닫힌 완성 참고, ui 초안 최종.png는 RGB 열린 목표 상태
+ * 핵심 구현 방향 — 기존 DrawingCanvas를 테이프로 붙은 종이 영역 위 투명 드로잉 레이어로 배치하고 제출 시 흰 배경 합성 텍스처 사용
+ * THICKNESS 구현 방향 — ui 고정의 세로 홈 위에 유동 초안/슬라이더 바.png를 SliderHandle로 얹어 2px~24px 범위 드래그 처리
+---------
 [2026-05-11] (v26)
  * CustomerDisplay.cs — 말하기 입 애니메이션을 독립 루프 방식에서 타이핑 글자 기반 프레임 전환 방식으로 변경
  * TalkSceneController.cs — 글자가 출력될 때만 입 프레임을 넘기고, 공백/마침표/쉼표/물음표/느낌표/말줄임표 등에서는 입을 닫도록 처리
