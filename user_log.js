@@ -524,54 +524,18 @@
    - 검증: dotnet build 성공(경고 0, 오류 0), Unity refresh/compile 완료, 최신 Editor.log 기준 error CS / warning CS / NullReference 없음, TalkScene validate 통과
 -----------------------------------------
 [Log #59] [2026-05-11 12:21:16]
- * 사용자: 인증이 끊겼어? 어떻게 하게
+ * 사용자: GitHub 인증 복구 및 push 진행 요청
  * 작업:
-   - git remote 및 credential helper 확인
-   - origin은 https://github.com/seanKaAm7/yorki1.git, credential helper는 osxkeychain, 로컬 main은 origin/main보다 3커밋 ahead 상태 확인
-   - GitHub 인증 복구 방법 설명 예정
+   - macOS keychain/HTTPS 인증 문제로 push가 지연됨
+   - Personal Access Token 재인증 방식 안내, 노출 가능성이 있는 토큰은 로그에 기록하지 않음
+   - 사용자 로컬 터미널에서 push 성공 확인: 55e3b20..7f3ad7d main -> main
+   - 이후 성공 로그 커밋 b652fd7도 origin/main에 push 완료
+   - 최종 확인: main과 origin/main 동기화됨
 -----------------------------------------
-[Log #60] [2026-05-11 12:27:35]
- * 사용자: printf "protocol=https\nhost=github.com\n" | git credential-osxkeychain erase .. / 아 미안 / Password for 'https://seanKaAm7@github.com':
-remote: Invalid username or token. Password authentication is not supported for Git operations.
-fatal: Authentication failed for 'https://github.com/seanKaAm7/yorki1.git/'
-seanka@ga-eul-ui-MacBookPro 2D %  이래
+[Log #60] [2026-05-11 12:42:36]
+ * 사용자: 로그파일에서 필요 없는것들은 지워줄래
  * 작업:
-   - 사용자가 GitHub 계정 비밀번호를 입력해 HTTPS push 인증이 실패한 상태로 판단
-   - GitHub HTTPS push에는 비밀번호가 아니라 Personal Access Token을 password 자리에 붙여넣어야 함을 안내 예정
------------------------------------------
-[Log #61] [2026-05-11 12:33:40]
- * 사용자: setting에서 developer setting을 못찾겠어 짧게 알려주셈 / 다시 해볼래?
- * 작업:
-   - GitHub settings tokens 직접 주소 안내
-   - git push origin main 재시도
-   - 결과: 인증은 되었으나 GitHub가 4ts955x8sh-cyber 계정으로 인식, seanKaAm7/yorki1 저장소 push 권한 없음(403)
-   - 해결 필요: macOS keychain의 github.com 인증을 지우고 seanKaAm7 계정 토큰으로 다시 인증하거나, 해당 계정에 repo push 권한 부여
------------------------------------------
-[Log #62] [2026-05-11 12:34:11]
- * 사용자: 다시 하자 / 다시 하자
- * 작업:
-   - git status 확인: main은 origin/main보다 3커밋 ahead, user_log.js 수정 남아 있음
-   - user_log.js 기록을 별도 커밋 후 git push origin main 재시도 예정
------------------------------------------
-[Log #63] [2026-05-11 12:34:47]
- * 사용자: (동일 요청 계속) push 재시도
- * 작업:
-   - user_log.js 커밋 생성: ac7f676 log github auth retry
-   - git push origin main 재시도 결과: 여전히 GitHub가 4ts955x8sh-cyber 계정으로 인증되어 seanKaAm7/yorki1 push 권한 없음(403)
-   - 다음 조치: macOS keychain의 github.com 인증 삭제 후 seanKaAm7 토큰으로 재인증 필요
------------------------------------------
-[Log #64] [2026-05-11 12:40:10]
- * 사용자: GitHub Personal Access Token 제공 후 "이걸로 ㄱ" 요청(토큰 원문은 보안상 로그에서 제외)
- * 작업:
-   - 토큰이 대화/터미널 경로에 노출된 것으로 판단
-   - 현재 로컬 main은 origin/main보다 4커밋 ahead, user_log.js 추가 기록만 미커밋 상태 확인
-   - 노출 토큰은 폐기 후 새 토큰으로 로컬 터미널에서 push 인증하는 방식 안내 예정
------------------------------------------
-[Log #65] [2026-05-11 12:41:22]
- * 사용자: git push 성공 출력 공유
- * 작업:
-   - git status 확인: main과 origin/main 동기화됨
-   - push 성공 범위 확인: 55e3b20..7f3ad7d main -> main
-   - 성공 로그 기록 후 추가 로그 커밋/푸시 예정
+   - user_log.js의 GitHub 인증 실패/재시도 세부 로그를 개발 맥락용 요약으로 압축
+   - Scene A 구현, 전환, 버그 수정 관련 로그는 유지
 -----------------------------------------
 */
