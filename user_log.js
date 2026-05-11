@@ -611,4 +611,17 @@
    - 구현 기준 문서, 배치 원칙, 팔레트/THICKNESS 요구사항 정리 완료 상태 확인
    - 다음 단계는 SceneA 드로잉 UI 1차 구현이며, 빌더 실행은 SceneA.unity 덮어쓰기 가능성이 있어 사용자 승인 필요
 -----------------------------------------
+[Log #71] [2026-05-11 13:33:40]
+ * 사용자: 시작 전 백업/커밋/푸시 여부 질문 후 1차 구현 진행 지시
+ * 작업:
+   - 시작 전 git 상태 확인: main과 origin/main 동기화됨
+   - 1차 범위 확정: UI PNG 에셋 복사/import 준비, ui 고정 기반 작업대 배치, 종이 영역 위 DrawingCanvas 배치
+   - 사용자 진행 승인에 따라 SceneABuilder 수정 및 SceneA 재생성까지 진행 예정
+   - Play Ref/UI 초안 PNG를 Assets/Sprites/UI/SceneA 하위로 복사
+   - DrawingCanvas.cs 수정: transparentBackground 추가, 투명 초기화/지우개 처리, GetFlattenedTextureForScoring 추가
+   - SceneABuilder.cs 수정: DeskBase, ReferenceOverlay_FinalRGB, DrawingPaper, DrawingSurface + DrawingCanvas 생성
+   - Yorki/Build Scene A 실행으로 SceneA.unity 재생성
+   - 검증: dotnet build 성공(경고 0, 오류 0), Unity refresh/compile 완료, SceneA validate 통과
+   - PROGRESS.md / SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md / PATCH_NOTES.js v30 반영
+-----------------------------------------
 */

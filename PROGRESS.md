@@ -1,6 +1,6 @@
 # Yorki, the Portraitist — 구현 진행 현황
 
-> 마지막 업데이트: 2026-04-30
+> 마지막 업데이트: 2026-05-11
 
 ---
 
@@ -41,9 +41,10 @@
 - [x] 씬 반영 — TalkScene.unity 생성, SceneA.unity 작업대 전용 구조로 재생성
 - [x] Build Settings — TalkScene(buildIndex 0), SceneA(buildIndex 1) 등록
 - [x] 임시 전환 테스트 입력 — SceneA에서 G/B 키로 ResultGood/ResultBad TalkScene 복귀
+- [x] 드로잉 UI 1차 — Play Ref/UI 초안 PNG 에셋 복사, `ui 고정.png` 기반 DeskBase 배치, 종이 영역 위 DrawingCanvas 투명 레이어 배치
 
 **미완료:**
-- [ ] 오른쪽 드로잉 패널 연결 (캔버스 + 팔레트 + 툴바)
+- [ ] 오른쪽 드로잉 패널 기능 연결 (도구 버튼 + THICKNESS + 팔레트 + RGB 피커 + Undo/Redo/Reset/Submit)
 - [ ] 한글 폰트 적용
 - [ ] NameTag (화자 이름 탭)
 - [ ] 손님 교체 (다음 손님 등장 흐름)
@@ -61,6 +62,8 @@
 - [x] Undo — Cmd+Z (macOS) / Ctrl+Z (Windows), 최대 20단계
 - [x] 툴바 (DrawingToolbar.cs — Submit, Reset, 도구 버튼)
 - [x] Submit → GameManager.OnSubmit() 연동
+- [x] SceneA용 투명 드로잉 레이어 모드 (`transparentBackground`)
+- [x] 채점용 흰 배경 합성 텍스처 (`GetFlattenedTextureForScoring`)
 
 **미완료:**
 - [ ] 팔레트 UI (색상 선택 버튼들)

@@ -1,8 +1,19 @@
 # Scene A 드로잉 UI 구현 계획
 
 > 작성일: 2026-05-11
-> 상태: 구현 전 상세 계획
+> 상태: 1차 구현 진행 중
 > 기준 자료: `Play Ref/UI 초안`
+
+## 구현 상태
+
+- [x] 1차: UI PNG 에셋을 `Assets/Sprites/UI/SceneA`로 복사
+- [x] 1차: `SceneABuilder`에서 `ui 고정.png` 기반 `DeskBase` 생성
+- [x] 1차: `SceneABuilder`에서 종이 영역 위 `DrawingPaper > DrawingSurface` 생성
+- [x] 1차: `DrawingSurface`에 기존 `DrawingCanvas`를 투명 배경 모드로 배치
+- [ ] 2차: 좌측 도구 / THICKNESS / Undo / Redo / Reset 연결
+- [ ] 3차: 팔레트 / RGB 피커 / Submit 결과 연결
+
+---
 
 ---
 

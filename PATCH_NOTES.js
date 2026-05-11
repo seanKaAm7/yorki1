@@ -1,5 +1,13 @@
 /*
 ---------
+[2026-05-11] (v30)
+ * Scene A 드로잉 UI 1차 구현
+ * Play Ref/UI 초안 PNG들을 `Assets/Sprites/UI/SceneA` 하위 ASCII 경로로 복사하고 Unity .meta 생성 확인
+ * SceneABuilder.cs — `ui 고정.png` 기반 DeskBase, 비활성 ReferenceOverlay_FinalRGB, DrawingPaper/DrawingSurface 생성
+ * DrawingCanvas.cs — SceneA 종이 질감을 덮지 않도록 투명 배경 모드 추가, 채점용 흰 배경 합성 텍스처 함수 추가
+ * SceneA.unity — Yorki/Build Scene A 실행으로 DeskBase와 DrawingCanvas가 붙은 DrawingSurface 반영
+ * 검증 — dotnet build 성공(경고 0, 오류 0), Unity refresh/compile 완료, SceneA validate 통과(missing script 0, broken prefab 0)
+---------
 [2026-05-11] (v29)
  * SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md 팔레트 구현 설명 보강
  * 팔레트는 고정 색상 버튼이 아니라 초기 RGB값을 가진 수정 가능 슬롯 8개로 관리한다고 명시

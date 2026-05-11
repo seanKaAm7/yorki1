@@ -8,6 +8,7 @@ public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IDragHandler, I
     public int canvasWidth = 512;
     public int canvasHeight = 512;
     public Color backgroundColor = Color.white;
+    public bool transparentBackground = false;
     public Color brushColor = Color.black;
     public int brushSize = 6;
 
@@ -44,7 +45,7 @@ public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IDragHandler, I
     void ResetCanvas()
     {
         Color32[] pixels = new Color32[canvasWidth * canvasHeight];
-        Color32 bg = backgroundColor;
+        Color32 bg = transparentBackground ? new Color32(0, 0, 0, 0) : backgroundColor;
         for (int i = 0; i < pixels.Length; i++)
             pixels[i] = bg;
         drawTexture.SetPixels32(pixels);
@@ -139,7 +140,26 @@ public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IDragHandler, I
     }
 
     public void SetBrushColor(Color color) { brushColor = color; }
-    public void SetEraser() { brushColor = backgroundColor; }
+    public void SetEraser() { brushColor = transparentBackground ? new Color(0f, 0f, 0f, 0f) : backgroundColor; }
     public void SetBrushSize(int size) { brushSize = size; }
     public Texture2D GetDrawTexture() { return drawTexture; }
+
+    public Texture2D GetFlattenedTextureForScoring()
+    {
+        Texture2D flattened = new Texture2D(canvasWidth, canvasHeight, TextureFormat.RGBA32, false);
+        Color32[] source = drawTexture.GetPixels32();
+        Color32[] pixels = new Color32[source.Length];
+
+        for (int i = 0; i < source.Length; i++)
+        {
+            Color src = source[i];
+            Color mixed = Color.Lerp(backgroundColor, src, src.a);
+            mixed.a = 1f;
+            pixels[i] = mixed;
+        }
+
+        flattened.SetPixels32(pixels);
+        flattened.Apply();
+        return flattened;
+    }
 }
