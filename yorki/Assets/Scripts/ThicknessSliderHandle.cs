@@ -10,8 +10,9 @@ public class ThicknessSliderHandle : MonoBehaviour, IPointerDownHandler, IDragHa
     public RectTransform handle;
 
     [Header("Settings")]
-    public float minY = -120f;
-    public float maxY = 120f;
+    public float centerY = 0f;
+    public float minY = -70f;
+    public float maxY = 70f;
 
     public System.Action<float> ValueChanged;
 
@@ -45,7 +46,7 @@ public class ThicknessSliderHandle : MonoBehaviour, IPointerDownHandler, IDragHa
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             track, eventData.position, eventData.pressEventCamera, out localPos);
 
-        float clampedY = Mathf.Clamp(localPos.y, minY, maxY);
+        float clampedY = Mathf.Clamp(localPos.y - centerY, minY, maxY);
         SetHandleY(clampedY);
 
         float t = Mathf.InverseLerp(minY, maxY, clampedY);
@@ -65,7 +66,7 @@ public class ThicknessSliderHandle : MonoBehaviour, IPointerDownHandler, IDragHa
     {
         if (handle == null) return;
         Vector2 pos = handle.anchoredPosition;
-        pos.y = y;
+        pos.y = centerY + y;
         handle.anchoredPosition = pos;
     }
 }

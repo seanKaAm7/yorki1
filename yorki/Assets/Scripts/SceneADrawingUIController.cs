@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 // SceneA 드로잉 UI 전체 상태 관리.
-// 좌측 도구 4종 (base/selecting/selected 3상태) + THICKNESS + Undo/Redo/Reset + 팔레트 8칸.
+// 좌측 도구 4종 + THICKNESS + Undo/Redo/Reset/Submit + 팔레트 8칸 + COLOR RGB 박스.
 public class SceneADrawingUIController : MonoBehaviour
 {
     [Header("Drawing Canvas")]
@@ -45,6 +45,7 @@ public class SceneADrawingUIController : MonoBehaviour
     public Image undoButton;
     public Image redoButton;
     public Image resetButton;
+    public Image submitButton;
 
     [Header("Action Sprites")]
     public Sprite undoActive;
@@ -57,8 +58,23 @@ public class SceneADrawingUIController : MonoBehaviour
     public Image[] paletteSlots;
     public Color[] paletteDefaultColors;
 
+    [Header("COLOR / RGB Box")]
+    public RawImage saturationValueArea;
+    public RawImage hueBar;
+    public InputField rInput;
+    public InputField gInput;
+    public InputField bInput;
+    public Image colorPreview;
+
     private DrawingTool currentTool = DrawingTool.Pen;
     private int selectedPaletteIndex = 0;
+    private float currentHue = 0.08f;
+    private float currentSaturation = 0.28f;
+    private float currentValue = 0.91f;
+    private bool isUpdatingRgbFields;
+    private Texture2D saturationValueTexture;
+    private Texture2D hueTexture;
+    const int colorTextureSize = 128;
 
     void Start()
     {
@@ -70,8 +86,10 @@ public class SceneADrawingUIController : MonoBehaviour
         WireActionButton(undoButton,  OnUndoClicked);
         WireActionButton(redoButton,  OnRedoClicked);
         WireActionButton(resetButton, OnResetClicked);
+        WireActionButton(submitButton, OnSubmitClicked);
 
         WirePaletteSlots();
+        WireColorBox();
 
         if (thicknessSlider != null)
         {
@@ -92,10 +110,11 @@ public class SceneADrawingUIController : MonoBehaviour
         if (paletteSlots != null && paletteSlots.Length > 0 && paletteSlots[0] != null)
         {
             selectedPaletteIndex = 0;
-            if (drawingCanvas != null) drawingCanvas.SetBrushColor(paletteSlots[0].color);
+            ApplyColorToSelection(paletteSlots[0].color, true);
         }
 
         SelectTool(DrawingTool.Pen);
+        RefreshPaletteSelectionVisuals();
         RefreshActionVisuals();
     }
 
@@ -108,6 +127,9 @@ public class SceneADrawingUIController : MonoBehaviour
         }
         if (thicknessSlider != null)
             thicknessSlider.ValueChanged -= OnThicknessChanged;
+
+        if (saturationValueTexture != null) Destroy(saturationValueTexture);
+        if (hueTexture != null) Destroy(hueTexture);
     }
 
     void WireToolButton(Image image, DrawingTool tool)
@@ -156,6 +178,7 @@ public class SceneADrawingUIController : MonoBehaviour
             if (slot == null) continue;
             int idx = i;
             EnsureRaycast(slot);
+            EnsurePaletteOutline(slot, i == selectedPaletteIndex);
             EventTrigger trigger = slot.GetComponent<EventTrigger>();
             if (trigger == null) trigger = slot.gameObject.AddComponent<EventTrigger>();
             trigger.triggers.Clear();
@@ -168,6 +191,50 @@ public class SceneADrawingUIController : MonoBehaviour
     void EnsureRaycast(Image image)
     {
         image.raycastTarget = true;
+    }
+
+    void EnsureRaycast(Graphic graphic)
+    {
+        if (graphic != null) graphic.raycastTarget = true;
+    }
+
+    void WireColorBox()
+    {
+        WireColorDragArea(saturationValueArea, OnSaturationValuePointer);
+        WireColorDragArea(hueBar, OnHuePointer);
+
+        WireRgbInput(rInput);
+        WireRgbInput(gInput);
+        WireRgbInput(bInput);
+
+        GenerateHueTexture();
+        RefreshColorBoxVisuals();
+    }
+
+    void WireColorDragArea(Graphic graphic, System.Action<PointerEventData> handler)
+    {
+        if (graphic == null) return;
+        EnsureRaycast(graphic);
+        EventTrigger trigger = graphic.GetComponent<EventTrigger>();
+        if (trigger == null) trigger = graphic.gameObject.AddComponent<EventTrigger>();
+        trigger.triggers.Clear();
+
+        EventTrigger.Entry down = new EventTrigger.Entry { eventID = EventTriggerType.PointerDown };
+        down.callback.AddListener(data => handler((PointerEventData)data));
+        trigger.triggers.Add(down);
+
+        EventTrigger.Entry drag = new EventTrigger.Entry { eventID = EventTriggerType.Drag };
+        drag.callback.AddListener(data => handler((PointerEventData)data));
+        trigger.triggers.Add(drag);
+    }
+
+    void WireRgbInput(InputField input)
+    {
+        if (input == null) return;
+        input.contentType = InputField.ContentType.IntegerNumber;
+        input.characterLimit = 3;
+        input.onEndEdit.RemoveListener(OnRgbInputEdited);
+        input.onEndEdit.AddListener(OnRgbInputEdited);
     }
 
     enum ToolVisualState { Base, Selecting, Selected }
@@ -252,6 +319,37 @@ public class SceneADrawingUIController : MonoBehaviour
         if (drawingCanvas != null) drawingCanvas.ClearCanvas();
     }
 
+    void OnSubmitClicked()
+    {
+        if (drawingCanvas == null)
+        {
+            Debug.LogWarning("[SceneADrawingUIController] Submit 실패 — drawingCanvas가 연결되지 않음");
+            return;
+        }
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.drawingCanvas = drawingCanvas;
+            GameManager.Instance.OnSubmit();
+            return;
+        }
+
+        CustomerData fallbackCustomer = Resources.Load<CustomerData>("Customers/SampleCustomer");
+        if (fallbackCustomer == null)
+        {
+            Debug.LogWarning("[SceneADrawingUIController] Submit fallback — SampleCustomer가 없어 ResultGood으로 복귀");
+            SceneTransition.EnsureInstance().SceneAToTalkScene(TalkScenePhase.ResultGood);
+            return;
+        }
+
+        Texture2D playerTex = drawingCanvas.GetFlattenedTextureForScoring();
+        int score = ScoreCalculator.Calculate(playerTex, fallbackCustomer);
+        ReactionResult result = ReactionSystem.Evaluate(score, fallbackCustomer);
+        TalkScenePhase nextPhase = IsGoodResult(result.level) ? TalkScenePhase.ResultGood : TalkScenePhase.ResultBad;
+        Debug.Log($"[SceneADrawingUIController] Submit fallback 점수: {score} | 반응: {result.level}");
+        SceneTransition.EnsureInstance().SceneAToTalkScene(nextPhase);
+    }
+
     void RefreshActionVisuals()
     {
         if (drawingCanvas == null) return;
@@ -268,7 +366,8 @@ public class SceneADrawingUIController : MonoBehaviour
 
         selectedPaletteIndex = idx;
         Color c = paletteSlots[idx].color;
-        if (drawingCanvas != null) drawingCanvas.SetBrushColor(c);
+        ApplyColorToSelection(c, true);
+        RefreshPaletteSelectionVisuals();
 
         // 색 선택 시 그리기 도구가 아니면 Pen으로 자동 전환
         if (currentTool == DrawingTool.Picker || currentTool == DrawingTool.Eraser)
@@ -287,7 +386,171 @@ public class SceneADrawingUIController : MonoBehaviour
             paletteSlots[selectedPaletteIndex].color = color;
         }
 
-        if (drawingCanvas != null) drawingCanvas.SetBrushColor(color);
+        ApplyColorToSelection(color, true);
+        RefreshPaletteSelectionVisuals();
         SelectTool(DrawingTool.Pen);
+    }
+
+    void OnSaturationValuePointer(PointerEventData eventData)
+    {
+        if (saturationValueArea == null) return;
+        float x, y;
+        if (!TryGetNormalizedPoint(saturationValueArea.rectTransform, eventData, out x, out y)) return;
+
+        currentSaturation = x;
+        currentValue = y;
+        ApplyColorToSelection(Color.HSVToRGB(currentHue, currentSaturation, currentValue), false);
+    }
+
+    void OnHuePointer(PointerEventData eventData)
+    {
+        if (hueBar == null) return;
+        float x, y;
+        if (!TryGetNormalizedPoint(hueBar.rectTransform, eventData, out x, out y)) return;
+
+        currentHue = 1f - y;
+        ApplyColorToSelection(Color.HSVToRGB(currentHue, currentSaturation, currentValue), false);
+    }
+
+    bool TryGetNormalizedPoint(RectTransform rt, PointerEventData eventData, out float x, out float y)
+    {
+        x = 0f;
+        y = 0f;
+        if (rt == null) return false;
+
+        Vector2 localPos;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            rt, eventData.position, eventData.pressEventCamera, out localPos);
+
+        x = Mathf.Clamp01(localPos.x / rt.rect.width + 0.5f);
+        y = Mathf.Clamp01(localPos.y / rt.rect.height + 0.5f);
+        return true;
+    }
+
+    void OnRgbInputEdited(string _)
+    {
+        if (isUpdatingRgbFields) return;
+
+        int r = ParseRgbField(rInput, 0);
+        int g = ParseRgbField(gInput, 0);
+        int b = ParseRgbField(bInput, 0);
+        Color color = new Color32((byte)r, (byte)g, (byte)b, 255);
+
+        Color.RGBToHSV(color, out currentHue, out currentSaturation, out currentValue);
+        ApplyColorToSelection(color, false);
+    }
+
+    int ParseRgbField(InputField input, int fallback)
+    {
+        if (input == null) return fallback;
+        int value;
+        if (!int.TryParse(input.text, out value)) value = fallback;
+        return Mathf.Clamp(value, 0, 255);
+    }
+
+    void ApplyColorToSelection(Color color, bool syncHsv)
+    {
+        color.a = 1f;
+        if (syncHsv)
+            Color.RGBToHSV(color, out currentHue, out currentSaturation, out currentValue);
+
+        if (paletteSlots != null && selectedPaletteIndex >= 0 && selectedPaletteIndex < paletteSlots.Length
+            && paletteSlots[selectedPaletteIndex] != null)
+        {
+            paletteSlots[selectedPaletteIndex].color = color;
+        }
+
+        if (drawingCanvas != null)
+            drawingCanvas.SetBrushColor(color);
+
+        RefreshColorBoxVisuals();
+    }
+
+    void RefreshColorBoxVisuals()
+    {
+        GenerateSaturationValueTexture();
+        if (colorPreview != null)
+            colorPreview.color = Color.HSVToRGB(currentHue, currentSaturation, currentValue);
+
+        Color32 rgb = Color.HSVToRGB(currentHue, currentSaturation, currentValue);
+        isUpdatingRgbFields = true;
+        SetRgbField(rInput, rgb.r);
+        SetRgbField(gInput, rgb.g);
+        SetRgbField(bInput, rgb.b);
+        isUpdatingRgbFields = false;
+    }
+
+    void SetRgbField(InputField input, byte value)
+    {
+        if (input == null) return;
+        input.SetTextWithoutNotify(value.ToString());
+    }
+
+    void GenerateHueTexture()
+    {
+        if (hueBar == null) return;
+        if (hueTexture == null)
+        {
+            hueTexture = new Texture2D(16, colorTextureSize, TextureFormat.RGBA32, false);
+            hueTexture.filterMode = FilterMode.Point;
+            hueTexture.wrapMode = TextureWrapMode.Clamp;
+        }
+
+        for (int y = 0; y < colorTextureSize; y++)
+        {
+            float hue = 1f - (float)y / (colorTextureSize - 1);
+            Color c = Color.HSVToRGB(hue, 1f, 1f);
+            for (int x = 0; x < 16; x++)
+                hueTexture.SetPixel(x, y, c);
+        }
+        hueTexture.Apply();
+        hueBar.texture = hueTexture;
+    }
+
+    void GenerateSaturationValueTexture()
+    {
+        if (saturationValueArea == null) return;
+        if (saturationValueTexture == null)
+        {
+            saturationValueTexture = new Texture2D(colorTextureSize, colorTextureSize, TextureFormat.RGBA32, false);
+            saturationValueTexture.filterMode = FilterMode.Point;
+            saturationValueTexture.wrapMode = TextureWrapMode.Clamp;
+        }
+
+        for (int y = 0; y < colorTextureSize; y++)
+        {
+            float value = (float)y / (colorTextureSize - 1);
+            for (int x = 0; x < colorTextureSize; x++)
+            {
+                float saturation = (float)x / (colorTextureSize - 1);
+                saturationValueTexture.SetPixel(x, y, Color.HSVToRGB(currentHue, saturation, value));
+            }
+        }
+        saturationValueTexture.Apply();
+        saturationValueArea.texture = saturationValueTexture;
+    }
+
+    void RefreshPaletteSelectionVisuals()
+    {
+        if (paletteSlots == null) return;
+        for (int i = 0; i < paletteSlots.Length; i++)
+        {
+            if (paletteSlots[i] == null) continue;
+            EnsurePaletteOutline(paletteSlots[i], i == selectedPaletteIndex);
+        }
+    }
+
+    void EnsurePaletteOutline(Image slot, bool selected)
+    {
+        Outline outline = slot.GetComponent<Outline>();
+        if (outline == null) outline = slot.gameObject.AddComponent<Outline>();
+        outline.enabled = selected;
+        outline.effectColor = new Color(1f, 0.92f, 0.42f, 1f);
+        outline.effectDistance = new Vector2(3f, -3f);
+    }
+
+    static bool IsGoodResult(ReactionLevel level)
+    {
+        return level == ReactionLevel.Satisfied || level == ReactionLevel.VerySatisfied;
     }
 }

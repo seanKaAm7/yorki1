@@ -65,11 +65,16 @@ public class GameManager : MonoBehaviour
 
     public void OnSubmit()
     {
-        if (currentCustomer == null || drawingCanvas == null) return;
+        if (drawingCanvas == null) return;
 
-        Texture2D playerTex = drawingCanvas.GetDrawTexture();
-        int score = ScoreCalculator.Calculate(playerTex, currentCustomer);
-        ReactionResult result = ReactionSystem.Evaluate(score, currentCustomer);
+        CustomerData customer = currentCustomer;
+        if (customer == null)
+            customer = Resources.Load<CustomerData>("Customers/SampleCustomer");
+        if (customer == null) return;
+
+        Texture2D playerTex = drawingCanvas.GetFlattenedTextureForScoring();
+        int score = ScoreCalculator.Calculate(playerTex, customer);
+        ReactionResult result = ReactionSystem.Evaluate(score, customer);
 
         todayEarnings += result.payment;
         customersServed++;

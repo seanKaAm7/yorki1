@@ -177,14 +177,16 @@ public class SceneABuilder
         handleImg.preserveAspect = true;
         handleImg.raycastTarget = true;
         var handleRT = sliderHandleGO.GetComponent<RectTransform>();
-        handleRT.anchoredPosition = new Vector2(0, 0);
-        handleRT.sizeDelta = new Vector2(56f, 40f);
+        // 사용자가 Unity에서 맞춘 SliderHandle 기본 위치/크기.
+        handleRT.anchoredPosition = new Vector2(14.822153f, 4.98325f);
+        handleRT.sizeDelta = new Vector2(34.9842f, 28.5703f);
 
         var sliderHandleScript = sliderHandleGO.AddComponent<ThicknessSliderHandle>();
         sliderHandleScript.track  = trackRT;
         sliderHandleScript.handle = handleRT;
-        sliderHandleScript.minY = -100f;
-        sliderHandleScript.maxY = 100f;
+        sliderHandleScript.centerY = 4.98325f;
+        sliderHandleScript.minY = -70f;
+        sliderHandleScript.maxY = 70f;
 
         // THICKNESS 라벨 ("8 px") — 사용자 조정값
         var thicknessTextGO = new GameObject("ThicknessText");
@@ -263,6 +265,35 @@ public class SceneABuilder
             paletteSlots[i] = slotImg;
         }
 
+        // ─── COLOR / RGB 컬러 박스 (스포이드 아이콘 제외) ───────
+        // ui 초안 최종.png 기준 하단 COLOR 박스 내부 요소.
+        var colorPanelGO = new GameObject("ColorPanel");
+        colorPanelGO.transform.SetParent(rightGO.transform, false);
+        var colorPanelRT = colorPanelGO.AddComponent<RectTransform>();
+        colorPanelRT.anchorMin = new Vector2(0.5f, 0.5f);
+        colorPanelRT.anchorMax = new Vector2(0.5f, 0.5f);
+        colorPanelRT.anchoredPosition = Vector2.zero;
+        colorPanelRT.sizeDelta = new Vector2(640f, 720f);
+
+        var svArea = CreateRawImage(colorPanelGO.transform, "SaturationValueArea", new Vector2(-216f, -279f), new Vector2(143f, 100f), true);
+        var hueBar = CreateRawImage(colorPanelGO.transform, "HueBar", new Vector2(-120f, -279f), new Vector2(22f, 100f), true);
+
+        var labelColor = new Color(0.96f, 0.88f, 0.64f);
+        CreateText(colorPanelGO.transform, "RLabel", "R", new Vector2(-76f, -244f), new Vector2(22f, 28f), 22, labelColor, TextAnchor.MiddleCenter);
+        CreateText(colorPanelGO.transform, "GLabel", "G", new Vector2(-76f, -280f), new Vector2(22f, 28f), 22, labelColor, TextAnchor.MiddleCenter);
+        CreateText(colorPanelGO.transform, "BLabel", "B", new Vector2(-76f, -316f), new Vector2(22f, 28f), 22, labelColor, TextAnchor.MiddleCenter);
+
+        var rInput = CreateInputField(colorPanelGO.transform, "RValueInput", new Vector2(-22f, -244f), new Vector2(76f, 28f));
+        var gInput = CreateInputField(colorPanelGO.transform, "GValueInput", new Vector2(-22f, -280f), new Vector2(76f, 28f));
+        var bInput = CreateInputField(colorPanelGO.transform, "BValueInput", new Vector2(-22f, -316f), new Vector2(76f, 28f));
+
+        var colorPreviewGO = CreateImage(colorPanelGO.transform, "ColorPreview", null, new Vector2(73f, -279f), new Vector2(70f, 88f), false);
+        var colorPreview = colorPreviewGO.GetComponent<Image>();
+        colorPreview.color = paletteDefaultColors[0];
+        var colorPreviewOutline = colorPreviewGO.AddComponent<Outline>();
+        colorPreviewOutline.effectColor = new Color(0.12f, 0.07f, 0.03f, 1f);
+        colorPreviewOutline.effectDistance = new Vector2(3f, -3f);
+
         // ─── SceneADrawingUIController ───────────────────────────
         var controllerGO = new GameObject("SceneADrawingUIController");
         controllerGO.transform.SetParent(rightGO.transform, false);
@@ -286,6 +317,7 @@ public class SceneABuilder
         controller.undoButton   = undoGO.GetComponent<Image>();
         controller.redoButton   = redoGO.GetComponent<Image>();
         controller.resetButton  = resetGO.GetComponent<Image>();
+        controller.submitButton = submitGO.GetComponent<Image>();
         controller.undoActive   = undoSprite;
         controller.undoInactive = unundoSprite;
         controller.redoActive   = redoSprite;
@@ -294,6 +326,13 @@ public class SceneABuilder
 
         controller.paletteSlots         = paletteSlots;
         controller.paletteDefaultColors = paletteDefaultColors;
+
+        controller.saturationValueArea = svArea;
+        controller.hueBar              = hueBar;
+        controller.rInput              = rInput;
+        controller.gInput              = gInput;
+        controller.bInput              = bInput;
+        controller.colorPreview        = colorPreview;
 
         // SceneTransition + 임시 G/B 입력
         var transitionGO = new GameObject("SceneTransition");
@@ -305,7 +344,7 @@ public class SceneABuilder
             AssetDatabase.CreateFolder("Assets", "Scenes");
 
         EditorSceneManager.SaveScene(scene, "Assets/Scenes/SceneA.unity");
-        Debug.Log("[SceneABuilder] SceneA 생성 완료 — Step 6 팔레트 8칸 + 도구 3상태 sprite + 사용자 조정값 반영");
+        Debug.Log("[SceneABuilder] SceneA 생성 완료 — RGB 컬러 박스 + Submit 연결 + Step 6 UI 반영");
     }
 
     static GameObject CreateImage(Transform parent, string name, Sprite sprite, Vector2 position, Vector2 size, bool raycastTarget)
@@ -320,6 +359,77 @@ public class SceneABuilder
         rt.anchoredPosition = position;
         rt.sizeDelta = size;
         return go;
+    }
+
+    static RawImage CreateRawImage(Transform parent, string name, Vector2 position, Vector2 size, bool raycastTarget)
+    {
+        var go = new GameObject(name);
+        go.transform.SetParent(parent, false);
+        var img = go.AddComponent<RawImage>();
+        img.color = Color.white;
+        img.raycastTarget = raycastTarget;
+        var rt = go.GetComponent<RectTransform>();
+        rt.anchoredPosition = position;
+        rt.sizeDelta = size;
+        return img;
+    }
+
+    static Text CreateText(Transform parent, string name, string value, Vector2 position, Vector2 size, int fontSize, Color color, TextAnchor alignment)
+    {
+        var go = new GameObject(name);
+        go.transform.SetParent(parent, false);
+        var text = go.AddComponent<Text>();
+        text.text = value;
+        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        text.fontSize = fontSize;
+        text.color = color;
+        text.alignment = alignment;
+        text.raycastTarget = false;
+        var rt = go.GetComponent<RectTransform>();
+        rt.anchoredPosition = position;
+        rt.sizeDelta = size;
+        return text;
+    }
+
+    static InputField CreateInputField(Transform parent, string name, Vector2 position, Vector2 size)
+    {
+        var go = new GameObject(name);
+        go.transform.SetParent(parent, false);
+        var bg = go.AddComponent<Image>();
+        bg.color = new Color(0.18f, 0.11f, 0.07f, 0.96f);
+        bg.raycastTarget = true;
+
+        var input = go.AddComponent<InputField>();
+        input.targetGraphic = bg;
+        input.contentType = InputField.ContentType.IntegerNumber;
+        input.characterLimit = 3;
+        input.text = "0";
+
+        var rt = go.GetComponent<RectTransform>();
+        rt.anchoredPosition = position;
+        rt.sizeDelta = size;
+
+        var textGO = new GameObject("Text");
+        textGO.transform.SetParent(go.transform, false);
+        var text = textGO.AddComponent<Text>();
+        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        text.fontSize = 20;
+        text.color = new Color(0.96f, 0.88f, 0.64f);
+        text.alignment = TextAnchor.MiddleCenter;
+        text.raycastTarget = false;
+        var textRT = textGO.GetComponent<RectTransform>();
+        textRT.anchorMin = Vector2.zero;
+        textRT.anchorMax = Vector2.one;
+        textRT.offsetMin = Vector2.zero;
+        textRT.offsetMax = Vector2.zero;
+
+        input.textComponent = text;
+
+        var outline = go.AddComponent<Outline>();
+        outline.effectColor = new Color(0.08f, 0.04f, 0.02f, 1f);
+        outline.effectDistance = new Vector2(2f, -2f);
+
+        return input;
     }
 
     static void ConfigureSprite(string path)

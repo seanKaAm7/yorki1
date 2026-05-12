@@ -1,7 +1,7 @@
 # Scene A 드로잉 UI 구현 계획
 
 > 작성일: 2026-05-11
-> 상태: 1차 구현 진행 중
+> 상태: 3차 1차 구현 완료, Play 모드 검증/미세 조정 필요
 > 기준 자료: `Play Ref/UI 초안`
 
 ## 구현 상태
@@ -11,9 +11,10 @@
 - [x] 1차: `SceneABuilder`에서 종이 영역 위 `DrawingPaper > DrawingSurface` 생성
 - [x] 1차: `DrawingSurface`에 기존 `DrawingCanvas`를 투명 배경 모드로 배치
 - [x] 1.5차: 종이 영역 그리기 동작 확인 (실제로 선이 그려짐)
-- [ ] 1.5차: `DrawingSurface` 영역을 종이 전체와 동일하게 확장 (테이프와 약간 겹쳐도 무방)
-- [ ] 2차: 좌측 도구 / THICKNESS / Undo / Redo / Reset 연결
-- [ ] 3차: 팔레트 / RGB 피커 / Submit 결과 연결
+- [x] 1.5차: `DrawingSurface` 영역을 종이 전체와 동일하게 확장 (테이프와 약간 겹쳐도 무방)
+- [x] 2차: 좌측 도구 / THICKNESS / Undo / Redo / Reset 연결
+- [x] 3차: 팔레트 / RGB 컬러 박스 / Submit 결과 연결 1차 구현
+- [ ] 3차 보강: Play 모드에서 RGB 컬러 박스 조작감/배치 미세 조정
 
 ---
 
@@ -27,7 +28,7 @@ SceneA의 우측 작업대 영역을 `Play Ref/UI 초안/전체/ui 초안 최종
 
 - `ui 초안 최종.png`는 단순 참고 이미지가 아니라 최종 배치 기준이다.
 - 각 UI 요소는 가능한 한 `Play Ref/UI 초안` 안의 PNG를 그대로 활용한다.
-- 버튼/슬라이더/팔레트/RGB 피커의 위치, 크기, 간격은 `ui 초안 최종.png`와 맞춘다.
+- 버튼/슬라이더/팔레트/RGB 컬러 박스의 위치, 크기, 간격은 `ui 초안 최종.png`와 맞춘다.
 - 임의로 새 레이아웃을 만들거나 기능 때문에 위치를 바꾸지 않는다.
 - 기능 구현은 이미지 위에 클릭 영역과 드래그 영역을 얹는 방식으로 한다.
 
@@ -42,7 +43,8 @@ SceneA의 우측 작업대 영역을 `Play Ref/UI 초안/전체/ui 초안 최종
 - 좌측 도구 PNG로 Pen / Brush / Eraser / Picker 선택
 - 우측 버튼 PNG로 Undo / Redo / Reset / Submit 실행
 - `THICKNESS` 영역에는 `유동 초안/슬라이더 바.png`를 별도 손잡이로 얹고 위아래 드래그
-- `COLOR` 영역에는 RGB 피커를 넣어 `ui 초안 최종.png`처럼 동작
+- `COLOR` 영역에는 RGB 컬러 박스를 `ui 초안 최종.png`처럼 구현
+- 단, `COLOR` 박스 안의 스포이드/피커 아이콘 이미지는 제외 가능
 
 ---
 
@@ -69,7 +71,8 @@ Play Ref/UI 초안/전체/ui 초안 최종.png
   - RGB 컬러피커는 닫혀 있음
 - `ui 초안 최종.png`
   - 최종 목표 상태
-  - `COLOR` 박스 안에 RGB 피커와 스포이드가 열린 모습
+  - `COLOR` 박스 안에 RGB 컬러 박스가 열린 모습
+  - 스포이드/피커 아이콘은 구현 대상에서 제외 가능
 
 현재 확인된 이미지 크기:
 
@@ -102,7 +105,7 @@ RightPanel 아래: -360
 
 1. `ui 초안 최종.png`를 기준 레퍼런스 오버레이로 둔다.
 2. `ui 고정.png`를 `DeskBase`로 배치한다.
-3. 좌측 도구, 우측 버튼, 슬라이더 손잡이, RGB 피커 요소를 각 초안 PNG로 얹는다.
+3. 좌측 도구, 우측 버튼, 슬라이더 손잡이, RGB 컬러 박스 요소를 각 초안 PNG/Unity UI로 얹는다.
 4. 각 오브젝트의 위치는 기준 이미지와 최대한 픽셀 단위로 맞춘다.
 5. 마지막에 `ui 초안 최종.png`와 SceneA 스크린샷을 비교해 어긋난 부분을 조정한다.
 
@@ -113,7 +116,7 @@ RightPanel 아래: -360
 
 허용하지 않는 차이:
 
-- 도구/버튼/팔레트/RGB 피커의 위치를 임의 변경
+- 도구/버튼/팔레트/RGB 컬러 박스의 위치를 임의 변경
 - PNG 대신 새로 그린 UI로 대체
 - `ui 초안 최종.png`와 다른 레이아웃으로 재해석
 
@@ -156,8 +159,7 @@ SceneCanvas
    │     ├─ HueBar
    │     ├─ RValueText
    │     ├─ GValueText
-   │     ├─ BValueText
-   │     └─ EyedropperButton
+   │     └─ BValueText
    ├─ RightActions
    │  ├─ UndoButton
    │  ├─ RedoButton
@@ -494,9 +496,9 @@ Color[] paletteColors = new Color[8]
 기능:
 
 - 좌클릭: 해당 슬롯의 현재 색을 선택하고 `DrawingCanvas.SetBrushColor()` 호출
-- 우클릭: 해당 슬롯을 편집 대상으로 설정하고 RGB 피커 열기
-- 길게 누르기: 터치 대응용, 우클릭과 동일하게 RGB 피커 열기
-- RGB 피커 변경: 편집 중인 슬롯의 `paletteColors[index]` 값을 변경
+- 우클릭: 해당 슬롯을 편집 대상으로 설정하고 RGB 컬러 박스 열기
+- 길게 누르기: 터치 대응용, 우클릭과 동일하게 RGB 컬러 박스 열기
+- RGB 컬러 박스 변경: 편집 중인 슬롯의 `paletteColors[index]` 값을 변경
 - 슬롯 변경 후 같은 슬롯이 선택 중이면 즉시 `DrawingCanvas.SetBrushColor()` 재호출
 
 선택 표시:
@@ -523,11 +525,17 @@ DrawingCanvas.brushColor 변경
 
 ---
 
-## 9. COLOR / RGB 피커 구현 계획
+## 9. COLOR / RGB 컬러 박스 구현 계획
 
 ### 9.1 목표
 
 `ui 초안 최종.png`의 하단 `COLOR` 박스처럼 RGB 기능을 넣는다.
+
+2026-05-12 정정:
+
+- 사용자가 제외해도 된다고 한 것은 `COLOR` 박스 안의 스포이드/피커 아이콘 이미지다.
+- RGB 컬러 박스 자체는 `ui 초안 최종.png`와 같은 배치와 인상으로 구현한다.
+- 좌측 도구의 Picker 기능은 별도 도구로 유지한다.
 
 구성:
 
@@ -538,18 +546,23 @@ ColorPanel
 ├─ RValueText
 ├─ GValueText
 ├─ BValueText
-├─ EyedropperButton
 └─ ColorPreview
+```
+
+제외:
+
+```text
+EyedropperButton  // ui 초안 최종.png 하단 COLOR 박스 안의 스포이드/피커 아이콘
 ```
 
 ### 9.2 동작
 
-RGB 피커는 기본적으로 현재 선택 색을 보여준다.
+RGB 컬러 박스는 기본적으로 현재 선택 색을 보여준다.
 
 팔레트 슬롯 우클릭/길게 누르기:
 
 1. 해당 슬롯을 편집 대상으로 지정
-2. RGB 피커 열기
+2. RGB 컬러 박스 열기
 3. 피커 값은 슬롯 색으로 초기화
 
 RGB 값 변경:
@@ -560,42 +573,29 @@ RGB 값 변경:
 4. 현재 선택 색도 갱신
 5. `DrawingCanvas.SetBrushColor()` 호출
 
-### 9.3 피커 UI 형태
+### 9.3 컬러 박스 UI 형태
 
 `ui 초안 최종.png` 기준:
 
 - 왼쪽: 큰 색상 사각형
 - 가운데: 세로 무지개 Hue 바
 - 오른쪽: R/G/B 숫자 박스
-- 더 오른쪽: 스포이드 버튼
+- 더 오른쪽: 스포이드/피커 아이콘 영역은 제외하거나 빈 공간으로 둠
 
 초기 구현은 정확한 HSV 컬러피커를 완벽히 구현하기보다 다음 순서로 진행한다.
 
 1. RGB 숫자 변경 기능부터 구현
 2. HueBar 클릭/드래그로 기본 hue 변경
 3. SaturationValueArea 클릭/드래그로 채도/명도 변경
-4. 스포이드 연결
 
 이 순서가 안전하다. 시각 배치는 먼저 잡고, 세부 색상 알고리즘은 단계적으로 넣는다.
 
-### 9.4 스포이드
+### 9.4 스포이드/피커 아이콘 제외
 
-스포이드 버튼을 누르면 Picker 모드와 유사한 색 추출 모드로 들어간다.
+`ui 초안 최종.png`의 `COLOR` 박스 안에 보이는 스포이드/피커 아이콘은 구현하지 않아도 된다.
 
-동작:
-
-1. 스포이드 버튼 클릭
-2. `isPickingColor = true`
-3. 종이 위 클릭
-4. `DrawingCanvas`의 해당 픽셀 색 읽기
-5. 현재 편집 중인 팔레트 슬롯 색 변경
-6. RGB 숫자 갱신
-7. 스포이드 모드 종료
-
-주의:
-
-- 종이 바깥 클릭은 무시
-- 투명 픽셀을 찍으면 종이 배경색 또는 흰색으로 처리
+색 추출은 이미 좌측 도구의 Picker 버튼으로 처리한다.
+따라서 COLOR 박스 내부에서는 RGB 값 변경과 색상 영역 조작에 집중한다.
 
 ---
 
@@ -643,7 +643,7 @@ Play Ref/UI 초안/우측 틀 초안/submit.png
 - 전체 드로잉 UI 상태 관리
 - 도구 선택
 - 팔레트 선택/편집
-- RGB 피커 열기/닫기
+- RGB 컬러 박스 열기/닫기
 - Thickness 슬라이더 값 적용
 - Undo/Redo/Reset/Submit 버튼 연결
 - 버튼 sprite 상태 갱신
@@ -685,7 +685,7 @@ IDragHandler
 
 - 좌클릭/우클릭/길게 누르기 구분
 - 좌클릭은 색 선택
-- 우클릭/길게 누르기는 RGB 피커 열기
+- 우클릭/길게 누르기는 RGB 컬러 박스 열기
 
 구현 인터페이스:
 
@@ -839,19 +839,19 @@ Texture2D playerTex = drawingCanvas.GetFlattenedTextureForScoring();
 - 각 슬롯 클릭 시 브러시 색이 바뀌는지
 - 선택 표시가 어색하지 않은지
 
-### Step 7. RGB 피커 구현
+### Step 7. RGB 컬러 박스 구현
 
-- COLOR 박스 안에 RGB 피커 배치
+- COLOR 박스 안에 RGB 컬러 박스 배치
 - 우클릭/길게 누르기로 열기
 - RGB 값 변경
 - 현재 슬롯 색 변경
-- 스포이드 연결
+- COLOR 박스 안의 스포이드/피커 아이콘은 제외
 
 검증:
 
 - `ui 초안 최종.png`처럼 COLOR 박스 내부에 맞게 보이는지
 - RGB 값이 슬롯/브러시 색과 동기화되는지
-- 스포이드로 종이 색을 찍을 수 있는지
+- 좌측 Picker 도구로 종이 색을 찍어 팔레트 슬롯에 반영할 수 있는지
 
 ### Step 8. 우측 버튼 연결
 
@@ -896,14 +896,14 @@ Texture2D playerTex = drawingCanvas.GetFlattenedTextureForScoring();
 5. Thickness 슬라이더
 6. Undo / Redo / Reset
 7. Palette
-8. RGB 피커
+8. RGB 컬러 박스
 9. Picker / 스포이드
 
 이유:
 
 - 먼저 실제로 그리고 제출할 수 있어야 한다.
 - 그 다음에 조작감을 보강한다.
-- RGB 피커는 시각/입력 요소가 많으므로 마지막에 붙이는 편이 안전하다.
+- RGB 컬러 박스는 시각/입력 요소가 많으므로 마지막에 붙이는 편이 안전하다.
 
 ---
 
@@ -967,17 +967,18 @@ Texture2D playerTex = drawingCanvas.GetFlattenedTextureForScoring();
 - 종이 바깥 나무판은 입력에서 제외
 - 변경 후 종이 가장자리에서 선이 끝까지 그어지는지 시각 검증
 
-### 14.6 RGB 피커 구현 범위 과대
+### 14.6 RGB 컬러 박스 구현 범위 과대
 
 문제:
 
-- HSV/SV 영역, Hue bar, RGB 숫자, 스포이드를 한 번에 완성하면 리스크가 큼
+- HSV/SV 영역, Hue bar, RGB 숫자를 한 번에 완성하면 리스크가 큼
+- COLOR 박스 안의 스포이드/피커 아이콘은 구현 대상에서 제외
 
 대응:
 
 - 1차: 슬롯 색 선택 + RGB 숫자 표시/변경
 - 2차: Hue/SV 드래그
-- 3차: 스포이드
+- 3차: 시각 배치 미세 조정
 
 ---
 
@@ -991,7 +992,7 @@ Texture2D playerTex = drawingCanvas.GetFlattenedTextureForScoring();
 - Thickness 손잡이를 마우스로 위아래 드래그할 수 있음
 - 굵기 값과 미리보기 점이 갱신됨
 - 팔레트 8칸에서 색 선택 가능
-- RGB 피커로 슬롯 색 수정 가능
+- RGB 컬러 박스로 슬롯 색 수정 가능
 - Undo / Redo / Reset 가능
 - Submit 후 TalkScene 결과 반응으로 돌아감
 - Unity compile 오류 없음
@@ -1004,6 +1005,6 @@ Texture2D playerTex = drawingCanvas.GetFlattenedTextureForScoring();
 구현 직전 사용자 확인이 필요한 항목:
 
 1. 팔레트 8번째 색을 남색으로 둘지, 기존 계획대로 남색을 빼고 다른 기본색으로 둘지
-2. RGB 피커는 처음부터 완전 구현할지, 1차에서는 숫자 변경 중심으로 갈지
+2. RGB 컬러 박스는 처음부터 Hue/SV까지 구현할지, 1차에서는 RGB 숫자 변경 중심으로 갈지
 3. `SceneATestTransitionInput`을 Submit 연결 후 바로 제거할지, 디버그용으로 잠시 남길지
 4. `Yorki/Build Scene A` 실행으로 씬을 덮어써도 되는 시점

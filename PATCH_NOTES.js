@@ -1,5 +1,51 @@
 /*
 ---------
+[2026-05-12] (v37)
+ * 완료 기록 재정리 — Scene A 드로잉 UI 3차 구현 결과만 정리
+ * COLOR RGB 컬러 박스 구현 — SaturationValueArea, HueBar, R/G/B 입력칸, ColorPreview 생성 및 팔레트 슬롯/브러시 색 동기화
+ * Submit 연결 완료 — SubmitButton 클릭 시 제출 흐름 실행, 제출 텍스처는 GetFlattenedTextureForScoring() 사용
+ * SceneABuilder 반영 완료 — ColorPanel 계층과 RGB 컬러 박스 참조 자동 생성/연결
+ * SliderHandle 최종 기본값 반영 — anchoredPosition (14.822153, 4.98325), sizeDelta (34.9842, 28.5703), centerY 4.98325, minY -70, maxY 70
+ * 검증 완료 — Yorki/Build Scene A 재실행, SceneA validate 통과(missing script 0, broken prefab 0), Play 모드 짧은 진입/종료에서 UI 초기화 오류 없음
+---------
+*/
+/*
+---------
+[2026-05-12] (v36)
+ * [ThicknessSliderHandle] centerY 추가 — 사용자가 수동 조정한 SliderHandle 기본 y 위치가 런타임 중앙 초기화 때 사라지지 않도록 보존
+ * [SceneABuilder] 사용자가 조정한 SliderHandle 기본값 반영 — anchoredPosition (14.822153, 4.98325), sizeDelta (34.9842, 28.5703)
+ * [SceneABuilder/SceneA.unity] SliderHandle 이동 범위 minY/maxY를 -70/70으로 조정
+ * 검증 — Yorki/Build Scene A 재실행, SliderHandle 컴포넌트 값 확인(centerY 4.98325, minY -70, maxY 70), SceneA validate 통과
+---------
+*/
+/*
+---------
+[2026-05-12] (v35)
+ * [ThicknessSliderHandle] 기본 이동 범위 조정 — minY/maxY를 -120~120에서 -80~80으로 축소
+ * [SceneABuilder] SliderHandle 생성 시 이동 범위를 -100~100에서 -80~80으로 조정 — 손잡이 전체가 THICKNESS 검은 홈 밖으로 넘어가지 않도록 수정
+ * [SceneA.unity] Yorki/Build Scene A 재실행으로 SliderHandle minY/maxY 반영, SceneA validate 통과(missing script 0, broken prefab 0)
+---------
+*/
+/*
+---------
+[2026-05-12] (v34)
+ * [SceneADrawingUIController] COLOR 박스 RGB 컬러 UI 연결 — SaturationValueArea / HueBar 클릭·드래그, R/G/B 숫자 입력, ColorPreview, 팔레트 슬롯/브러시 색 동기화 추가
+ * [SceneADrawingUIController] SubmitButton 연결 — GameManager가 있으면 OnSubmit 호출, 없으면 SampleCustomer 기반 fallback 채점 후 TalkScene ResultGood/ResultBad 복귀
+ * [GameManager] 제출 텍스처를 GetDrawTexture()에서 GetFlattenedTextureForScoring()로 변경 — 투명 드로잉 레이어 채점 대응
+ * [SceneABuilder] ColorPanel / SaturationValueArea / HueBar / RValueInput / GValueInput / BValueInput / ColorPreview 생성 및 컨트롤러 자동 참조 연결
+ * [SceneA.unity] Yorki/Build Scene A 재실행으로 RGB 컬러 박스와 Submit 연결 반영, SceneA validate 통과(missing script 0, broken prefab 0)
+---------
+*/
+/*
+---------
+[2026-05-12] (v33)
+ * SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md 정정 — 사용자가 제외 의도한 것은 COLOR 박스 안의 스포이드/피커 아이콘이며, RGB 컬러 박스 자체는 `ui 초안 최종.png`처럼 구현하는 것으로 명확화
+ * Step 7 명칭을 RGB 피커 구현에서 RGB 컬러 박스 구현으로 정리
+ * COLOR 박스 내부 스포이드 버튼은 제외하고, 색 추출은 좌측 Picker 도구로 유지하는 방향 기록
+---------
+*/
+/*
+---------
 [2026-05-12] (v32)
  * [DrawingCanvas] 도구별 굵기 범위 분리 — penMin/penDefault/penMax, brushMin/brushDefault/brushMax, eraserMin/eraserDefault/eraserMax 필드. 도구 전환 시 default 굵기 자동 적용. GetDefaultThicknessForTool / GetThicknessRangeForTool API 추가
  * [SceneADrawingUIController] 도구 버튼 3상태 sprite 활성화 — PointerDown → selecting, PointerClick → selected, 나머지 → base
