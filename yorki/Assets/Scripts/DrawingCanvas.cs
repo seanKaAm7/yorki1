@@ -16,9 +16,10 @@ public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IDragHandler, I
 
     [Header("Tool")]
     public DrawingTool currentTool = DrawingTool.Pen;
-    public int penThickness = 6;
-    public int brushThickness = 12;
-    public int eraserThickness = 18;
+    // 도구별 굵기 — default가 슬라이더 중앙(t=0.5)에서 나오도록 min/max 좌우 대칭으로 잡음.
+    public int penMin = 1,    penDefault = 6,  penMax = 11;
+    public int brushMin = 2,  brushDefault = 12, brushMax = 22;
+    public int eraserMin = 3, eraserDefault = 18, eraserMax = 33;
     [Range(0f, 1f)] public float brushAlpha = 0.7f;
 
     private Texture2D drawTexture;
@@ -205,14 +206,14 @@ public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IDragHandler, I
         {
             case DrawingTool.Pen:
                 brushColor = savedDrawColor;
-                brushSize = penThickness;
+                brushSize = penDefault;
                 break;
             case DrawingTool.Brush:
                 brushColor = savedDrawColor;
-                brushSize = brushThickness;
+                brushSize = brushDefault;
                 break;
             case DrawingTool.Eraser:
-                brushSize = eraserThickness;
+                brushSize = eraserDefault;
                 break;
             case DrawingTool.Picker:
                 break;
@@ -234,23 +235,33 @@ public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IDragHandler, I
     public void SetBrushSize(int size)
     {
         brushSize = Mathf.Clamp(size, 1, 64);
-        switch (currentTool)
+    }
+
+    public int GetDefaultThicknessForTool(DrawingTool tool)
+    {
+        switch (tool)
         {
-            case DrawingTool.Pen:    penThickness    = brushSize; break;
-            case DrawingTool.Brush:  brushThickness  = brushSize; break;
-            case DrawingTool.Eraser: eraserThickness = brushSize; break;
+            case DrawingTool.Pen:    return penDefault;
+            case DrawingTool.Brush:  return brushDefault;
+            case DrawingTool.Eraser: return eraserDefault;
+            default:                 return brushSize;
+        }
+    }
+
+    public void GetThicknessRangeForTool(DrawingTool tool, out int min, out int max)
+    {
+        switch (tool)
+        {
+            case DrawingTool.Pen:    min = penMin;    max = penMax;    break;
+            case DrawingTool.Brush:  min = brushMin;  max = brushMax;  break;
+            case DrawingTool.Eraser: min = eraserMin; max = eraserMax; break;
+            default:                 min = penMin;    max = penMax;    break;
         }
     }
 
     public int GetThicknessForCurrentTool()
     {
-        switch (currentTool)
-        {
-            case DrawingTool.Pen:    return penThickness;
-            case DrawingTool.Brush:  return brushThickness;
-            case DrawingTool.Eraser: return eraserThickness;
-            default:                 return brushSize;
-        }
+        return brushSize;
     }
 
     public Color GetColorAtScreenPosition(Vector2 screenPos, Camera cam)

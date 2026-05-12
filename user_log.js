@@ -658,3 +658,70 @@
    - 미구현 (3차): COLOR 박스 안 RGB 피커, 팔레트 8칸 기본 색상
 -----------------------------------------
 */
+
+/*
+-----------------------------------------
+[Log #76] [2026-05-12 11:00:00]
+ * 사용자: 아 rgb피커 저 ui는 안만들어도 돼. 그리고 계획대로 진행해. 마지막으로부터 두 단계 진행하면 되고. 내가 리셋, 서브밋, 언듀, 리듀, 펜, 브러시, 이레이저, 피커, 슬라이더 바, 8 px글자 크기랑 위치를 내가 다 좀 변경했어... 슬라이더바도 크기를 조금 줄이고 싶은데 그 방법 알아놔줘 / 일단 슬라이더 바 크기는 내가 수동으로 지금 변경해서 괜찮아. 일단 스텝 6해볼래? 그리고 아까 내가 새로 요청한 항목들도 같이 변경해줘. 하기 전에 커밋푸쉬해주고
+ * 작업:
+   - RGB 피커 UI 구현 제외 결정
+   - DrawingCanvas.cs: penMin/penDefault/penMax, brushMin/brushDefault/brushMax, eraserMin/eraserDefault/eraserMax 필드로 도구별 굵기 범위 분리. GetDefaultThicknessForTool(DrawingTool) / GetThicknessRangeForTool(DrawingTool, out int min, out int max) 메서드 신규 추가. SetBrushSize 단순화 (도구별 저장 로직 제거)
+   - SceneADrawingUIController.cs: WireToolButton에 PointerDown/PointerUp/PointerExit/PointerClick 이벤트 등록으로 도구 버튼 3상태 sprite(base/selecting/selected) 활성화. SelectTool 호출 시 슬라이더 항상 t=0.5(중앙)로 리셋 + default 굵기 ApplyThicknessVisual. OnThicknessChanged에서 GetThicknessRangeForTool로 도구별 [min,max] 매핑. WirePaletteSlots/SelectPaletteSlot/OnColorPicked로 팔레트 8칸 연동. RefreshActionVisuals에서 Undo/Redo 비활성 sprite(unundo/unredo) 반영. minThickness/maxThickness 필드 제거
+   - SceneABuilder.cs: 사용자 수동 조정값 전부 추출해 하드코딩 (Pen/Brush/Eraser/Picker 위치·크기, Undo/Redo/Reset/Submit 위치·크기, ThicknessText, PreviewDot). ThicknessTrack anchoredPosition y 79.85로 수정 (슬라이더 범위 실제 홈 위치 정렬). PalettePanel + PaletteSlot_0~7 생성, 기본 색상 8종(#E29D68 살색 등) 설정. SceneADrawingUIController에 팔레트 슬롯 배열 자동 연결
+   - 슬라이더 바 크기 조절: SliderHandle 이미지는 Assets/Sprites/UI/SceneA/Controls/slider_handle.png, 범위는 ThicknessSliderHandle.cs의 minY/maxY 필드로 제어한다고 안내
+   - git commit + push 완료
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #77] [2026-05-12 14:00:00]
+ * 사용자: 저 파란 모서리 네모가 보니까 움직일 수 있는 범위인거같은데, 저 슬라이드 바가 범위의 우측 하단에 고정되어있어 저거를 모서리 네모의 중앙으로 옮기고 싶은데
+ * 작업:
+   - SceneA.unity 확인 — SliderHandle anchoredPosition이 (16.95, -88.07)로 틀어진 것 발견 (에디터 실수 드래그로 추정)
+   - MCP manage_components로 SliderHandle anchoredPosition → (0, 0) 수정 후 씬 저장
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #78] [2026-05-12 14:30:00]
+ * 사용자: 일단 계획에 포함시키고 그동한 한거 로그랑 패치노트에 안썼냐? 한거 다써라
+ * 작업:
+   - user_log.js에 Log #76~#78 소급 기록
+   - PATCH_NOTES.js v32 prepend — Step 6 작업 전체 + SliderHandle 수정 내용
+   - RGB COLOR 피커 패널(스포이드 제외) 구현을 다음 작업 계획에 포함 확정
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #79] [2026-05-12 14:47:57]
+ * 사용자: 클로드코드로 방금까지 작업하다가 지금 용량이 꽉차서 바꿨어. 일단 프로젝트 파악해. 그리고  scene_a_drawing 계획 보고  패치노트 js로 최근에 어디까지 했는지 파악해
+ * 작업:
+   - 프로젝트 구조, git 상태, SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md, PATCH_NOTES.js, PROGRESS.md, CLAUDE.md 확인
+   - 최근 변경 파일 DrawingCanvas.cs / SceneADrawingUIController.cs / SceneABuilder.cs / SceneA.unity / PATCH_NOTES.js / user_log.js 상태 파악
+   - v32 기준 최근 진행 범위와 남은 작업 정리 예정
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #80] [2026-05-12 14:49:53]
+ * 사용자: 근데 왜 난 로그가 75까지 안보이지. .오류낙
+ * 작업:
+   - user_log.js 전체 라인 수와 Log #76~#79 존재 여부 확인
+   - Log #76~#79는 파일 하단에 존재하지만 현재 변경분이 아직 커밋/푸시되지 않은 로컬 상태라 외부/이전 탭에서는 #75까지만 보일 수 있음을 확인
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #81] [2026-05-12 14:50:47]
+ * 사용자: 커밋 푸쉬해
+ * 작업:
+   - 현재 변경 범위 확인: SceneA 드로잉 UI 코드/씬, PATCH_NOTES.js, user_log.js, 2026-05-12 스크린샷
+   - dotnet build yorki/yorki.slnx --no-restore 검증 시도 — 2분 이상 출력 없이 멈춰 프로세스 종료
+   - 관련 변경 전체를 스테이징 후 커밋 및 origin/main으로 푸시 예정
+-----------------------------------------
+*/

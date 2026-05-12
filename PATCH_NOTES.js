@@ -1,5 +1,19 @@
 /*
 ---------
+[2026-05-12] (v32)
+ * [DrawingCanvas] 도구별 굵기 범위 분리 — penMin/penDefault/penMax, brushMin/brushDefault/brushMax, eraserMin/eraserDefault/eraserMax 필드. 도구 전환 시 default 굵기 자동 적용. GetDefaultThicknessForTool / GetThicknessRangeForTool API 추가
+ * [SceneADrawingUIController] 도구 버튼 3상태 sprite 활성화 — PointerDown → selecting, PointerClick → selected, 나머지 → base
+ * [SceneADrawingUIController] Undo/Redo 비활성 sprite 활성화 — 스택 비어있을 시 unundo/unredo 자동 전환
+ * [SceneADrawingUIController] 팔레트 8칸 연동 — 슬롯 클릭 시 브러시 색 변경, 스포이드 색 선택 슬롯에 반영
+ * [SceneADrawingUIController] 슬라이더 도구별 중앙 초기화 — 도구 전환 시 t=0.5 강제 리셋, 단위는 도구별 상이
+ * [SceneABuilder] 사용자 수동 조정값 하드코딩 — 이후 빌더 재실행 시 레이아웃 보존
+ * [SceneABuilder] ThicknessTrack 위치 수정 — y 189.85 → 79.85
+ * [SceneABuilder] PalettePanel + PaletteSlot_0~7 생성 — 기본 색상 8종 배치
+ * [SceneA.unity] SliderHandle anchoredPosition 수정 — (16.95, -88.07) → (0, 0) 복구
+---------
+*/
+/*
+---------
 [2026-05-11] (v31)
  * SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md 1.5차 작업 추가
  * 1차 구현 후 실사용 피드백 — 종이 위에 선이 그려지지만 드로잉 영역이 종이보다 조금 좁음

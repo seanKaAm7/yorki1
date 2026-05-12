@@ -3,13 +3,9 @@ using UnityEditor;
 using UnityEngine.UI;
 using UnityEditor.SceneManagement;
 
-// 캔버스 모드 씬 빌더.
-// 손님·배경·대사창은 PersistentBootstrap(영속 객체)가 보유하므로 여기선 만들지 않음.
-// 작업대(RightPanel) + 카메라/캔버스만 생성.
-//
-// 베이스: ui_fixed.png (작업대 + 종이 + 빈 PALETTE/COLOR 박스 + THICKNESS 판)
-// 위에 얹힘: 좌측 도구 4종, THICKNESS 슬라이더 손잡이, Undo/Redo/Reset/Submit 버튼.
-// 결과적으로 ui 초안 최종.png 모습이 되어야 함.
+// SceneA 빌더.
+// 위치/크기는 사용자가 직접 조정한 SceneA.unity 값을 그대로 코드에 반영함.
+// 빌더 재실행 시 사용자 조정값을 덮어쓰지 않도록 주의.
 public class SceneABuilder
 {
     const string deskBasePath      = "Assets/Sprites/UI/SceneA/Desk/ui_fixed.png";
@@ -103,7 +99,7 @@ public class SceneABuilder
         rightRT.anchoredPosition = new Vector2(320, 0);
         rightRT.sizeDelta        = new Vector2(640, 720);
 
-        // DeskBase — ui_fixed.png 베이스 작업대 (가장 밑바닥)
+        // DeskBase — ui_fixed.png 베이스 (가장 밑바닥)
         var deskSprite = AssetDatabase.LoadAssetAtPath<Sprite>(deskBasePath);
         var deskGO = CreateImage(rightGO.transform, "DeskBase", deskSprite, Vector2.zero, new Vector2(640, 720), false);
         var deskImg = deskGO.GetComponent<Image>();
@@ -120,12 +116,12 @@ public class SceneABuilder
         var refGO = CreateImage(rightGO.transform, "ReferenceOverlay_FinalRGB", finalRefSprite, Vector2.zero, new Vector2(640, 720), false);
         refGO.SetActive(false);
 
-        // DrawingPaper — 종이 안쪽 드로잉 레이어
+        // DrawingPaper / DrawingSurface — 사용자 조정값
         var paperGO = new GameObject("DrawingPaper");
         paperGO.transform.SetParent(rightGO.transform, false);
         var paperRT = paperGO.AddComponent<RectTransform>();
-        paperRT.anchoredPosition = new Vector2(-18f, 118f);
-        paperRT.sizeDelta = new Vector2(304f, 366f);
+        paperRT.anchoredPosition = new Vector2(-18.18435f, 118f);
+        paperRT.sizeDelta = new Vector2(330.915f, 406.5569f);
 
         var surfaceGO = new GameObject("DrawingSurface");
         surfaceGO.transform.SetParent(paperGO.transform, false);
@@ -143,29 +139,26 @@ public class SceneABuilder
         drawingCanvas.brushColor = Color.black;
         drawingCanvas.brushSize = 8;
 
-        // ─── Left Tools (좌측 4종 도구) ─────────────────────────────
-        // 추정 위치 — ui 초안 최종.png 기준. ReferenceOverlay 켜고 미세 조정 예정.
-        var toolSize = new Vector2(80, 80);
-        float toolX = -262f;
-        float toolStartY = 215f;
-        float toolGap   = 84f;
-
-        var penSelected   = AssetDatabase.LoadAssetAtPath<Sprite>(penSelectedPath);
+        // ─── Left Tools (사용자 조정값) ─────────────────────────
         var penBase       = AssetDatabase.LoadAssetAtPath<Sprite>(penBasePath);
+        var penSelecting  = AssetDatabase.LoadAssetAtPath<Sprite>(penSelectingPath);
+        var penSelected   = AssetDatabase.LoadAssetAtPath<Sprite>(penSelectedPath);
         var brushBase     = AssetDatabase.LoadAssetAtPath<Sprite>(brushBasePath);
+        var brushSelecting= AssetDatabase.LoadAssetAtPath<Sprite>(brushSelectingPath);
         var brushSelected = AssetDatabase.LoadAssetAtPath<Sprite>(brushSelectedPath);
         var eraserBase    = AssetDatabase.LoadAssetAtPath<Sprite>(eraserBasePath);
+        var eraserSelecting = AssetDatabase.LoadAssetAtPath<Sprite>(eraserSelectingPath);
         var eraserSelected= AssetDatabase.LoadAssetAtPath<Sprite>(eraserSelectedPath);
         var pickerBase    = AssetDatabase.LoadAssetAtPath<Sprite>(pickerBasePath);
+        var pickerSelecting = AssetDatabase.LoadAssetAtPath<Sprite>(pickerSelectingPath);
         var pickerSelected= AssetDatabase.LoadAssetAtPath<Sprite>(pickerSelectedPath);
 
-        var penGO    = CreateImage(rightGO.transform, "PenButton",    penSelected,   new Vector2(toolX, toolStartY - toolGap * 0), toolSize, true);
-        var brushGO  = CreateImage(rightGO.transform, "BrushButton",  brushBase,     new Vector2(toolX, toolStartY - toolGap * 1), toolSize, true);
-        var eraserGO = CreateImage(rightGO.transform, "EraserButton", eraserBase,    new Vector2(toolX, toolStartY - toolGap * 2), toolSize, true);
-        var pickerGO = CreateImage(rightGO.transform, "PickerButton", pickerBase,    new Vector2(toolX, toolStartY - toolGap * 3), toolSize, true);
+        var penGO    = CreateImage(rightGO.transform, "PenButton",    penSelected, new Vector2(-257f,   277.4f), new Vector2(95f, 105f),  true);
+        var brushGO  = CreateImage(rightGO.transform, "BrushButton",  brushBase,   new Vector2(-257f,   180.1f), new Vector2(95f, 95.2f), true);
+        var eraserGO = CreateImage(rightGO.transform, "EraserButton", eraserBase,  new Vector2(-257f,   84.1f),  new Vector2(95f, 97.3f), true);
+        var pickerGO = CreateImage(rightGO.transform, "PickerButton", pickerBase,  new Vector2(-257.4f, -14.7f), new Vector2(95f, 97.2f), true);
 
-        // ─── THICKNESS 슬라이더 ──────────────────────────────────────
-        // 검은 세로 홈 위에 트랙(투명 입력 영역) + 손잡이 얹기.
+        // ─── THICKNESS ────────────────────────────────────────────
         var sliderHandleSprite = AssetDatabase.LoadAssetAtPath<Sprite>(sliderHandlePath);
 
         var thicknessTrackGO = new GameObject("ThicknessTrack");
@@ -174,7 +167,7 @@ public class SceneABuilder
         trackImg.color = new Color(0, 0, 0, 0);
         trackImg.raycastTarget = true;
         var trackRT = thicknessTrackGO.GetComponent<RectTransform>();
-        trackRT.anchoredPosition = new Vector2(180f, 200f);
+        trackRT.anchoredPosition = new Vector2(180f, 79.85f);
         trackRT.sizeDelta = new Vector2(40f, 220f);
 
         var sliderHandleGO = new GameObject("SliderHandle");
@@ -193,7 +186,7 @@ public class SceneABuilder
         sliderHandleScript.minY = -100f;
         sliderHandleScript.maxY = 100f;
 
-        // THICKNESS 라벨 ("8 px")
+        // THICKNESS 라벨 ("8 px") — 사용자 조정값
         var thicknessTextGO = new GameObject("ThicknessText");
         thicknessTextGO.transform.SetParent(rightGO.transform, false);
         var thicknessText = thicknessTextGO.AddComponent<Text>();
@@ -204,20 +197,20 @@ public class SceneABuilder
         thicknessText.alignment = TextAnchor.MiddleCenter;
         thicknessText.raycastTarget = false;
         var thicknessTextRT = thicknessTextGO.GetComponent<RectTransform>();
-        thicknessTextRT.anchoredPosition = new Vector2(212f, 268f);
-        thicknessTextRT.sizeDelta = new Vector2(60f, 26f);
+        thicknessTextRT.anchoredPosition = new Vector2(242.6181f, 210.79393f);
+        thicknessTextRT.sizeDelta = new Vector2(63.6871f, 28.2122f);
 
-        // PreviewDot — THICKNESS 박스 내부 동그라미 (크기 미리보기)
+        // PreviewDot — 사용자 조정값
         var previewDotGO = new GameObject("PreviewDot");
         previewDotGO.transform.SetParent(rightGO.transform, false);
         var previewDotImg = previewDotGO.AddComponent<Image>();
-        previewDotImg.color = new Color(0f, 0f, 0f, 0f); // ui_fixed.png에 이미 검은 동그라미 그려져 있어 비활성 효과
+        previewDotImg.color = new Color(0f, 0f, 0f, 0f); // 시각 효과는 ui_fixed.png에 이미 포함
         previewDotImg.raycastTarget = false;
         var previewDotRT = previewDotGO.GetComponent<RectTransform>();
         previewDotRT.anchoredPosition = new Vector2(252f, 175f);
         previewDotRT.sizeDelta = new Vector2(20f, 20f);
 
-        // ─── Undo / Redo 버튼 ────────────────────────────────────────
+        // ─── Undo / Redo / Reset / Submit (사용자 조정값) ─────────
         var undoSprite   = AssetDatabase.LoadAssetAtPath<Sprite>(undoPath);
         var unundoSprite = AssetDatabase.LoadAssetAtPath<Sprite>(unundoPath);
         var redoSprite   = AssetDatabase.LoadAssetAtPath<Sprite>(redoPath);
@@ -225,37 +218,82 @@ public class SceneABuilder
         var resetSprite  = AssetDatabase.LoadAssetAtPath<Sprite>(resetPath);
         var submitSprite = AssetDatabase.LoadAssetAtPath<Sprite>(submitPath);
 
-        var undoGO = CreateImage(rightGO.transform, "UndoButton", undoSprite, new Vector2(212f, 25f), new Vector2(60f, 80f), true);
-        var redoGO = CreateImage(rightGO.transform, "RedoButton", redoSprite, new Vector2(280f, 25f), new Vector2(60f, 80f), true);
-        var resetGO = CreateImage(rightGO.transform, "ResetButton", resetSprite, new Vector2(248f, -88f), new Vector2(135f, 58f), true);
-        var submitGO = CreateImage(rightGO.transform, "SubmitButton", submitSprite, new Vector2(248f, -198f), new Vector2(150f, 100f), true);
+        var undoGO   = CreateImage(rightGO.transform, "UndoButton",   undoSprite,   new Vector2(198.9f, -27f),    new Vector2(67.2f,  86.8f),  true);
+        var redoGO   = CreateImage(rightGO.transform, "RedoButton",   redoSprite,   new Vector2(265.6f, -26.6f),  new Vector2(67.2f,  86.8f),  true);
+        var resetGO  = CreateImage(rightGO.transform, "ResetButton",  resetSprite,  new Vector2(220.3f, -153f),   new Vector2(175.3f, 94.1f),  true);
+        var submitGO = CreateImage(rightGO.transform, "SubmitButton", submitSprite, new Vector2(219.9f, -264.2f), new Vector2(163.8f, 112.5f), true);
 
-        // ─── SceneADrawingUIController ───────────────────────────────
+        // ─── PALETTE 8칸 (Step 6) ───────────────────────────────
+        // ui 고정.png 검은 박스 위치 분석값 기반.
+        // 박스 중심 unity_x: ui 초안 최종.png 색상 추출 위치와 일치.
+        var palettePanelGO = new GameObject("PalettePanel");
+        palettePanelGO.transform.SetParent(rightGO.transform, false);
+        var palettePanelRT = palettePanelGO.AddComponent<RectTransform>();
+        palettePanelRT.anchorMin = new Vector2(0.5f, 0.5f);
+        palettePanelRT.anchorMax = new Vector2(0.5f, 0.5f);
+        palettePanelRT.anchoredPosition = Vector2.zero;
+        palettePanelRT.sizeDelta = new Vector2(640f, 720f);
+
+        float[] paletteCenterX = { -268.2f, -216.7f, -165.3f, -113.5f, -61.7f, -9.9f, 41.8f, 93.6f };
+        float paletteCenterY = -158f;
+        Vector2 paletteSize = new Vector2(34f, 40f);
+        Color[] paletteDefaultColors = new Color[]
+        {
+            new Color32(226, 157, 104, 255), // 살색
+            new Color32(183, 115,  64, 255), // 밝은 갈색
+            new Color32(127,  69,  38, 255), // 중간 갈색
+            new Color32( 66,  37,  23, 255), // 어두운 갈색
+            new Color32(106,  92,  79, 255), // 회갈색
+            new Color32(185,  54,  39, 255), // 빨강
+            new Color32(230, 194, 148, 255), // 크림색
+            new Color32( 33,  45,  69, 255), // 남색
+        };
+
+        Image[] paletteSlots = new Image[8];
+        for (int i = 0; i < 8; i++)
+        {
+            var slotGO = new GameObject("PaletteSlot_" + i);
+            slotGO.transform.SetParent(palettePanelGO.transform, false);
+            var slotImg = slotGO.AddComponent<Image>();
+            slotImg.color = paletteDefaultColors[i];
+            slotImg.raycastTarget = true;
+            var slotRT = slotGO.GetComponent<RectTransform>();
+            slotRT.anchoredPosition = new Vector2(paletteCenterX[i], paletteCenterY);
+            slotRT.sizeDelta = paletteSize;
+            paletteSlots[i] = slotImg;
+        }
+
+        // ─── SceneADrawingUIController ───────────────────────────
         var controllerGO = new GameObject("SceneADrawingUIController");
         controllerGO.transform.SetParent(rightGO.transform, false);
         var controller = controllerGO.AddComponent<SceneADrawingUIController>();
         controller.drawingCanvas = drawingCanvas;
+
         controller.penButton    = penGO.GetComponent<Image>();
         controller.brushButton  = brushGO.GetComponent<Image>();
         controller.eraserButton = eraserGO.GetComponent<Image>();
         controller.pickerButton = pickerGO.GetComponent<Image>();
-        controller.penBase     = penBase;     controller.penSelected     = penSelected;
-        controller.brushBase   = brushBase;   controller.brushSelected   = brushSelected;
-        controller.eraserBase  = eraserBase;  controller.eraserSelected  = eraserSelected;
-        controller.pickerBase  = pickerBase;  controller.pickerSelected  = pickerSelected;
+
+        controller.penBase      = penBase;     controller.penSelecting    = penSelecting;    controller.penSelected     = penSelected;
+        controller.brushBase    = brushBase;   controller.brushSelecting  = brushSelecting;  controller.brushSelected   = brushSelected;
+        controller.eraserBase   = eraserBase;  controller.eraserSelecting = eraserSelecting; controller.eraserSelected  = eraserSelected;
+        controller.pickerBase   = pickerBase;  controller.pickerSelecting = pickerSelecting; controller.pickerSelected  = pickerSelected;
+
         controller.thicknessSlider = sliderHandleScript;
         controller.thicknessText   = thicknessText;
         controller.previewDot      = previewDotImg;
-        controller.minThickness = 2;
-        controller.maxThickness = 24;
-        controller.undoButton  = undoGO.GetComponent<Image>();
-        controller.redoButton  = redoGO.GetComponent<Image>();
-        controller.resetButton = resetGO.GetComponent<Image>();
+
+        controller.undoButton   = undoGO.GetComponent<Image>();
+        controller.redoButton   = redoGO.GetComponent<Image>();
+        controller.resetButton  = resetGO.GetComponent<Image>();
         controller.undoActive   = undoSprite;
         controller.undoInactive = unundoSprite;
         controller.redoActive   = redoSprite;
         controller.redoInactive = unredoSprite;
         controller.resetSprite  = resetSprite;
+
+        controller.paletteSlots         = paletteSlots;
+        controller.paletteDefaultColors = paletteDefaultColors;
 
         // SceneTransition + 임시 G/B 입력
         var transitionGO = new GameObject("SceneTransition");
@@ -267,7 +305,7 @@ public class SceneABuilder
             AssetDatabase.CreateFolder("Assets", "Scenes");
 
         EditorSceneManager.SaveScene(scene, "Assets/Scenes/SceneA.unity");
-        Debug.Log("[SceneABuilder] SceneA 생성 완료 — 좌측 도구/THICKNESS/Undo·Redo·Reset·Submit 2차 1차 시도");
+        Debug.Log("[SceneABuilder] SceneA 생성 완료 — Step 6 팔레트 8칸 + 도구 3상태 sprite + 사용자 조정값 반영");
     }
 
     static GameObject CreateImage(Transform parent, string name, Sprite sprite, Vector2 position, Vector2 size, bool raycastTarget)
