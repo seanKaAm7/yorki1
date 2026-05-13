@@ -1,186 +1,180 @@
-# Scene A — 기술 문서
+# Scene A 기술 문서
 
-## 1. 씬 오브젝트 구조
+> 마지막 업데이트: 2026-05-13
+> 현행 기준: `TalkScene.unity` 대화 씬 + `SceneA.unity` 드로잉 씬 분리 구조
 
-```
-Canvas (ScreenSpaceOverlay, 1280×720, ScaleWithScreenSize)
-├── Background        — 배경 이미지
-├── RightPanel        — 오른쪽 드로잉 영역 (빈 패널)
-├── Customer          — 손님 캐릭터 (CustomerDisplay, SceneADialogue, FadeIn)
-└── DialogueBox       — 대화창 (9-slice PNG)
-    ├── DialogueText  — 대사 본문 텍스트
-    └── ContinueArrow — ▼ 진행 인디케이터
-```
+## 1. 전체 구조
 
----
+현재 Scene A 흐름은 한 씬 안에서 대화와 드로잉을 모두 처리하지 않는다.
 
-## 2. RectTransform 수치값
+```text
+TalkScene
+  -> PreDraw 대사
+  -> SceneTransition.TalkSceneToSceneA()
 
-| 오브젝트 | anchoredPosition | sizeDelta | 비고 |
-|---------|-----------------|-----------|------|
-| Background | (-320, 0) | (1330, 720) | preserveAspect=true, BG 비율 2780/1504 역산 |
-| RightPanel | (320, 0) | (640, 720) | 색상 (0.15, 0.12, 0.10) |
-| Customer | (-320, -50) | (320, 320) | preserveAspect=true |
-| DialogueBox | (-320, -268) 코드 기본값 | (600, 200) 코드 기본값 | 9-slice, Image.Type.Sliced / 수동 조정 가능 |
+SceneA
+  -> 오른쪽 반칸 드로잉 UI
+  -> Submit
+  -> GameManager.OnSubmit()
+  -> SceneTransition.SceneAToTalkScene(ResultGood/ResultBad)
 
-※ DialogueBox PNG 없을 때 폴백: `color (0.96, 0.93, 0.84, 0.97)` 단색으로 표시
-
-### DialogueText (DialogueBox 자식, stretch)
-```
-anchorMin: (0, 0) / anchorMax: (1, 1)
-offsetMin: (22, 38)    // Left, Bottom
-offsetMax: (-22, -108) // -Right, -Top
-fontSize: 22 / color: new Color(0.20, 0.12, 0.06) / alignment: MiddleLeft
+TalkScene
+  -> 결과 대사
 ```
 
-### ContinueArrow (DialogueBox 자식)
+`SceneADialogue`와 `SceneATestTransitionInput`은 제거 완료 상태다. 대사 진행은 `TalkSceneController`, 드로잉 UI 입력은 `SceneADrawingUIController`가 담당한다.
+
+## 2. TalkScene.unity
+
+주요 오브젝트:
+
+```text
+SceneCanvas
+├── Background
+├── DialogueBox
+│   ├── DialogueText
+│   └── ContinueArrow
+└── TalkSceneController
+
+PersistentCanvas
+└── CustomerStage
+    └── Customer
 ```
-anchorMin/Max: (1, 0) — 우하단 고정
-pivot: (1, 0)
-anchoredPosition: (-10, 10)
-sizeDelta: (20, 20)
-text: "▼" / fontSize: 14 / color: #6B4D2A
+
+주요 컴포넌트:
+
+| 컴포넌트 | 역할 |
+|---------|------|
+| `TalkSceneController` | PreDraw / ResultGood / ResultBad 대사 페이즈 처리 |
+| `CustomerDisplay` | 손님 컷 교체, 제한된 말하기 프레임, Shake 연출 |
+| `SceneTransition` | TalkScene과 SceneA 사이 전환 |
+| `PersistentBootstrap` | 손님 표시 오브젝트를 씬 전환 중 유지 |
+
+유지보수 주의:
+
+- 사용자가 조정한 Customer / DialogueBox / DialogueText 위치와 크기는 현재 기본값이다.
+- TalkScene 대화창은 나무 9-slice 이미지가 아니라 어두운 반투명 Image + 얇은 Outline 방식이다. 현재 기본값은 820x160, alpha 0.78이다.
+- 빌더를 다시 실행할 때는 이 값들이 `TalkSceneBuilder.cs`에 반영됐는지 먼저 확인한다.
+- 폰트는 `Assets/Fonts/Moneygraphy-Pixel.ttf`를 사용한다.
+
+## 3. SceneA.unity
+
+주요 오브젝트:
+
+```text
+SceneCanvas
+└── RightPanel
+    ├── DeskBase
+    ├── DrawingPaper
+    │   └── DrawingSurface
+    ├── PenButton
+    ├── BrushButton
+    ├── EraserButton
+    ├── PickerButton
+    ├── ThicknessTrack
+    ├── ThicknessText
+    ├── PreviewDot
+    ├── UndoButton
+    ├── RedoButton
+    ├── ResetButton
+    ├── SubmitButton
+    ├── PalettePanel
+    ├── ColorPanel
+    └── SceneADrawingUIController
 ```
 
----
+주요 컴포넌트:
 
-## 3. DialogueBox.png — 9-slice 설정
+| 컴포넌트 | 역할 |
+|---------|------|
+| `DrawingCanvas` | 실제 그리기 텍스처, Undo/Redo, 투명 배경, 제출용 합성 |
+| `SceneADrawingUIController` | 도구, 팔레트, RGB 박스, 액션 버튼 연결 |
+| `ThicknessSliderHandle` | THICKNESS 세로 슬라이더 입력 |
+| `GameManager` | Submit 후 채점/수입/결과 페이즈 결정 |
 
-- 파일: `Assets/Sprites/SceneA/DialogueBox.png`
-- 크기: 1523×513
-- 디자인: 나무 테두리 + 베이지 배경 + 상단 삼각형 뿔
-- Sprite Mode: Single / Filter: Bilinear / Compression: Uncompressed
-- **spriteBorder**: L=80, B=30, R=80, T=100 (Vector4 순서: x=L, y=B, z=R, w=T)
-- Sprite Editor에서 rect 상단을 삼각형 포함하도록 수동 조정
+유지보수 주의:
 
----
+- `SliderHandle` 위치/크기는 사용자가 맞춘 현재 값이 기본값이다.
+- 슬라이더 이동 범위는 `ThicknessSliderHandle.minY = -70`, `maxY = 70` 기준이다.
+- COLOR 박스 안의 별도 스포이드 아이콘은 구현 대상에서 제외했다.
+- 좌측 `PickerButton`은 별도 도구로 유지한다.
 
-## 4. FadeIn 컴포넌트
+## 4. 대사 페이즈
 
-Customer GameObject에 `FadeIn` 컴포넌트 자동 부착. 등장 시 알파값 0→1 페이드인 연출.
+`TalkScenePhase`:
 
----
-
-## 5. 스프라이트 파일 매핑
-
-| 슬롯 | 파일명 |
-|------|--------|
-| neutralIdle | Customer_Neutral_Idle.png |
-| neutralTalk | Customer_Neutral_Talk.png |
-| happyIdle | Customer_Happy_Idle.png |
-| surprised | Customer_Surprised.png |
-| gestureIdle | Customer_Gesture_Idle.png |
-| gestureTalk | Customer_Gesture_Talk.png |
-
-※ happyTalk, thinkingIdle 슬롯 제거됨. happy 감정은 idle만 사용(토글 시 idle 유지), thinking 감정은 neutralIdle로 폴백.
-
-모든 캐릭터 스프라이트: Point filter / Uncompressed / alphaIsTransparency
-
----
-
-## 6. CustomerDisplay.cs
-
-손님 스프라이트 교체 및 애니메이션 담당.
-
-### 메서드
-| 메서드 | 동작 |
-|--------|------|
-| `SetEmotion(emotion)` | 즉시 idle 스프라이트로 교체 |
-| `StartTalking(emotion)` | idle ↔ talk 0.12초 토글 루프 시작 |
-| `StopTalking()` | 루프 중단, idle 복귀 |
-| `Shake()` | 0.25초간 랜덤 흔들림 (shakeMagnitude=6) |
-
-### 감정별 스프라이트
-- `happy`, `surprised` — talk 스프라이트 없음, idle만 사용
-- `thinking` — 전용 스프라이트 없음, neutralIdle로 폴백
-- talk 스프라이트 없는 감정은 `GetTalkSprite()`에서 idle로 폴백
-
----
-
-## 7. SceneADialogue.cs
-
-대사 진행 컨트롤러. Customer GameObject에 부착.
-
-### 대사 구조체
 ```csharp
-struct SceneALine {
-    string text;
-    string emotion;  // neutral / happy / surprised / gesture / thinking
-    bool   shake;
+public enum TalkScenePhase
+{
+    PreDraw,
+    ResultGood,
+    ResultBad
 }
 ```
 
-### 대사 진행 흐름
-```
-ShowLineRoutine(i)
-  → 포즈 그룹 전환 감지 → 0.35초 pause (poseDelay)
-  → SetEmotion() + StartTalking()
-  → shake=true 이면 Shake()
-  → TypeLine() — 한 글자씩 출력 (typeSpeed=0.04초)
-  → 완료 → StopTalking() + ▼ 깜빡임 시작
+흐름:
 
-엔터/스페이스 입력
-  → 타이핑 중: 즉시 전체 출력 + ▼ 깜빡임
-  → 대기 중: 다음 줄로 이동
-```
+| 페이즈 | 진입 조건 | 종료 동작 |
+|--------|-----------|----------|
+| `PreDraw` | 처음 TalkScene 시작 | SceneA로 전환 |
+| `ResultGood` | Submit 결과가 Satisfied 이상 | 현재는 로그 출력 후 종료 |
+| `ResultBad` | Submit 결과가 Neutral 이하 | 현재는 로그 출력 후 종료 |
 
-### 포즈 그룹 시스템
+결과 대사 종료 이후 다음 손님/하루 루프는 아직 미구현이다.
 
-감정이 다른 포즈 그룹으로 바뀔 때만 0.35초 pause 삽입.
-같은 그룹 내 연속 대사는 pause 없이 자연스럽게 이어짐.
+## 5. 손님 컷 전환
 
-| 그룹 | 감정 | 의미 |
-|------|------|------|
-| resting | neutral, happy | 팔 내린 자연스러운 상태 |
-| gesture | gesture | 손 제스처 상태 — 연속 사용 권장 |
-| thinking | thinking | 생각하는 포즈 — 단독 사용 |
-| reaction | surprised 등 | 반응 표정 |
+`CustomerDisplay`는 감정 문자열을 받아 스프라이트를 교체한다.
 
-### 대사 순서 (20줄)
-```
-[등장 — resting]
-neutral  "안녕하세요."
-neutral  "잘 부탁드려요."
+| 감정 | 기본 처리 |
+|------|-----------|
+| `neutral` | `neutralIdle`, 말할 때 `neutralTalk` |
+| `happy` | `happyIdle` |
+| `surprised` | `surprised` |
+| `gesture` | `gestureIdle`, 말할 때 제한적으로 `gestureTalk` |
+| `thinking` | 별도 스프라이트 없이 neutral 폴백 |
 
-[일반 대화 — resting 블록]
-neutral  "오늘 날씨 좋죠?"
-neutral  "긴장되네요, 처음이라서."
-happy    "잘 그려주실 거죠?"
-happy    "저 나중에 사진 찍어도 될까요?"
-neutral  "천천히 해도 괜찮아요."
+현재는 픽셀 튐을 줄이기 위해 `useExtraNeutralTalkFrames = false` 기준으로 사용한다. 여러 말하기 컷을 빠르게 토글하면 AI 이미지 간 크롭/픽셀 차이 때문에 캐릭터가 흔들려 보일 수 있다.
 
-[gesture 블록]
-gesture  "여기서 자주 하세요?"
-gesture  "오래 걸려요?"
-gesture  "어떤 스타일로 그려주세요."
+스프라이트 제작 원칙:
 
-[thinking 단독]
-thinking "저 어떤 표정 짓고 있으면 될까요?"
+- 같은 손님의 표정/입 컷은 같은 캔버스 크기와 같은 피벗을 사용한다.
+- 몸, 머리, 의자, 어깨선은 고정하고 입/눈/손처럼 필요한 부분만 바뀌게 만든다.
+- AI로 새 컷을 뽑았을 때는 바로 쓰지 말고 기준 컷 위에 겹쳐 크롭, 베이스라인, 실루엣을 맞춘다.
+- 컷 일관성이 낮으면 말하기 프레임을 줄이고 한 대사 한 컷에 가깝게 운용한다.
 
-[resting]
-neutral  "조용히 있을게요."
+## 6. Submit 처리
 
-[결과 — 잘 그렸을 때]
-surprised "와...!"  (shake=true)
-happy     "진짜 저예요?"
-happy     "너무 잘 그려주셨어요."
-gesture   "친구들한테 꼭 보여줘야겠다."
+기본 경로:
 
-[결과 — 못 그렸을 때]
-neutral  "...음."응
-neutral  "뭐... 나쁘지 않네요."
-neutral  "저 이렇게 생겼나요?"
-neutral  "다시 해줄 수 있어요?"
+```text
+SubmitButton
+  -> SceneADrawingUIController.OnSubmitClicked()
+  -> GameManager.OnSubmit()
+  -> DrawingCanvas.GetFlattenedTextureForScoring()
+  -> ScoreCalculator.Calculate()
+  -> ReactionSystem.Evaluate()
+  -> SceneTransition.SceneAToTalkScene(ResultGood/ResultBad)
 ```
 
----
+`GameManager.Instance`가 없을 때는 `SceneADrawingUIController`가 `SampleCustomer`로 fallback 채점 후 TalkScene으로 복귀한다.
 
-## 8. SceneABuilder.cs — 빌드 메뉴
+## 7. 빌더
 
-`Yorki/Build Scene A` 실행 시:
-1. `SetupSprites()` — 스프라이트 임포트 설정 적용 후 AssetDatabase.Refresh()
-2. `BuildScene()` — 씬 오브젝트 생성 및 컴포넌트 연결
-3. `Assets/Scenes/SceneA.unity` 저장
+사용 메뉴:
 
-**주의**: 빌드 시 씬 전체 재생성 — 수동 변경사항 덮어씌워짐. 반드시 저장 후 실행.
+| 메뉴 | 스크립트 | 설명 |
+|------|----------|------|
+| `Yorki/Build Talk Scene` | `TalkSceneBuilder.cs` | TalkScene 재생성 |
+| `Yorki/Build Scene A` | `SceneABuilder.cs` | SceneA 재생성 |
 
+공통 유틸:
+
+| 스크립트 | 역할 |
+|----------|------|
+| `YorkiEditorAssets.cs` | Moneygraphy Pixel 폰트 로딩, UI 스프라이트 import 설정 |
+
+주의:
+
+- 빌더는 씬을 재생성하므로 수동 수정값을 덮어쓸 수 있다.
+- 수동 조정한 기본값을 유지하려면 먼저 빌더 코드에 같은 값을 반영한 뒤 실행한다.

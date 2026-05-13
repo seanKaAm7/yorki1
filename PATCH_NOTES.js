@@ -1,5 +1,85 @@
 /*
 ---------
+[2026-05-13] (v45)
+ * TalkScene 대화창 크기 축소 — DialogueBox를 904.5x227.0에서 820x160으로 줄이고 하단 위치를 재조정
+ * 대화창 투명도 조정 — 어두운 박스 alpha를 0.78로 낮춰 배경이 조금 더 비치도록 변경
+ * SceneA 진입 컷 고정 — TalkScene -> SceneA 전환 시 CustomerDisplay를 neutral 기본 컷으로 강제해 반반 캔버스 화면에서 입 벌어진 컷이 남지 않도록 수정
+ * TalkSceneBuilder 반영 — 빌더 재실행 시에도 축소된 대화창 크기/투명도와 기본 컷 전환 보정 유지
+ * 검증 — dotnet build 런타임/에디터 csproj 경고 0 오류 0, TalkScene/SceneA validate 통과
+---------
+*/
+/*
+---------
+[2026-05-13] (v44)
+ * TalkScene 대화창 스타일 교체 — 나무 9-slice 이미지 대신 어두운 반투명 박스 + 얇은 Outline 적용
+ * DialogueText / ContinueArrow 색상 변경 — 어두운 박스에 맞춰 밝은 크림 계열로 조정
+ * TalkSceneBuilder 반영 — 빌더 재실행 시에도 동일한 어두운 대화창 스타일과 현재 DialogueBox 위치/크기를 생성하도록 수정
+ * 문서 반영 — `PROGRESS.md`, `SCENE_A_TECH.md`의 대화창 설명 최신화
+ * 검증 — dotnet build Assembly-CSharp-Editor.csproj 경고 0 오류 0, TalkScene validate 통과
+---------
+*/
+/*
+---------
+[2026-05-13] (v43)
+ * 문서 축소 — 루트 문서를 핵심 7개로 정리: CLAUDE, GAME_PLAN, PROGRESS, SCENE_A_TECH, MAINTENANCE_PLAN, 보존 레퍼런스 2개
+ * 완료된 옛 계획서 삭제 — `SCENE_A_PLAN.md`, `SCENE_A_CUT_PLAN.md`, `SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md`, `UI 계획.md`, `pivot.md`
+ * 삭제 허용된 RTF 기록 삭제 — `그의 채팅내역.rtf`
+ * 보존 레퍼런스 유지 — `레퍼런스_SuperPaperMario_interludes.md`, `역재 컷 활용 정보.md`
+ * 문서 참조 정리 — CLAUDE 자동 로드 목록에서 삭제 문서 제거, SCENE_A_TECH에 스프라이트 정렬 원칙 요약 반영
+---------
+*/
+/*
+---------
+[2026-05-13] (v42)
+ * 유지보수 계획 추가 — `MAINTENANCE_PLAN.md`에 현재 기준 상태, 빌더 재실행 주의점, 남은 검증/정리 우선순위 정리
+ * Editor 공통 유틸 추가 — `YorkiEditorAssets.cs`로 Moneygraphy Pixel 폰트 로딩과 UI 스프라이트 import 설정 중복 제거
+ * TalkSceneBuilder / SceneABuilder 정리 — 공통 유틸을 사용하도록 변경해 폰트/스프라이트 설정 경로를 한 곳에서 관리
+ * 문서 최신화 — `PROGRESS.md`, `SCENE_A_TECH.md`, `SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md`를 TalkScene/SceneA 분리 구조와 SceneA 드로잉 UI 1차 완료 상태 기준으로 정리
+ * 검증 — Unity refresh 완료, dotnet build 런타임/에디터 csproj 경고 0 오류 0, TalkScene/SceneA validate 통과, Build Settings TalkScene(0)/SceneA(1) 확인
+---------
+*/
+/*
+---------
+[2026-05-13] (v41)
+ * 폰트 적용 — `Play Ref/폰트/Moneygraphy Font/TTF/Moneygraphy-Pixel.ttf`를 `Assets/Fonts/Moneygraphy-Pixel.ttf`로 복사해 Unity 프로젝트 에셋화
+ * TalkSceneBuilder / SceneABuilder 기본 UI 폰트를 `Moneygraphy-Pixel`로 변경, 폰트가 없을 때만 LegacyRuntime fallback 사용
+ * TalkScene.unity 대사 텍스트/ContinueArrow 폰트 참조를 Moneygraphy-Pixel로 교체
+ * SceneA.unity THICKNESS/RGB 라벨/입력 텍스트 폰트 참조를 Moneygraphy-Pixel로 교체
+ * 검증 — Unity refresh 완료, TalkScene/SceneA 삭제 스크립트 잔존 참조 없음, dotnet build Assembly-CSharp-Editor.csproj 경고 0 오류 0
+---------
+*/
+/*
+---------
+[2026-05-13] (v40)
+ * 말하기 컷 프레임 감소 — 픽셀 정렬이 다른 표정 스프라이트가 글자마다 바뀌며 로봇처럼 움직이는 문제 완화
+ * CustomerDisplay에 `mouthFrameInterval` 추가 — 기본 3으로 설정해 말하기 프레임 전환을 몇 글자마다 한 번만 수행
+ * CustomerDisplay에 `useExtraNeutralTalkFrames` 추가 — 기본 false로 설정해 neutral 말하기는 `neutralTalk` 단일 프레임 중심으로 사용
+ * TalkScene.unity / TalkSceneBuilder 기본값 반영 — mouthFrameInterval 3, useExtraNeutralTalkFrames false
+ * 검증 — Unity scripts refresh 후 Assembly-CSharp 재생성, dotnet build 런타임/에디터 csproj 모두 경고 0 오류 0
+---------
+*/
+/*
+---------
+[2026-05-13] (v39)
+ * TalkScene 배경 교체 — `Play Ref/맵 초안/맵 배경초안 2.png`를 `Assets/Sprites/SceneA/MapBackgroundDraft2.png`로 복사해 Unity 에셋화
+ * TalkScene.unity `Background` Image sprite 참조를 새 `MapBackgroundDraft2` sprite로 변경
+ * TalkSceneBuilder 기본 배경 경로를 `Assets/Sprites/SceneA/MapBackgroundDraft2.png`로 변경
+ * 새 배경 import 설정을 point filter / uncompressed로 맞춤
+ * 검증 — TalkScene validate 통과(missing script 0, broken prefab 0), dotnet build Assembly-CSharp-Editor.csproj 경고 0 오류 0
+---------
+*/
+/*
+---------
+[2026-05-13] (v38)
+ * 코드 정리 — Submit 연결 이후 불필요해진 `SceneATestTransitionInput` 임시 G/B 결과 전환 입력 제거
+ * SceneA 생성기 정리 — `SceneABuilder`가 더 이상 `SceneATestTransitionInput` 오브젝트를 생성하지 않도록 수정
+ * 미사용 구 대화 컨트롤러 제거 — 현재 `TalkSceneController`로 대체된 `SceneADialogue` 스크립트와 meta 삭제
+ * SceneA.unity 정리 — 루트의 `SceneATestTransitionInput` 오브젝트와 삭제 스크립트 참조 제거
+ * 검증 — 삭제 스크립트/GUID 잔존 참조 없음, Unity 전체 강제 refresh/compile 후 Assembly-CSharp 재생성, dotnet build 런타임/에디터 csproj 모두 경고 0 오류 0
+---------
+*/
+/*
+---------
 [2026-05-12] (v37)
  * 완료 기록 재정리 — Scene A 드로잉 UI 3차 구현 결과만 정리
  * COLOR RGB 컬러 박스 구현 — SaturationValueArea, HueBar, R/G/B 입력칸, ColorPreview 생성 및 팔레트 슬롯/브러시 색 동기화

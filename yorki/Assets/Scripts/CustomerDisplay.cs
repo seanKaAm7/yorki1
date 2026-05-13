@@ -25,12 +25,15 @@ public class CustomerDisplay : MonoBehaviour
     [Header("Settings")]
     public float shakeMagnitude = 6f;
     public float shakeDuration = 0.25f;
+    public int mouthFrameInterval = 3;
+    public bool useExtraNeutralTalkFrames = false;
 
     Image _img;
     Coroutine _talkCoroutine;
     string _currentEmotion = "neutral";
     Vector2 _originPos;
     int _talkFrameIndex;
+    int _mouthFrameHoldCounter;
     bool _gestureTalkOpen;
 
     void Awake()
@@ -46,6 +49,7 @@ public class CustomerDisplay : MonoBehaviour
         if (_talkCoroutine != null) StopCoroutine(_talkCoroutine);
         _talkCoroutine = null;
         _talkFrameIndex = 0;
+        _mouthFrameHoldCounter = 0;
         _gestureTalkOpen = false;
         SetEmotionSprite(emotion);
     }
@@ -73,6 +77,14 @@ public class CustomerDisplay : MonoBehaviour
 
     public void AdvanceTalkFrame()
     {
+        if (_mouthFrameHoldCounter > 0)
+        {
+            _mouthFrameHoldCounter--;
+            return;
+        }
+
+        _mouthFrameHoldCounter = Mathf.Max(1, mouthFrameInterval) - 1;
+
         if (_currentEmotion == "neutral")
         {
             Sprite[] frames = GetNeutralTalkFrames();
@@ -90,6 +102,7 @@ public class CustomerDisplay : MonoBehaviour
 
     public void CloseMouth()
     {
+        _mouthFrameHoldCounter = 0;
         if (_currentEmotion == "neutral" || _currentEmotion == "gesture")
             SetEmotionSprite(_currentEmotion);
     }
@@ -103,6 +116,9 @@ public class CustomerDisplay : MonoBehaviour
 
     Sprite[] GetNeutralTalkFrames()
     {
+        if (!useExtraNeutralTalkFrames)
+            return new Sprite[] { GetTalkSprite("neutral") };
+
         return new Sprite[]
         {
             talk2 != null ? talk2 : GetTalkSprite("neutral"),

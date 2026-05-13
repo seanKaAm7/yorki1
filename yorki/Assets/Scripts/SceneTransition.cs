@@ -68,6 +68,7 @@ public class SceneTransition : MonoBehaviour
     public void TalkSceneToSceneA()
     {
         if (IsTransitioning) return;
+        ResetCustomerForDrawing();
         StartCoroutine(TransitionRoutine("SceneA", DrawingStagePosition, true, TalkScenePhase.PreDraw));
     }
 
@@ -91,6 +92,7 @@ public class SceneTransition : MonoBehaviour
         RectTransform stage = FindCustomerStage();
         if (stage != null)
             stage.anchoredPosition = DrawingStagePosition;
+        ResetCustomerForDrawing();
     }
 
     void PlaceStageForActiveScene()
@@ -184,6 +186,19 @@ public class SceneTransition : MonoBehaviour
 
         GameObject go = GameObject.Find("CustomerStage");
         return go != null ? go.GetComponent<RectTransform>() : null;
+    }
+
+    void ResetCustomerForDrawing()
+    {
+        CustomerDisplay customer = null;
+        if (PersistentBootstrap.Instance != null)
+            customer = PersistentBootstrap.Instance.customerDisplay;
+        if (customer == null)
+            customer = Object.FindAnyObjectByType<CustomerDisplay>();
+
+        if (customer == null) return;
+        customer.SetEmotion("neutral");
+        customer.StopTalking();
     }
 
     CanvasGroup FindCanvasGroup(string objectName)

@@ -8,12 +8,14 @@ using UnityEditor.SceneManagement;
 // 게임 시작 시 TalkScene이 먼저 로드되면, PersistentBootstrap.Awake에서 DontDestroyOnLoad 처리.
 public class TalkSceneBuilder
 {
-    // 배경 / 대사창
-    const string bgPath        = "Assets/Sprites/SceneA/BG_Street.png";
-    const string dlgBoxPath    = "Assets/Sprites/SceneA/DialogueBox.png";
+    // 배경
+    const string bgPath        = "Assets/Sprites/SceneA/MapBackgroundDraft2.png";
 
-    // 9-slice border
-    const int dlgBorderL = 80, dlgBorderR = 80, dlgBorderT = 100, dlgBorderB = 30;
+    // TalkScene 대화창 색상
+    static readonly Color DialogueBoxColor = new Color(0.055f, 0.066f, 0.070f, 0.78f);
+    static readonly Color DialogueBoxOutlineColor = new Color(0.16f, 0.18f, 0.19f, 0.70f);
+    static readonly Color DialogueTextColor = new Color(0.95f, 0.95f, 0.90f, 1f);
+    static readonly Color ContinueArrowColor = new Color(0.94f, 0.90f, 0.70f, 1f);
 
     // 손님 컷 (Neutral 입 단계 4종 + 그 외 감정)
     const string neutralIdlePath = "Assets/Sprites/SceneA/Customer_Neutral_Idle.png";
@@ -36,33 +38,13 @@ public class TalkSceneBuilder
     static void SetupSprites()
     {
         string[] paths = {
-            bgPath, dlgBoxPath,
+            bgPath,
             neutralIdlePath, neutralTalkPath, talk1Path, talk2Path,
             happyIdlePath, surprisedPath, gestureIdlePath, gestureTalkPath
         };
         foreach (var p in paths)
         {
-            var imp = AssetImporter.GetAtPath(p) as TextureImporter;
-            if (imp == null) { Debug.LogWarning("[TalkSceneBuilder] 못 찾음: " + p); continue; }
-            imp.textureType         = TextureImporterType.Sprite;
-            imp.filterMode          = FilterMode.Point;
-            imp.textureCompression  = TextureImporterCompression.Uncompressed;
-            imp.mipmapEnabled       = false;
-            imp.alphaIsTransparency = true;
-            imp.SaveAndReimport();
-        }
-        // DialogueBox — 9-slice 설정
-        var dlgImp = AssetImporter.GetAtPath(dlgBoxPath) as TextureImporter;
-        if (dlgImp != null)
-        {
-            dlgImp.textureType         = TextureImporterType.Sprite;
-            dlgImp.spriteImportMode    = SpriteImportMode.Single;
-            dlgImp.filterMode          = FilterMode.Bilinear;
-            dlgImp.textureCompression  = TextureImporterCompression.Uncompressed;
-            dlgImp.mipmapEnabled       = false;
-            dlgImp.alphaIsTransparency = true;
-            dlgImp.spriteBorder        = new Vector4(dlgBorderL, dlgBorderB, dlgBorderR, dlgBorderT);
-            dlgImp.SaveAndReimport();
+            YorkiEditorAssets.ConfigureSprite(p, "[TalkSceneBuilder] 못 찾음: ");
         }
         Debug.Log("[TalkSceneBuilder] 스프라이트 설정 완료");
     }
@@ -127,8 +109,8 @@ public class TalkSceneBuilder
         customerImg.sprite         = AssetDatabase.LoadAssetAtPath<Sprite>(neutralIdlePath);
         customerImg.preserveAspect = true;
         var customerRT = customerGO.GetComponent<RectTransform>();
-        customerRT.anchoredPosition = new Vector2(0, -50);
-        customerRT.sizeDelta        = new Vector2(320, 320);
+        customerRT.anchoredPosition = new Vector2(-9.320013f, -29.144989f);
+        customerRT.sizeDelta        = new Vector2(652.1983f, 778.29f);
 
         customerGO.AddComponent<FadeIn>();
 
@@ -141,6 +123,8 @@ public class TalkSceneBuilder
         cd.surprised   = AssetDatabase.LoadAssetAtPath<Sprite>(surprisedPath);
         cd.gestureIdle = AssetDatabase.LoadAssetAtPath<Sprite>(gestureIdlePath);
         cd.gestureTalk = AssetDatabase.LoadAssetAtPath<Sprite>(gestureTalkPath);
+        cd.mouthFrameInterval = 3;
+        cd.useExtraNeutralTalkFrames = false;
 
         // Bootstrap 참조 연결
         boot.persistentCanvas = pCanvas;
@@ -160,55 +144,55 @@ public class TalkSceneBuilder
         sScaler.matchWidthOrHeight  = 0.5f;
         sCanvasGO.AddComponent<GraphicRaycaster>();
 
-        // DialogueBox — 중앙, 760×200
-        var dlgSprite = AssetDatabase.LoadAssetAtPath<Sprite>(dlgBoxPath);
+        // DialogueBox — 어두운 반투명 박스
         var dlgGO     = new GameObject("DialogueBox");
         dlgGO.transform.SetParent(sCanvasGO.transform, false);
         var dlgImg    = dlgGO.AddComponent<Image>();
+        var dlgOutline = dlgGO.AddComponent<Outline>();
         var dlgGroup  = dlgGO.AddComponent<CanvasGroup>();
-        dlgImg.sprite = dlgSprite;
-        dlgImg.type   = Image.Type.Sliced;
-        dlgImg.color  = Color.white;
+        dlgImg.sprite = null;
+        dlgImg.type   = Image.Type.Simple;
+        dlgImg.color  = DialogueBoxColor;
+        dlgImg.raycastTarget = false;
+        dlgOutline.effectColor = DialogueBoxOutlineColor;
+        dlgOutline.effectDistance = new Vector2(2f, -2f);
+        dlgOutline.useGraphicAlpha = true;
         dlgGroup.alpha = 1f;
-        if (dlgSprite == null)
-        {
-            dlgImg.sprite = null;
-            dlgImg.color  = new Color(0.96f, 0.93f, 0.84f, 0.97f);
-            Debug.LogWarning("[TalkSceneBuilder] DialogueBox.png 없음 — 폴백 색상 사용");
-        }
         var dlgRT = dlgGO.GetComponent<RectTransform>();
-        dlgRT.anchoredPosition = new Vector2(0, -260);
-        dlgRT.sizeDelta        = new Vector2(760, 200);
+        dlgRT.anchoredPosition = new Vector2(0f, -250f);
+        dlgRT.sizeDelta        = new Vector2(820f, 160f);
+
+        Font uiFont = YorkiEditorAssets.LoadUIFont();
 
         // DialogueText
         var textGO = new GameObject("DialogueText");
         textGO.transform.SetParent(dlgGO.transform, false);
         var txt = textGO.AddComponent<Text>();
         txt.text      = "";
-        txt.font      = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        txt.font      = uiFont;
         txt.fontSize  = 22;
-        txt.color     = new Color(0.20f, 0.12f, 0.06f);
+        txt.color     = DialogueTextColor;
         txt.alignment = TextAnchor.MiddleLeft;
         var txtRT = textGO.GetComponent<RectTransform>();
         txtRT.anchorMin = Vector2.zero;
         txtRT.anchorMax = Vector2.one;
-        txtRT.offsetMin = new Vector2(22, 38);
-        txtRT.offsetMax = new Vector2(-22, -108);
+        txtRT.anchoredPosition = Vector2.zero;
+        txtRT.sizeDelta        = new Vector2(-72f, -52f);
 
         // ContinueArrow
         var arrowGO = new GameObject("ContinueArrow");
         arrowGO.transform.SetParent(dlgGO.transform, false);
         var arrowTxt = arrowGO.AddComponent<Text>();
         arrowTxt.text      = "▼";
-        arrowTxt.font      = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        arrowTxt.font      = uiFont;
         arrowTxt.fontSize  = 14;
-        arrowTxt.color     = new Color(0.42f, 0.30f, 0.16f);
+        arrowTxt.color     = ContinueArrowColor;
         arrowTxt.alignment = TextAnchor.MiddleCenter;
         var arrowRT = arrowGO.GetComponent<RectTransform>();
         arrowRT.anchorMin        = new Vector2(1f, 0f);
         arrowRT.anchorMax        = new Vector2(1f, 0f);
         arrowRT.pivot            = new Vector2(1f, 0f);
-        arrowRT.anchoredPosition = new Vector2(-10f, 10f);
+        arrowRT.anchoredPosition = new Vector2(-18f, 16f);
         arrowRT.sizeDelta        = new Vector2(20f, 20f);
 
         // SceneTransition — 전환 중 씬 로드 이후까지 살아있는 싱글턴

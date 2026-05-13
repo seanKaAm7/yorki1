@@ -838,3 +838,291 @@
    - TalkScene/SceneA 전환 구조와 캔버스 반칸 연결 현재 상태 확인 예정
 -----------------------------------------
 */
+
+/*
+-----------------------------------------
+[Log #91] [2026-05-13 16:13:16]
+ * 사용자: 어제 capacity가 차서 오늘 다시 한다. 다시 확인해봐
+ * 작업:
+   - git 상태, 최신 user_log.js, PATCH_NOTES.js, TalkScene/SceneA 전환 코드와 Scene A 드로잉 UI 상태 재확인
+   - 현재 main이 origin/main보다 1커밋 앞선 상태 확인
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #92] [2026-05-13 13:29:15]
+ * 사용자: 유니티에서 대화씬을 보고싶으면 어떻게 하는지 질문
+ * 작업:
+   - 대화씬 파일 위치 확인: yorki/Assets/Scenes/TalkScene.unity
+   - 현재 SceneA에 변경 표시(*)가 있으므로 저장 후 TalkScene을 열어 Play 모드에서 확인하도록 안내
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #93] [2026-05-13 13:34:22]
+ * 사용자: TalkScene에서 직접 조정한 Customer, DialogueBox, DialogueText 크기/위치를 기본값으로 삼아달라고 요청
+ * 작업:
+   - TalkScene.unity에서 현재 RectTransform 값 확인
+   - TalkSceneBuilder.cs 기본 생성값을 현재 수동 조정값으로 반영
+   - 반영값: Customer pos(-9.320013, -29.144989) size(652.1983, 778.29)
+   - 반영값: DialogueBox pos(-0.00002193451, -209.67) size(923.7028, 256.5178)
+   - 반영값: DialogueText pos(92.86897, 14.530113) size(-44, -146)
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #94] [2026-05-13 13:37:08]
+ * 사용자: Scene A Drawing이 다 끝난 상태인지 질문
+ * 작업:
+   - SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md / PATCH_NOTES.js / PROGRESS.md 기준 완료 상태 재확인
+   - 결론: Scene A Drawing UI 기능 구현은 1차 완료, 남은 것은 전체 플레이 플로우 검증/미세 조정/문서 최신화
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #95] [2026-05-13 13:38:06]
+ * 사용자: 일단 내가 봤을떄 프로토타입은 잘 됐어. 이제 코드 정리나. 좀.. 필요없는 코드나 이런거 확인해서 정리해
+ * 작업:
+   - 코드 정리 착수: 현재 git 상태, 프로젝트 지침, C# 스크립트/씬 참조 구조 확인
+   - 명확한 임시 테스트 코드와 미사용 코드 후보를 선별해 안전한 범위에서 정리 예정
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #96] [2026-05-13 13:42:25]
+ * 사용자: 코드 정리 요청 계속
+ * 작업:
+   - SceneATestTransitionInput 임시 G/B 결과 전환 입력 스크립트와 meta 삭제
+   - SceneABuilder에서 SceneATestTransitionInput 생성 코드 제거
+   - SceneA.unity 루트의 SceneATestTransitionInput 오브젝트와 삭제 스크립트 참조 제거
+   - TalkSceneController로 대체되어 참조가 없는 SceneADialogue 스크립트와 meta 삭제
+   - 삭제 스크립트/GUID 잔존 참조 없음 확인
+   - Unity 전체 강제 refresh/compile 후 Assembly-CSharp.dll 재생성 확인
+   - dotnet build Assembly-CSharp.csproj / Assembly-CSharp-Editor.csproj 경고 0 오류 0 통과
+   - PATCH_NOTES.js v38 prepend
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #97] [2026-05-13 13:47:49]
+ * 사용자: 혹시 배경을 맵 배경초안2로 바꿔볼래? 다른 샘플이미지야
+ * 작업:
+   - TalkScene 배경 교체 작업 착수
+   - `맵 배경초안2` 후보 이미지 파일 위치 확인 후 TalkScene과 TalkSceneBuilder 기본 배경 경로 반영 예정
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #98] [2026-05-13 13:50:36]
+ * 사용자: 배경을 맵 배경초안2로 교체 요청 계속
+ * 작업:
+   - 원본 확인: Play Ref/맵 초안/맵 배경초안 2.png
+   - Unity 에셋 추가: yorki/Assets/Sprites/SceneA/MapBackgroundDraft2.png 및 meta
+   - TalkScene.unity Background Image sprite를 MapBackgroundDraft2로 교체
+   - TalkSceneBuilder.cs 기본 배경 경로를 Assets/Sprites/SceneA/MapBackgroundDraft2.png로 교체
+   - 새 배경 import 설정을 point filter / uncompressed로 조정
+   - Unity assets refresh 완료, TalkScene validate 통과(missing script 0, broken prefab 0)
+   - dotnet build Assembly-CSharp-Editor.csproj 경고 0 오류 0 통과
+   - PATCH_NOTES.js v39 prepend
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #99] [2026-05-13 13:56:57]
+ * 사용자: 조금 컷 변화  프레임을 줄여야할거같아.. 내가 이미지별로 픽셀단위 consistency가 없어서 로봇이 움직이는것처럼 나온다
+ * 작업:
+   - CustomerDisplay/TalkSceneController의 말하기 프레임 전환 구조 확인
+   - 현재 한 글자마다 talk2/neutralTalk/talk1/neutralTalk 프레임을 바꿔 픽셀 불일치가 크게 보이는 상태 확인
+   - 말하기 프레임 전환 빈도와 사용 프레임 수를 줄이는 방향으로 조정 예정
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #100] [2026-05-13 13:59:24]
+ * 사용자: 컷 변화 프레임 감소 요청 계속
+ * 작업:
+   - CustomerDisplay.cs에 mouthFrameInterval 추가, 기본값 3으로 설정
+   - CustomerDisplay.cs에 useExtraNeutralTalkFrames 추가, 기본값 false로 설정
+   - 기본 neutral 말하기 프레임을 talk2/talk1 순환 대신 neutralTalk 단일 프레임 중심으로 축소
+   - gesture 말하기 프레임도 mouthFrameInterval 기준으로 덜 자주 전환되도록 조정
+   - TalkScene.unity CustomerDisplay serialized 값에 mouthFrameInterval 3, useExtraNeutralTalkFrames 0 반영
+   - TalkSceneBuilder.cs 생성 기본값에도 동일하게 반영
+   - Unity scripts refresh 후 Assembly-CSharp.dll/Assembly-CSharp-Editor.dll 재생성 확인
+   - dotnet build Assembly-CSharp.csproj / Assembly-CSharp-Editor.csproj 경고 0 오류 0 통과
+   - PATCH_NOTES.js v40 prepend
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #101] [2026-05-13 14:04:07]
+ * 사용자: 아니면 그냥 한 대사에 한 컷어떄?
+ * 작업:
+   - 한 대사 한 컷 방식의 장단점과 현재 스프라이트 픽셀 불일치 문제에 더 적합한지 판단해 설명 예정
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #102] [2026-05-13 14:08:44]
+ * 사용자: 폰트를 바꾸고 싶어서 제미나이에게 받은 Kenney 폰트팩 다운로드/맥 폰트 설치 명령어 공유
+ * 작업:
+   - 현재 프로젝트 폰트 사용 지점 확인
+   - 현재 TalkScene/SceneA 빌더와 씬 Text들이 Unity 기본 LegacyRuntime.ttf를 사용 중임을 확인
+   - 시스템 폰트 설치보다 Unity 프로젝트 Assets/Fonts에 폰트를 넣고 빌더/씬 참조를 바꾸는 방식이 적합하다고 판단
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #103] [2026-05-13 14:15:06]
+ * 사용자: 폰트 폴더에 새로운 폰트 폴더 추가했는데 한번 보고 너가 해볼래?
+ * 작업:
+   - 새 폰트 후보 확인: Play Ref/폰트/Moneygraphy Font
+   - Moneygraphy-Pixel.ttf / Moneygraphy-Rounded.ttf 및 OTF 버전 확인
+   - Unity 프로젝트 적용을 위해 Assets/Fonts에 폰트를 복사하고 TalkScene/SceneA Text 참조를 교체 예정
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #104] [2026-05-13 14:15:48]
+ * 사용자: 에셋이 아니라 '폰트'폴더야
+ * 작업:
+   - 사용자가 추가한 원본 폴더가 Play Ref/폰트/Moneygraphy Font임을 재확인
+   - 원본 폴더는 그대로 두고 Unity 적용을 위한 복사본만 Assets 하위에 둘 필요가 있음을 설명
+   - TTF/OTF/WOFF/EOT 구성 확인, Unity 적용 후보는 TTF의 Moneygraphy-Pixel / Moneygraphy-Rounded
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #105] [2026-05-13 14:19:21]
+ * 사용자: 폰트 적용 요청 계속
+ * 작업:
+   - Moneygraphy-Pixel.ttf를 Play Ref/폰트/Moneygraphy Font/TTF에서 yorki/Assets/Fonts/Moneygraphy-Pixel.ttf로 복사
+   - Unity refresh로 Moneygraphy-Pixel.ttf.meta 생성 확인: guid a62ebdfe2de6842fcb8899f1d4388413
+   - TalkSceneBuilder.cs / SceneABuilder.cs에 uiFontPath 및 LoadUIFont() 추가
+   - 빌더 생성 Text들이 Moneygraphy-Pixel을 기본 사용하고 없을 때만 LegacyRuntime.ttf fallback 사용하도록 변경
+   - TalkScene.unity의 DialogueText / ContinueArrow 폰트를 Moneygraphy-Pixel로 교체
+   - SceneA.unity의 THICKNESS/RGB 라벨/입력 Text 폰트를 Moneygraphy-Pixel로 교체
+   - Unity refresh 완료, 삭제 스크립트 잔존 참조 없음 확인
+   - dotnet build Assembly-CSharp-Editor.csproj 경고 0 오류 0 통과
+   - PATCH_NOTES.js v41 prepend
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #106] [2026-05-13 14:22:36]
+ * 사용자: 혹시 유니티에서 플레이모드가 커맨드 p인데, 젅체화면으로는 어떻게해??
+ * 작업:
+   - Unity Editor에서 Play 모드 화면을 크게/전체화면처럼 보는 방법 안내 예정
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #107] [2026-05-13 14:26:07]
+ * 사용자: 일단 고생했고 코드 정리, 유지보수를 위한 계획을 세우고 진행해
+ * 작업:
+   - 현재 git 상태와 기존 변경 범위 확인
+   - 코드/문서의 구버전 참조, 중복 폰트 로딩, 빌더 유지보수 위험 요소 조사
+   - 유지보수 계획을 세우고 안전한 범위의 정리 패치 진행 예정
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #108] [2026-05-13 14:36:10]
+ * 사용자: 일단 고생했고 코드 정리, 유지보수를 위한 계획을 세우고 진행해
+ * 작업:
+   - MAINTENANCE_PLAN.md 신규 작성: 현재 기준 상태, 빌더 재실행 주의점, 남은 유지보수 우선순위 정리
+   - YorkiEditorAssets.cs 신규 작성: Editor 빌더 공통 폰트 로딩/스프라이트 import 설정 유틸화
+   - TalkSceneBuilder.cs / SceneABuilder.cs의 중복 폰트 로딩과 스프라이트 import 설정을 공통 유틸로 정리
+   - PROGRESS.md / SCENE_A_TECH.md / SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md를 현재 TalkScene/SceneA 분리 구조와 SceneA 드로잉 UI 완료 상태 기준으로 최신화
+   - Unity refresh 완료 및 YorkiEditorAssets.cs.meta 생성 확인
+   - dotnet build Assembly-CSharp.csproj / Assembly-CSharp-Editor.csproj 경고 0 오류 0 통과
+   - TalkScene / SceneA validate 통과, Build Settings TalkScene(0) / SceneA(1) 확인
+   - PATCH_NOTES.js v42 prepend
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #109] [2026-05-13 14:39:27]
+ * 사용자: md도 너무 많아서.. 이미 쓴거나 필요업슨ㄴ건 일단 지우고 (레퍼런스 슈퍼페이퍼마리오랑 역재컷활용정보는지우지마) 조금 겹치는게 있다면 수정해서 파일 양을 좀 줄여줘 그의 채팅내역 rtf도 지워도 된다
+ * 작업:
+   - 프로젝트 루트의 md/rtf 문서 목록과 크기 확인
+   - 보존 대상 확인: 레퍼런스_SuperPaperMario_interludes.md, 역재 컷 활용 정보.md
+   - 삭제 전 핵심 내용 흡수: SCENE_A_TECH.md에 스프라이트 정렬 원칙 요약 추가, MAINTENANCE_PLAN.md에 문서 보존/삭제 기준 기록
+   - CLAUDE.md 자동 로드 목록에서 삭제 대상 문서 제거, MAINTENANCE_PLAN.md 자동 로드 추가
+   - 완료된 옛 계획서 삭제: SCENE_A_PLAN.md, SCENE_A_CUT_PLAN.md, SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md, UI 계획.md, pivot.md
+   - 삭제 허용된 RTF 채팅 기록 삭제: 그의 채팅내역.rtf
+   - 루트 md/rtf 목록 확인: md 12개 + rtf 1개에서 md 7개로 축소, rtf 0개
+   - PATCH_NOTES.js v43 prepend
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #110] [2026-05-13 14:52:45]
+ * 사용자: 다음은 뭘 해야할까.. 대화, 그리는 프로토타입까지 다 한거같은데
+ * 작업:
+   - 현재 프로토타입 완료 범위 기준으로 다음 개발 우선순위 제안 예정
+   - 단일 대화/그리기 기능 이후에는 전체 플레이 루프 검증과 다음 손님/하루 루프가 우선이라고 판단
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #111] [2026-05-13 15:00:43]
+ * 사용자: [Image #1] 그냥 대화창 이렇게 바꿀까..?? 검은색으로? 지금 대화창 솔직히 너무 좀 그래
+ * 작업:
+   - 첨부 레퍼런스처럼 어두운 반투명 대화창으로 바꾸는 방향에 대한 디자인 의견 제안 예정
+   - 현재 나무 9-slice 대화창보다 가독성과 픽셀아트 일관성이 좋아질 가능성이 높다고 판단
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #112] [2026-05-13 15:02:11]
+ * 사용자: 대화창만 바꾸자
+ * 작업:
+   - TalkScene 대화창 오브젝트와 TalkSceneBuilder 대화창 생성 코드 확인
+   - TalkSceneBuilder.cs에서 DialogueBox를 어두운 반투명 Image + 얇은 Outline 방식으로 변경
+   - TalkSceneBuilder.cs에 현재 TalkScene.unity DialogueBox 위치/크기 기본값 반영
+   - TalkScene.unity의 DialogueBox sprite 제거, 어두운 반투명 배경색/Outline 적용
+   - DialogueText / ContinueArrow 색상을 어두운 대화창에 맞는 밝은 크림 계열로 변경
+   - PROGRESS.md / SCENE_A_TECH.md 대화창 설명 최신화
+   - dotnet build Assembly-CSharp-Editor.csproj 경고 0 오류 0 통과
+   - TalkScene validate 통과
+   - PATCH_NOTES.js v44 prepend
+-----------------------------------------
+*/
+
+/*
+-----------------------------------------
+[Log #113] [2026-05-13 15:12:16]
+ * 사용자: 대화창이 너무 크다 그리고.. 조금 반투명해씅면 좋겠어. 그리고 반반씩 켄버스랑 나오는 컷에서. 손님 입이 벌어져있어서 가장 기본사진으로바꿔줘
+ * 작업:
+   - TalkScene 대화창 크기/투명도와 SceneA 진입 시 손님 컷 상태 확인
+   - TalkSceneBuilder.cs 대화창 기본값 변경: 820x160, y -250, alpha 0.78, text padding 재조정
+   - TalkScene.unity DialogueBox / DialogueText / ContinueArrow RectTransform 및 색상 반영
+   - SceneTransition.cs에 SceneA 진입용 ResetCustomerForDrawing() 추가
+   - TalkSceneController.cs에서 PreDraw 종료 시 neutral 기본 컷으로 고정 후 SceneA 전환
+   - SCENE_A_TECH.md 대화창 기본값 최신화
+   - dotnet build Assembly-CSharp.csproj / Assembly-CSharp-Editor.csproj 경고 0 오류 0 통과
+   - TalkScene / SceneA validate 통과
+   - PATCH_NOTES.js v45 prepend
+-----------------------------------------
+*/

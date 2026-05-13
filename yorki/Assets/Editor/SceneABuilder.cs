@@ -193,7 +193,7 @@ public class SceneABuilder
         thicknessTextGO.transform.SetParent(rightGO.transform, false);
         var thicknessText = thicknessTextGO.AddComponent<Text>();
         thicknessText.text = "8 px";
-        thicknessText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        thicknessText.font = YorkiEditorAssets.LoadUIFont();
         thicknessText.fontSize = 18;
         thicknessText.color = new Color(0.20f, 0.12f, 0.06f);
         thicknessText.alignment = TextAnchor.MiddleCenter;
@@ -334,11 +334,9 @@ public class SceneABuilder
         controller.bInput              = bInput;
         controller.colorPreview        = colorPreview;
 
-        // SceneTransition + 임시 G/B 입력
+        // SceneTransition
         var transitionGO = new GameObject("SceneTransition");
         transitionGO.AddComponent<SceneTransition>();
-        var testInputGO = new GameObject("SceneATestTransitionInput");
-        testInputGO.AddComponent<SceneATestTransitionInput>();
 
         if (!AssetDatabase.IsValidFolder("Assets/Scenes"))
             AssetDatabase.CreateFolder("Assets", "Scenes");
@@ -380,7 +378,7 @@ public class SceneABuilder
         go.transform.SetParent(parent, false);
         var text = go.AddComponent<Text>();
         text.text = value;
-        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        text.font = YorkiEditorAssets.LoadUIFont();
         text.fontSize = fontSize;
         text.color = color;
         text.alignment = alignment;
@@ -412,7 +410,7 @@ public class SceneABuilder
         var textGO = new GameObject("Text");
         textGO.transform.SetParent(go.transform, false);
         var text = textGO.AddComponent<Text>();
-        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        text.font = YorkiEditorAssets.LoadUIFont();
         text.fontSize = 20;
         text.color = new Color(0.96f, 0.88f, 0.64f);
         text.alignment = TextAnchor.MiddleCenter;
@@ -434,17 +432,6 @@ public class SceneABuilder
 
     static void ConfigureSprite(string path)
     {
-        var importer = AssetImporter.GetAtPath(path) as TextureImporter;
-        if (importer == null)
-        {
-            Debug.LogWarning("[SceneABuilder] UI 스프라이트 못 찾음: " + path);
-            return;
-        }
-
-        importer.textureType = TextureImporterType.Sprite;
-        importer.spriteImportMode = SpriteImportMode.Single;
-        importer.filterMode = FilterMode.Point;
-        importer.textureCompression = TextureImporterCompression.Uncompressed;
-        importer.SaveAndReimport();
+        YorkiEditorAssets.ConfigureSprite(path, "[SceneABuilder] UI 스프라이트 못 찾음: ");
     }
 }

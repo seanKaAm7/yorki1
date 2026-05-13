@@ -238,6 +238,8 @@ public class TalkSceneController : MonoBehaviour
 
         if (phase == TalkScenePhase.PreDraw)
         {
+            customerDisplay?.SetEmotion("neutral");
+            customerDisplay?.StopTalking();
             sceneTransition.TalkSceneToSceneA();
             return;
         }
