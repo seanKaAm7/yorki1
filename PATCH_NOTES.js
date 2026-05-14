@@ -1,5 +1,16 @@
 /*
 ---------
+[2026-05-14] (v46)
+ * 구형 런타임 정리 — 현재 TalkScene/SceneA 흐름에 쓰이지 않는 DialogueUI, NarratorController, ReactionUI, DrawingToolbar 제거
+ * 구형 빌더 제거 — SampleScene 기반 GameSceneBuilder, DrawingSceneBuilder 제거
+ * 구형 씬 제거 — 빌드 세팅에 포함되지 않고 삭제 스크립트만 참조하던 SampleScene.unity 삭제
+ * GameManager 단순화 — Submit 중심 흐름만 남기고 구형 내레이터/툴바/반응 UI 필드와 함수 제거
+ * 프로젝트 설정 정리 — 기본 씬 경로를 SampleScene에서 TalkScene으로 변경, Assembly-CSharp.csproj의 삭제 스크립트 include 제거
+ * 검증 — 삭제 클래스/GUID 잔존 참조 없음, dotnet build 런타임/에디터 csproj 경고 0 오류 0, git diff --check 통과
+---------
+*/
+/*
+---------
 [2026-05-13] (v45)
  * TalkScene 대화창 크기 축소 — DialogueBox를 904.5x227.0에서 820x160으로 줄이고 하단 위치를 재조정
  * 대화창 투명도 조정 — 어두운 박스 alpha를 0.78로 낮춰 배경이 조금 더 비치도록 변경

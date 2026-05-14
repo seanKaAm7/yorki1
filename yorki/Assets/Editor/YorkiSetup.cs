@@ -157,8 +157,6 @@ public class YorkiSetup
         var ctrl = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>("Assets/Animations/Yorki/YorkiController.controller");
         animator.runtimeAnimatorController = ctrl;
 
-        yorki.AddComponent<YorkiMovement>();
-
         UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene, "Assets/Scenes/SceneB_Test.unity");
         Debug.Log("[YorkiSetup] SceneB_Test 씬 생성 완료");
     }
