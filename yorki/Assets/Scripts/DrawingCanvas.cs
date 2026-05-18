@@ -4,7 +4,6 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 public enum DrawingTool { Pen, Brush, Eraser, Picker }
-
 public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
 {
     public int canvasWidth = 512;

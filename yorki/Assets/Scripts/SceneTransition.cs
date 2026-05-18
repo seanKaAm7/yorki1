@@ -16,7 +16,7 @@ public class SceneTransition : MonoBehaviour
 
     public bool IsTransitioning { get; private set; }
 
-    public static SceneTransition EnsureInstance()
+    public static SceneTransition EnsureInstance() // 싱글톤 인스턴스 보장. 이미 존재하면 반환, 그렇지 않으면 씬에서 찾아보고 없으면 새로 생성.
     {
         if (Instance != null)
             return Instance;
@@ -29,7 +29,7 @@ public class SceneTransition : MonoBehaviour
         return go.AddComponent<SceneTransition>();
     }
 
-    public static CanvasGroup EnsureCanvasGroup(GameObject target)
+    public static CanvasGroup EnsureCanvasGroup(GameObject target) // CanvasGroup 컴포넌트 보장. 이미 존재하면 반환, 그렇지 않으면 새로 생성.
     {
         CanvasGroup group = target.GetComponent<CanvasGroup>();
         if (group == null)
@@ -37,7 +37,7 @@ public class SceneTransition : MonoBehaviour
         return group;
     }
 
-    void Awake()
+    void Awake() // 싱글톤 패턴 구현. 이미 인스턴스가 존재하면 자신을 파괴하고, 그렇지 않으면 인스턴스로 설정하고 씬 전환 시에도 파괴되지 않도록 함.
     {
         if (Instance != null && Instance != this)
         {
@@ -49,7 +49,7 @@ public class SceneTransition : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    void OnEnable()
+    void OnEnable() // 씬이 로드될 때마다 고객 스테이지 위치를 조정하기 위해 SceneManager.sceneLoaded 이벤트에 핸들러 등록.
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
@@ -72,7 +72,7 @@ public class SceneTransition : MonoBehaviour
         StartCoroutine(TransitionRoutine("SceneA", DrawingStagePosition, true, TalkScenePhase.PreDraw));
     }
 
-    public void SceneAToTalkScene(TalkScenePhase nextPhase)
+    public void SceneAToTalkScene(TalkScenePhase nextPhase) // SceneA에서 TalkScene으로 전환. 다음 대화 단계(nextPhase)를 인자로 받아서 씬이 로드될 때 GameManager.currentTalkPhase에 설정하도록 함.
     {
         if (IsTransitioning) return;
 
@@ -110,7 +110,7 @@ public class SceneTransition : MonoBehaviour
             PlaceStageForActiveScene();
     }
 
-    IEnumerator TransitionRoutine(string targetScene, Vector2 targetPosition, bool toSceneA, TalkScenePhase nextPhase)
+    IEnumerator TransitionRoutine(string targetScene, Vector2 targetPosition, bool toSceneA, TalkScenePhase nextPhase) // 씬 전환 코루틴. targetScene으로 이동하면서 stage를 targetPosition으로 이동. toSceneA가 true면 TalkScene에서 SceneA로, false면 SceneA에서 TalkScene으로 전환. nextPhase는 씬이 로드된 후 GameManager.currentTalkPhase에 설정할 값.
     {
         IsTransitioning = true;
 

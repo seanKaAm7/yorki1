@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Yorki — Architecture & Flows</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0d1017;--surf:#131720;--surf2:#1a1f2e;--bdr:#242840;
+  --txt:#dde1ed;--dim:#555c77;--acc:#f0a841;
+  --scene:#4A9EFF;--singleton:#f0a841;--controller:#b47fff;
+  --system:#4ecdc4;--data:#ff6b6b;--ui:#95e06c;
+}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,'Segoe UI',sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:13px}
+/* HEADER */
+.hdr{display:flex;align-items:center;gap:10px;padding:10px 18px;border-bottom:1px solid var(--bdr);flex-shrink:0}
+.hdr h1{font-size:14px;font-weight:600}
+.hdr-sep{color:var(--dim)}
+.hdr-sub{color:var(--dim);font-size:12px}
+.hdr-hint{margin-left:auto;font-size:11px;color:var(--dim);max-width:340px;line-height:1.4;text-align:right}
+/* FILTER */
+.filters{display:flex;align-items:center;gap:6px;padding:7px 18px;border-bottom:1px solid var(--bdr);flex-shrink:0}
+.f-lbl{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.07em;margin-right:2px}
+.f-btn{padding:3px 11px;border-radius:20px;border:1px solid var(--bdr);background:transparent;color:var(--dim);font-size:11px;cursor:pointer;transition:.15s;font-family:inherit}
+.f-btn:hover{color:var(--txt);border-color:var(--dim)}
+.f-btn.on{background:rgba(240,168,65,.1);border-color:var(--acc);color:var(--acc)}
+/* BODY */
+.body{display:flex;flex:1;overflow:hidden}
+.diag{flex:1;overflow:auto;position:relative}
+/* RIGHT PANEL */
+.rp{width:288px;border-left:1px solid var(--bdr);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.rp-sec{padding:14px 16px;border-bottom:1px solid var(--bdr)}
+.rp-hd{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);font-weight:600;margin-bottom:10px}
+.flow-item{padding:9px 10px;border-radius:6px;cursor:pointer;margin-bottom:3px;border:1px solid transparent;transition:.15s}
+.flow-item:hover{background:var(--surf2)}
+.flow-item.on{background:rgba(240,168,65,.08);border-color:rgba(240,168,65,.3)}
+.fi-title{font-size:12px;font-weight:500;margin-bottom:2px}
+.flow-item.on .fi-title{color:var(--acc)}
+.fi-desc{font-size:11px;color:var(--dim);line-height:1.4}
+.steps-wrap{flex:1;overflow-y:auto;padding:14px 16px}
+.step-item{display:flex;gap:9px;margin-bottom:12px;align-items:flex-start}
+.step-n{flex-shrink:0;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#000;margin-top:2px}
+.step-body .s-node{font-size:9px;color:var(--dim);font-family:monospace;margin-bottom:2px}
+.step-body .s-text{font-size:11px;line-height:1.5;color:var(--txt)}
+.steps-empty{font-size:11px;color:var(--dim);line-height:1.6;padding-top:4px}
+/* TOOLTIP */
+#tip{position:fixed;background:var(--surf2);border:1px solid var(--bdr);border-radius:6px;padding:9px 12px;font-size:11px;max-width:260px;line-height:1.5;pointer-events:none;display:none;z-index:999}
+#tip-title{font-weight:600;font-size:12px;margin-bottom:4px}
+/* SVG ANIM */
+@keyframes dash{to{stroke-dashoffset:-20}}
+.e-active{animation:dash .5s linear infinite}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <h1>Yorki, the Portraitist</h1>
+  <span class="hdr-sep">—</span>
+  <span class="hdr-sub">Architecture &amp; Flows</span>
+  <div class="hdr-hint">노드 호버 → 설명 표시 / 우측 FLOWS 클릭 → 경로 강조 및 단계 표시</div>
+</div>
+<div class="filters" id="filters">
+  <span class="f-lbl">Actor</span>
+</div>
+<div class="body">
+  <div class="diag"><svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg></div>
+  <div class="rp">
+    <div class="rp-sec">
+      <div class="rp-hd">FLOWS</div>
+      <div id="flow-list"></div>
+    </div>
+    <div class="steps-wrap">
+      <div class="rp-hd" id="steps-hd">STEPS</div>
+      <div id="step-list"><p class="steps-empty">좌측 FLOWS에서 항목을 선택하면<br>단계별 설명이 표시됩니다.</p></div>
+    </div>
+  </div>
+</div>
+<div id="tip"><div id="tip-title"></div><div id="tip-body"></div></div>
+
+<script>
+const DATA = {
+  "project":{"name":"Yorki, the Portraitist","subtitle":"Architecture & Flows","engine":"Unity 6000.4.0f1 · URP 2D","version":"Prototype v46"},
+  "nodeTypes":[
+    {"id":"scene","label":"씬","color":"#4A9EFF"},
+    {"id":"singleton","label":"싱글톤","color":"#f0a841"},
+    {"id":"controller","label":"컨트롤러","color":"#b47fff"},
+    {"id":"system","label":"시스템","color":"#4ecdc4"},
+    {"id":"data","label":"데이터","color":"#ff6b6b"},
+    {"id":"ui","label":"UI 컴포넌트","color":"#95e06c"}
+  ],
+  "nodes":[
+    {"id":"talk_scene","label":"TalkScene","type":"scene","description":"손님과 대화하는 씬. 손님이 먼저 말을 걸고 그림 그리러 가거나, 제출 후 손님 반응 대사를 듣는 곳.","x":20,"y":50},
+    {"id":"scene_a","label":"SceneA","type":"scene","description":"그림을 그리는 씬. 오른쪽 절반에 도구와 캔버스가 있고, 왼쪽 손님·배경은 씬이 바뀌어도 그대로 유지됨.","x":540,"y":50},
+    {"id":"persistent_bootstrap","label":"PersistentBootstrap","type":"singleton","description":"씬이 바뀌어도 사라지지 않는 관리자. 손님 캐릭터와 배경의 위치 정보를 들고 씬 전환 내내 살아 있음.","x":280,"y":50},
+    {"id":"scene_transition","label":"SceneTransition","type":"singleton","description":"씬 전환 애니메이션 담당. 대화창↔드로잉 화면을 0.7초 동안 슬라이드+페이드로 전환함.","x":280,"y":180},
+    {"id":"game_manager","label":"GameManager","type":"controller","description":"제출 후 채점과 결과 처리를 총괄. 오늘 수입, 손님 수, 멘탈 수치를 관리함.","x":280,"y":310},
+    {"id":"talk_scene_ctrl","label":"TalkSceneController","type":"controller","description":"대사를 한 글자씩 타이핑 출력 담당. Enter/Space로 스킵 가능. 결과 대사가 끝난 후 다음 손님으로 이어지는 부분은 아직 미구현.","x":20,"y":180},
+    {"id":"customer_display","label":"CustomerDisplay","type":"controller","description":"손님 표정과 입 모양을 제어. 말하는 동안 입이 움직이고, 특정 반응에서 흔들리는 연출을 담당.","x":20,"y":310},
+    {"id":"fade_in","label":"FadeIn","type":"ui","description":"손님이 등장할 때 0.8초 동안 서서히 나타나게 하는 컴포넌트.","x":20,"y":440},
+    {"id":"scene_a_ui_ctrl","label":"SceneADrawingUIController","type":"controller","description":"드로잉 화면 UI 전체를 연결하는 컨트롤러. 도구 4종, 팔레트, 색상 박스, 실행 취소/제출 버튼을 모두 관리.","x":540,"y":180},
+    {"id":"drawing_canvas","label":"DrawingCanvas","type":"system","description":"실제 그림이 저장되는 캔버스. 마우스로 선을 그리고, 최대 20번 되돌리기 가능. 배경은 투명.","x":540,"y":310},
+    {"id":"thickness_slider","label":"ThicknessSliderHandle","type":"ui","description":"브러시 굵기를 조절하는 세로 슬라이더. 위아래로 드래그하면 굵기가 바뀜.","x":540,"y":440},
+    {"id":"score_calculator","label":"ScoreCalculator","type":"system","description":"그림 채점 담당. 기준 이미지와 플레이어 그림을 8×8 격자로 나눠 잉크 분포를 비교해 0~100점을 줌.","x":140,"y":500},
+    {"id":"reaction_system","label":"ReactionSystem","type":"system","description":"점수와 손님 성격을 보고 만족도 5단계를 결정. 수입과 멘탈 피해 여부도 여기서 결정됨.","x":420,"y":500},
+    {"id":"customer_data","label":"CustomerData","type":"data","description":"손님 한 명의 데이터. 이름, 성격 유형, 채점 기준 이미지, 기본 요금, 그림 채점 가중치를 담고 있음.","x":280,"y":620}
+  ],
+  "edges":[
+    {"from":"talk_scene","to":"talk_scene_ctrl","label":"포함"},
+    {"from":"talk_scene","to":"game_manager","label":"대화 단계 확인"},
+    {"from":"talk_scene_ctrl","to":"scene_transition","label":"드로잉 씬으로 전환"},
+    {"from":"talk_scene_ctrl","to":"customer_display","label":"표정·말하기 제어"},
+    {"from":"talk_scene_ctrl","to":"game_manager","label":"대화 단계 확인"},
+    {"from":"customer_display","to":"fade_in","label":"같은 오브젝트"},
+    {"from":"persistent_bootstrap","to":"customer_display","label":"손님 참조 보관"},
+    {"from":"persistent_bootstrap","to":"scene_transition","label":"손님 위치 제공"},
+    {"from":"scene_transition","to":"talk_scene","label":"씬 로드"},
+    {"from":"scene_transition","to":"scene_a","label":"씬 로드"},
+    {"from":"scene_transition","to":"customer_display","label":"손님 상태 초기화"},
+    {"from":"game_manager","to":"score_calculator","label":"채점 요청"},
+    {"from":"game_manager","to":"reaction_system","label":"반응 계산"},
+    {"from":"game_manager","to":"customer_data","label":"현재 손님"},
+    {"from":"game_manager","to":"scene_transition","label":"대화 씬으로 전환"},
+    {"from":"game_manager","to":"drawing_canvas","label":"채점용 이미지 추출"},
+    {"from":"scene_a","to":"scene_a_ui_ctrl","label":"포함"},
+    {"from":"scene_a_ui_ctrl","to":"drawing_canvas","label":"도구·색·크기 제어"},
+    {"from":"scene_a_ui_ctrl","to":"thickness_slider","label":"굵기 값 수신"},
+    {"from":"scene_a_ui_ctrl","to":"game_manager","label":"제출"},
+    {"from":"score_calculator","to":"customer_data","label":"기준 이미지·가중치"},
+    {"from":"reaction_system","to":"customer_data","label":"점수 보정·수입 계산"}
+  ],
+  "flows":[
+    {"id":"predraw","title":"손님 등장 → 드로잉 이동","description":"손님이 등장해 말을 걸고, 대화가 끝나면 그림 그리는 화면으로 넘어가는 흐름",
+     "path":["talk_scene","talk_scene_ctrl","customer_display","scene_transition","scene_a"],
+     "steps":[
+       {"node":"talk_scene","text":"대화 씬이 시작되면 현재 단계가 '손님 등장' 상태인지 확인"},
+       {"node":"talk_scene_ctrl","text":"손님 등장 대사 목록에서 첫 번째 대사를 꺼내 타이핑 출력 시작"},
+       {"node":"customer_display","text":"대사에 맞게 손님 표정이 바뀌고, 말하는 동안 입이 움직임"},
+       {"node":"talk_scene_ctrl","text":"Enter 또는 Space를 누르면 타이핑을 건너뛰거나 다음 대사로 넘어감"},
+       {"node":"talk_scene_ctrl","text":"마지막 대사가 끝나면 손님이 다시 무표정·입 닫힌 상태로 돌아감"},
+       {"node":"scene_transition","text":"대화창이 서서히 사라지고 손님이 왼쪽으로 밀리면서 드로잉 화면으로 이동"},
+       {"node":"scene_transition","text":"전환 시작 0.5초 후, 드로잉 씬 파일을 실제로 불러옴"},
+       {"node":"scene_a","text":"도구와 캔버스가 서서히 나타나며 그림 그릴 준비 완료"}
+     ]},
+    {"id":"submit","title":"제출 → 채점 → 결과 대사","description":"그림을 제출하면 채점하고 손님 반응을 결정해 결과 대사를 출력하는 흐름",
+     "path":["scene_a_ui_ctrl","drawing_canvas","game_manager","score_calculator","reaction_system","customer_data","scene_transition","talk_scene_ctrl"],
+     "steps":[
+       {"node":"scene_a_ui_ctrl","text":"제출 버튼을 누르면 채점 과정이 시작됨"},
+       {"node":"drawing_canvas","text":"투명 배경으로 그린 그림에 흰 배경을 합쳐서 채점용 이미지를 만듦"},
+       {"node":"game_manager","text":"현재 손님 데이터가 없으면 기본 샘플 손님으로 대체"},
+       {"node":"score_calculator","text":"플레이어 그림과 기준 이미지를 격자로 나눠 25번 위치를 맞춰가며 유사도 계산"},
+       {"node":"reaction_system","text":"점수와 손님 성격을 보고 만족도 5단계, 수입, 멘탈 피해 여부 결정"},
+       {"node":"customer_data","text":"손님 성격에 따라 점수 기준이 달라짐 — 까다로운 손님은 더 높은 점수를 요구"},
+       {"node":"game_manager","text":"오늘 수입과 손님 수를 업데이트하고 결과가 좋은지 나쁜지 결정"},
+       {"node":"scene_transition","text":"도구 패널이 사라지고 손님이 다시 중앙으로 돌아오며 대화 씬으로 복귀"},
+       {"node":"talk_scene_ctrl","text":"좋은/나쁜 결과에 맞는 손님 대사 출력. 대사가 끝난 후 다음 손님으로 이어지는 부분은 아직 미구현"}
+     ]},
+    {"id":"scene_change","title":"씬 전환 애니메이션","description":"대화 화면 ↔ 드로잉 화면 사이의 슬라이드+페이드 전환이 내부에서 어떻게 진행되는지",
+     "path":["scene_transition","persistent_bootstrap","customer_display","talk_scene","scene_a"],
+     "steps":[
+       {"node":"scene_transition","text":"전환이 시작되면 그동안 추가 전환 요청을 무시함"},
+       {"node":"scene_transition","text":"지금 보이는 UI(대화창 또는 도구 패널)가 0.3초에 걸쳐 서서히 사라짐"},
+       {"node":"persistent_bootstrap","text":"손님 캐릭터가 자연스러운 가속-감속 움직임으로 옆으로 이동 시작"},
+       {"node":"scene_transition","text":"전환 시작 0.5초 후, 백그라운드에서 새 씬을 불러옴"},
+       {"node":"customer_display","text":"손님이 무표정·입 닫힌 상태로 초기화됨 (드로잉 화면에서 이상해 보이지 않게)"},
+       {"node":"scene_transition","text":"새 씬이 로드되면 새 UI가 서서히 나타남"},
+       {"node":"scene_transition","text":"0.7초가 지나면 손님 위치를 정확히 고정하고 전환 완료"}
+     ]},
+    {"id":"drawing_tool","title":"도구 선택 & 색상 변경","description":"도구를 바꾸고 굵기 슬라이더를 조작하거나 팔레트·색상 박스로 색을 바꾸는 흐름",
+     "path":["scene_a_ui_ctrl","thickness_slider","drawing_canvas"],
+     "steps":[
+       {"node":"scene_a_ui_ctrl","text":"도구 버튼을 클릭하면 현재 도구가 바뀜"},
+       {"node":"drawing_canvas","text":"도구가 바뀌면 해당 도구의 기본 굵기로 자동 설정됨 (펜 6 / 브러시 12 / 지우개 18)"},
+       {"node":"scene_a_ui_ctrl","text":"도구를 바꾸면 굵기 슬라이더가 항상 중앙으로 초기화됨"},
+       {"node":"thickness_slider","text":"슬라이더를 위아래로 드래그하면 굵기 값이 계산되어 전달됨"},
+       {"node":"scene_a_ui_ctrl","text":"슬라이더 위치에 따라 도구별 최소~최대 굵기 범위 안에서 브러시 크기가 결정됨"},
+       {"node":"scene_a_ui_ctrl","text":"팔레트의 색 칸을 클릭하면 브러시 색이 바뀌고 색상 박스도 함께 갱신됨"},
+       {"node":"drawing_canvas","text":"스포이드로 캔버스의 색을 찍으면 팔레트 색이 바뀌고, 자동으로 펜 도구로 돌아옴"}
+     ]},
+    {"id":"scoring","title":"채점 알고리즘 상세","description":"그림을 8×8 격자로 나눠 잉크 분포를 비교해 0~100점을 산출하는 과정",
+     "path":["score_calculator","customer_data"],
+     "steps":[
+       {"node":"score_calculator","text":"플레이어 그림과 손님 기준 이미지, 각각 격자로 변환"},
+       {"node":"score_calculator","text":"GPU에서 처리된 텍스처 데이터를 정확히 읽기 위한 중간 변환 과정"},
+       {"node":"score_calculator","text":"512×512 이미지를 8×8 격자(칸당 64×64픽셀)로 나눔"},
+       {"node":"score_calculator","text":"각 픽셀이 흰색과 얼마나 다른지 계산해 잉크인지 판단"},
+       {"node":"score_calculator","text":"한 칸의 5% 이상에 잉크가 있으면 '그린 칸', 아니면 '빈 칸'으로 처리"},
+       {"node":"customer_data","text":"손님마다 얼굴의 중요 부위(눈, 코 등)에 가중치를 줄 수 있음"},
+       {"node":"score_calculator","text":"그림이 살짝 치우쳐도 25번 위치를 이동하며 가장 높은 점수를 선택해 보정"},
+       {"node":"score_calculator","text":"맞게 그린 부분은 점수를 올리고, 엉뚱하게 그린 부분은 최대 30점 감점"}
+     ]}
+  ]
+};
+
+// ─── constants ───────────────────────────────────────────────────
+const NW=200, NH=58;
+const SVG_NS='http://www.w3.org/2000/svg';
+let activeFlow=null, activeTypes=new Set();
+
+function e(tag){return document.createElementNS(SVG_NS,tag)}
+function typeColor(t){return DATA.nodeTypes.find(n=>n.id===t)?.color||'#888'}
+function nodeById(id){return DATA.nodes.find(n=>n.id===id)}
+
+// ─── border intersection ──────────────────────────────────────────
+function borderPt(cx,cy,tx,ty){
+  const dx=tx-cx,dy=ty-cy,len=Math.sqrt(dx*dx+dy*dy);
+  if(len<.001)return{x:cx,y:cy};
+  const ndx=dx/len,ndy=dy/len;
+  const hw=NW/2,hh=NH/2;
+  const tx2=Math.abs(ndx)>1e-6?hw/Math.abs(ndx):1e9;
+  const ty2=Math.abs(ndy)>1e-6?hh/Math.abs(ndy):1e9;
+  const t=Math.min(tx2,ty2);
+  return{x:cx+ndx*t,y:cy+ndy*t};
+}
+
+function edgePts(src,tgt){
+  const sx=src.x+NW/2,sy=src.y+NH/2,tx=tgt.x+NW/2,ty=tgt.y+NH/2;
+  const p1=borderPt(sx,sy,tx,ty);
+  const p2=borderPt(tx,ty,sx,sy);
+  return{x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y};
+}
+
+function bezier(x1,y1,x2,y2){
+  const dx=x2-x1,dy=y2-y1;
+  const d=Math.sqrt(dx*dx+dy*dy),b=Math.min(d*.38,90);
+  let cx1,cy1,cx2,cy2;
+  if(Math.abs(dy)>=Math.abs(dx)){
+    cx1=x1;cy1=y1+(dy>0?b:-b);cx2=x2;cy2=y2-(dy>0?b:-b);
+  }else{
+    cx1=x1+(dx>0?b:-b);cy1=y1;cx2=x2-(dx>0?b:-b);cy2=y2;
+  }
+  return`M${x1},${y1} C${cx1},${cy1} ${cx2},${cy2} ${x2},${y2}`;
+}
+
+function inFlow(edge,path){
+  if(!path||!path.length)return false;
+  const fi=path.indexOf(edge.from),ti=path.indexOf(edge.to);
+  return fi!==-1&&ti!==-1&&fi<ti;
+}
+
+// ─── render diagram ───────────────────────────────────────────────
+function render(){
+  const svg=document.getElementById('svg');
+  const maxX=Math.max(...DATA.nodes.map(n=>n.x))+NW+30;
+  const maxY=Math.max(...DATA.nodes.map(n=>n.y))+NH+30;
+  svg.setAttribute('viewBox',`0 0 ${maxX} ${maxY}`);
+  svg.setAttribute('width',maxX);
+  svg.setAttribute('height',maxY);
+  svg.innerHTML='';
+
+  const flow=DATA.flows.find(f=>f.id===activeFlow);
+  const path=flow?flow.path:[];
+
+  // defs
+  const defs=e('defs');
+  const mkMark=(id,col)=>{
+    const m=e('marker');
+    m.setAttribute('id',id);m.setAttribute('markerWidth','7');
+    m.setAttribute('markerHeight','7');m.setAttribute('refX','6');
+    m.setAttribute('refY','3');m.setAttribute('orient','auto');
+    const p=e('path');p.setAttribute('d','M0,0 L0,6 L6,3 Z');
+    p.setAttribute('fill',col);m.appendChild(p);defs.appendChild(m);
+  };
+  mkMark('arr','#2e3450');mkMark('arr-on','#f0a841');mkMark('arr-dim','#181c28');
+  svg.appendChild(defs);
+
+  // edges
+  DATA.edges.forEach(edge=>{
+    const src=nodeById(edge.from),tgt=nodeById(edge.to);
+    if(!src||!tgt)return;
+    const on=inFlow(edge,path);
+    const dimmed=path.length>0&&!on;
+    const{x1,y1,x2,y2}=edgePts(src,tgt);
+    const p=e('path');
+    p.setAttribute('d',bezier(x1,y1,x2,y2));
+    p.setAttribute('fill','none');
+    p.setAttribute('stroke',on?'#f0a841':(dimmed?'#181c28':'#2e3450'));
+    p.setAttribute('stroke-width',on?2:1);
+    p.setAttribute('opacity',dimmed?.15:1);
+    if(on){p.setAttribute('stroke-dasharray','8 4');p.classList.add('e-active');}
+    p.setAttribute('marker-end',`url(#${on?'arr-on':(dimmed?'arr-dim':'arr')})`);
+    svg.appendChild(p);
+  });
+
+  // nodes
+  DATA.nodes.forEach(node=>{
+    const on=path.includes(node.id);
+    const typeOk=activeTypes.size===0||activeTypes.has(node.type);
+    const dimmed=(path.length>0&&!on)||!typeOk;
+    const col=typeColor(node.type);
+    const typeLbl=DATA.nodeTypes.find(t=>t.id===node.type)?.label||node.type;
+
+    const g=e('g');
+    g.setAttribute('transform',`translate(${node.x},${node.y})`);
+    g.setAttribute('opacity',dimmed?.15:1);
+    g.style.cursor='pointer';
+
+    const rect=e('rect');
+    rect.setAttribute('width',NW);rect.setAttribute('height',NH);
+    rect.setAttribute('rx',5);rect.setAttribute('fill','#161b2b');
+    rect.setAttribute('stroke',on?col:'#242840');
+    rect.setAttribute('stroke-width',on?1.5:1);
+    g.appendChild(rect);
+
+    // accent bar
+    const bar=e('rect');
+    bar.setAttribute('x',0);bar.setAttribute('y',10);
+    bar.setAttribute('width',3);bar.setAttribute('height',NH-20);
+    bar.setAttribute('rx',1.5);bar.setAttribute('fill',col);
+    g.appendChild(bar);
+
+    // label
+    const lbl=e('text');
+    lbl.setAttribute('x',14);lbl.setAttribute('y',NH/2-3);
+    lbl.setAttribute('fill','#dde1ed');lbl.setAttribute('font-size',10.5);
+    lbl.setAttribute('font-weight','600');
+    lbl.setAttribute('font-family','ui-monospace,"SF Mono",Consolas,monospace');
+    lbl.setAttribute('dominant-baseline','auto');
+    lbl.textContent=node.label;
+    g.appendChild(lbl);
+
+    // type badge
+    const badge=e('text');
+    badge.setAttribute('x',14);badge.setAttribute('y',NH/2+13);
+    badge.setAttribute('fill',col);badge.setAttribute('font-size',9);
+    badge.setAttribute('font-family','system-ui,sans-serif');
+    badge.textContent=typeLbl;
+    g.appendChild(badge);
+
+    // hit area + tooltip
+    const hit=e('rect');
+    hit.setAttribute('width',NW);hit.setAttribute('height',NH);
+    hit.setAttribute('fill','transparent');
+    g.appendChild(hit);
+
+    g.addEventListener('mouseenter',ev=>{
+      document.getElementById('tip-title').textContent=node.label;
+      document.getElementById('tip-body').textContent=node.description;
+      document.getElementById('tip').style.display='block';
+      moveTip(ev);
+    });
+    g.addEventListener('mousemove',moveTip);
+    g.addEventListener('mouseleave',()=>{document.getElementById('tip').style.display='none';});
+    svg.appendChild(g);
+  });
+}
+
+function moveTip(ev){
+  const t=document.getElementById('tip');
+  let x=ev.clientX+14,y=ev.clientY+14;
+  if(x+270>window.innerWidth)x=ev.clientX-280;
+  if(y+130>window.innerHeight)y=ev.clientY-130;
+  t.style.left=x+'px';t.style.top=y+'px';
+}
+
+// ─── flows panel ──────────────────────────────────────────────────
+function buildFlows(){
+  const list=document.getElementById('flow-list');
+  list.innerHTML='';
+  DATA.flows.forEach(fl=>{
+    const d=document.createElement('div');
+    d.className='flow-item'+(activeFlow===fl.id?' on':'');
+    d.innerHTML=`<div class="fi-title">${fl.title}</div><div class="fi-desc">${fl.description}</div>`;
+    d.addEventListener('click',()=>{
+      activeFlow=activeFlow===fl.id?null:fl.id;
+      buildFlows();buildSteps();render();
+    });
+    list.appendChild(d);
+  });
+}
+
+function buildSteps(){
+  const hd=document.getElementById('steps-hd');
+  const list=document.getElementById('step-list');
+  if(!activeFlow){
+    hd.textContent='STEPS';
+    list.innerHTML='<p class="steps-empty">좌측 FLOWS에서 항목을 선택하면<br>단계별 설명이 표시됩니다.</p>';
+    return;
+  }
+  const fl=DATA.flows.find(f=>f.id===activeFlow);
+  hd.textContent=`STEPS — ${fl.title}`;
+  list.innerHTML='';
+  fl.steps.forEach((step,i)=>{
+    const node=nodeById(step.node);
+    const col=node?typeColor(node.type):'#555';
+    const d=document.createElement('div');
+    d.className='step-item';
+    d.innerHTML=`<div class="step-n" style="background:${col};border-color:${col}">${i+1}</div>
+      <div class="step-body"><div class="s-node">${node?node.label:step.node}</div><div class="s-text">${step.text}</div></div>`;
+    list.appendChild(d);
+  });
+}
+
+// ─── filters ─────────────────────────────────────────────────────
+function buildFilters(){
+  const bar=document.getElementById('filters');
+  const allBtn=document.createElement('button');
+  allBtn.className='f-btn on';allBtn.textContent='전체';
+  allBtn.addEventListener('click',()=>{
+    activeTypes.clear();
+    bar.querySelectorAll('.f-btn').forEach(b=>{b.classList.remove('on');b.style.cssText='';});
+    allBtn.classList.add('on');render();
+  });
+  bar.appendChild(allBtn);
+
+  DATA.nodeTypes.forEach(nt=>{
+    const btn=document.createElement('button');
+    btn.className='f-btn';btn.textContent=nt.label;
+    btn.addEventListener('click',()=>{
+      allBtn.classList.remove('on');
+      if(activeTypes.has(nt.id)){
+        activeTypes.delete(nt.id);
+        btn.classList.remove('on');btn.style.cssText='';
+      }else{
+        activeTypes.add(nt.id);
+        btn.classList.add('on');
+        btn.style.borderColor=nt.color;btn.style.color=nt.color;
+        btn.style.background=nt.color+'18';
+      }
+      if(!activeTypes.size)allBtn.classList.add('on');
+      render();
+    });
+    bar.appendChild(btn);
+  });
+}
+
+buildFilters();buildFlows();buildSteps();render();
+</script>
+</body>
+</html>

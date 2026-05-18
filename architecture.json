@@ -1,0 +1,222 @@
+{
+  "project": {
+    "name": "Yorki, the Portraitist",
+    "subtitle": "Architecture & Flows",
+    "engine": "Unity 6000.4.0f1 · URP 2D",
+    "version": "Prototype v46"
+  },
+  "nodeTypes": [
+    { "id": "scene",      "label": "씬",         "color": "#4A9EFF" },
+    { "id": "singleton",  "label": "싱글톤",      "color": "#f0a841" },
+    { "id": "controller", "label": "컨트롤러",    "color": "#b47fff" },
+    { "id": "system",     "label": "시스템",      "color": "#4ecdc4" },
+    { "id": "data",       "label": "데이터",      "color": "#ff6b6b" },
+    { "id": "ui",         "label": "UI 컴포넌트", "color": "#95e06c" }
+  ],
+  "nodes": [
+    {
+      "id": "talk_scene",
+      "label": "TalkScene",
+      "type": "scene",
+      "description": "손님 대화 씬. buildIndex 0. PersistentCanvas + SceneCanvas(DialogueBox) 구조. PreDraw→SceneA, Submit 결과 → ResultGood/Bad 대사.",
+      "x": 20, "y": 50
+    },
+    {
+      "id": "scene_a",
+      "label": "SceneA",
+      "type": "scene",
+      "description": "드로잉 씬. buildIndex 1. 오른쪽 반칸 RightPanel만 보유. 손님·배경은 PersistentCanvas에서 유지됨.",
+      "x": 540, "y": 50
+    },
+    {
+      "id": "persistent_bootstrap",
+      "label": "PersistentBootstrap",
+      "type": "singleton",
+      "description": "DontDestroyOnLoad. customerStage, background, customerDisplay 참조를 씬 전환 중에도 보존. TalkScene에서 1회 생성.",
+      "x": 280, "y": 50
+    },
+    {
+      "id": "scene_transition",
+      "label": "SceneTransition",
+      "type": "singleton",
+      "description": "DontDestroyOnLoad. TalkScene↔SceneA 슬라이드+페이드. duration=0.7s, loadAt=0.5s, fadeDuration=0.3s. EaseInOutQuad.",
+      "x": 280, "y": 180
+    },
+    {
+      "id": "game_manager",
+      "label": "GameManager",
+      "type": "controller",
+      "description": "Submit 처리 허브. currentTalkPhase(static)로 씬 경계를 넘김. todayEarnings / customersServed / mentalHealth 집계. DontDestroyOnLoad 아님.",
+      "x": 280, "y": 310
+    },
+    {
+      "id": "talk_scene_ctrl",
+      "label": "TalkSceneController",
+      "type": "controller",
+      "description": "PreDraw / ResultGood / ResultBad 대사 타이핑 출력. Enter/Space 스킵. typeSpeed=0.04s. 대사 종료 시 씬 전환 또는 루프 종료(현재 미구현).",
+      "x": 20, "y": 180
+    },
+    {
+      "id": "customer_display",
+      "label": "CustomerDisplay",
+      "type": "controller",
+      "description": "감정 문자열(neutral/happy/surprised/gesture/thinking) 기반 스프라이트 교체. mouthFrameInterval=3으로 과다전환 억제. Shake 연출.",
+      "x": 20, "y": 310
+    },
+    {
+      "id": "fade_in",
+      "label": "FadeIn",
+      "type": "ui",
+      "description": "Customer Image에 부착. duration=0.8s 알파 페이드인 등장 연출.",
+      "x": 20, "y": 440
+    },
+    {
+      "id": "scene_a_ui_ctrl",
+      "label": "SceneADrawingUIController",
+      "type": "controller",
+      "description": "SceneA 전체 UI 연결자. Pen/Brush/Eraser/Picker 4종, 팔레트 8칸, RGB 박스, Undo/Redo/Reset/Submit 버튼 배선. EventTrigger 방식.",
+      "x": 540, "y": 180
+    },
+    {
+      "id": "drawing_canvas",
+      "label": "DrawingCanvas",
+      "type": "system",
+      "description": "512×512 RGBA32 텍스처. 마우스 드로잉 + 선 보간(dist×2 steps). Undo/Redo 최대 20단계(Color32[] 스냅샷, ~1MB/스냅). 투명 배경 모드.",
+      "x": 540, "y": 310
+    },
+    {
+      "id": "thickness_slider",
+      "label": "ThicknessSliderHandle",
+      "type": "ui",
+      "description": "세로 THICKNESS 슬라이더 손잡이. 드래그 → 0~1 정규화값(NormalizedValue) → ValueChanged 이벤트 → OnThicknessChanged(t).",
+      "x": 540, "y": 440
+    },
+    {
+      "id": "score_calculator",
+      "label": "ScoreCalculator",
+      "type": "system",
+      "description": "static 클래스. 8×8 잉크 그리드(GRID_SIZE=8) + ±2 슬라이딩 윈도우(25회 비교). INK_THRESHOLD=0.1, 잉크 기준 5%. 0~100점 반환.",
+      "x": 140, "y": 500
+    },
+    {
+      "id": "reaction_system",
+      "label": "ReactionSystem",
+      "type": "system",
+      "description": "static 클래스. 점수 + 손님 타입 → 5단계 반응(VeryUnsatisfied~VerySatisfied) + 수입(basePay×0~2배) + 멘탈피해 여부 반환.",
+      "x": 420, "y": 500
+    },
+    {
+      "id": "customer_data",
+      "label": "CustomerData",
+      "type": "data",
+      "description": "ScriptableObject. customerName / type(Normal/Picky/Relaxed/Jerk) / referenceImage / patienceTime / basePay / zoneWeights[64]. 현재 SampleCustomer 1개.",
+      "x": 280, "y": 620
+    }
+  ],
+  "edges": [
+    { "from": "talk_scene",           "to": "talk_scene_ctrl",    "label": "포함" },
+    { "from": "talk_scene",           "to": "game_manager",       "label": "currentTalkPhase 읽기" },
+    { "from": "talk_scene_ctrl",      "to": "scene_transition",   "label": "TalkSceneToSceneA()" },
+    { "from": "talk_scene_ctrl",      "to": "customer_display",   "label": "SetEmotion / StartTalking" },
+    { "from": "talk_scene_ctrl",      "to": "game_manager",       "label": "currentTalkPhase 읽기" },
+    { "from": "customer_display",     "to": "fade_in",            "label": "같은 GameObject 컴포넌트" },
+    { "from": "persistent_bootstrap", "to": "customer_display",   "label": "ref 보관" },
+    { "from": "persistent_bootstrap", "to": "scene_transition",   "label": "customerStage ref 제공" },
+    { "from": "scene_transition",     "to": "talk_scene",         "label": "LoadScene" },
+    { "from": "scene_transition",     "to": "scene_a",            "label": "LoadScene" },
+    { "from": "scene_transition",     "to": "customer_display",   "label": "ResetCustomerForDrawing()" },
+    { "from": "game_manager",         "to": "score_calculator",   "label": "Calculate() 호출" },
+    { "from": "game_manager",         "to": "reaction_system",    "label": "Evaluate() 호출" },
+    { "from": "game_manager",         "to": "customer_data",      "label": "currentCustomer" },
+    { "from": "game_manager",         "to": "scene_transition",   "label": "SceneAToTalkScene()" },
+    { "from": "game_manager",         "to": "drawing_canvas",     "label": "GetFlattenedTextureForScoring()" },
+    { "from": "scene_a",              "to": "scene_a_ui_ctrl",    "label": "포함" },
+    { "from": "scene_a_ui_ctrl",      "to": "drawing_canvas",     "label": "도구/색/크기 제어" },
+    { "from": "scene_a_ui_ctrl",      "to": "thickness_slider",   "label": "ValueChanged 수신" },
+    { "from": "scene_a_ui_ctrl",      "to": "game_manager",       "label": "OnSubmit() 호출" },
+    { "from": "score_calculator",     "to": "customer_data",      "label": "referenceImage / zoneWeights" },
+    { "from": "reaction_system",      "to": "customer_data",      "label": "ScoreOffset() / GetPayment()" }
+  ],
+  "flows": [
+    {
+      "id": "predraw",
+      "title": "PreDraw 플로우",
+      "description": "게임 시작 시 손님 대화를 통해 SceneA로 넘어가는 전체 흐름",
+      "path": ["talk_scene", "talk_scene_ctrl", "customer_display", "scene_transition", "scene_a"],
+      "steps": [
+        { "node": "talk_scene",      "text": "TalkScene 시작 — GameManager.currentTalkPhase(static) = PreDraw 확인" },
+        { "node": "talk_scene_ctrl", "text": "Start() — _preDrawLines 배열(12줄) 선택, ShowLineRoutine() 코루틴 시작" },
+        { "node": "customer_display","text": "SetEmotion(emotion) + StartTalking(emotion) — 감정 컷 전환, 말하기 프레임 진행" },
+        { "node": "talk_scene_ctrl", "text": "TypeLine() 중 Enter/Space — 타이핑 즉시 완성 또는 다음 대사 Advance()" },
+        { "node": "talk_scene_ctrl", "text": "마지막 대사 종료 → OnDialogueEnd() — SetEmotion(neutral) + StopTalking()" },
+        { "node": "scene_transition","text": "TalkSceneToSceneA() — DialogueBox 페이드아웃, CustomerStage (0,0)→(-320,0) 슬라이드" },
+        { "node": "scene_transition","text": "elapsed >= loadAt(0.5s) — SceneManager.LoadScene(SceneA)" },
+        { "node": "scene_a",         "text": "SceneA 로드 — RightPanel CanvasGroup alpha 0→1 페이드인, 드로잉 대기" }
+      ]
+    },
+    {
+      "id": "submit",
+      "title": "Submit 채점 플로우",
+      "description": "그림 제출 → 채점 → 반응 계산 → 결과 대사 출력까지의 전체 흐름",
+      "path": ["scene_a_ui_ctrl", "drawing_canvas", "game_manager", "score_calculator", "reaction_system", "customer_data", "scene_transition", "talk_scene_ctrl"],
+      "steps": [
+        { "node": "scene_a_ui_ctrl",  "text": "SubmitButton 클릭 → OnSubmitClicked() → GameManager.Instance.OnSubmit()" },
+        { "node": "drawing_canvas",   "text": "GetFlattenedTextureForScoring() — 투명 드로잉 레이어 + 흰 배경(1,1,1) 합성, alpha=1" },
+        { "node": "game_manager",     "text": "currentCustomer 확인 — null이면 Resources/Customers/SampleCustomer fallback 로드" },
+        { "node": "score_calculator", "text": "Calculate(playerTex, customer) — BuildGrid() 2회 + 슬라이딩 윈도우 25회 비교" },
+        { "node": "customer_data",    "text": "zoneWeights[64] 가중치 적용 + ScoreOffset() — 손님 타입별 점수 보정(±15~20점)" },
+        { "node": "reaction_system",  "text": "Evaluate(score, customer) — 5단계 ReactionLevel + payment + mentalDamage 반환" },
+        { "node": "game_manager",     "text": "todayEarnings += payment, customersServed++, ResultGood/Bad 페이즈 결정" },
+        { "node": "scene_transition", "text": "SceneAToTalkScene(nextPhase) — RightPanel 페이드아웃, CustomerStage (-320,0)→(0,0)" },
+        { "node": "talk_scene_ctrl",  "text": "TalkScene 재진입 — _resultGoodLines 또는 _resultBadLines 출력 후 현재 루프 없음(미구현)" }
+      ]
+    },
+    {
+      "id": "scene_change",
+      "title": "씬 전환 애니메이션",
+      "description": "TalkScene ↔ SceneA 간 슬라이드 + 페이드 전환의 내부 타이밍과 처리 순서",
+      "path": ["scene_transition", "persistent_bootstrap", "customer_display", "talk_scene", "scene_a"],
+      "steps": [
+        { "node": "scene_transition",     "text": "IsTransitioning = true — 전환 중 중복 요청 차단" },
+        { "node": "scene_transition",     "text": "outgoingGroup(DialogueBox 또는 RightPanel) alpha 1→0 (fadeDuration=0.3s)" },
+        { "node": "persistent_bootstrap", "text": "customerStage RectTransform 참조 — anchoredPosition 보간 시작 (EaseInOutQuad)" },
+        { "node": "scene_transition",     "text": "elapsed >= loadAt(0.5s) — SceneManager.LoadScene() 호출" },
+        { "node": "customer_display",     "text": "ResetCustomerForDrawing() — SetEmotion(neutral) + StopTalking() 호출" },
+        { "node": "scene_transition",     "text": "새 씬 로드 후 incomingGroup 탐색 — alpha 0→1 FadeCanvasGroup() 코루틴" },
+        { "node": "scene_transition",     "text": "duration(0.7s) 종료 — stage 최종위치 고정, IsTransitioning = false" }
+      ]
+    },
+    {
+      "id": "drawing_tool",
+      "title": "드로잉 도구 & 색상 선택",
+      "description": "도구 전환, 굵기 슬라이더, 팔레트, RGB 박스 상호작용 흐름",
+      "path": ["scene_a_ui_ctrl", "thickness_slider", "drawing_canvas"],
+      "steps": [
+        { "node": "scene_a_ui_ctrl",  "text": "도구 버튼 PointerClick(EventTrigger) → SelectTool(Pen/Brush/Eraser/Picker)" },
+        { "node": "drawing_canvas",   "text": "SetTool() — 도구별 기본 굵기 자동 적용 (Pen:6 / Brush:12 / Eraser:18)" },
+        { "node": "scene_a_ui_ctrl",  "text": "thicknessSlider.SetNormalizedValue(0.5) — 도구 전환 시 슬라이더 중앙 리셋" },
+        { "node": "thickness_slider", "text": "드래그 → localPos→clampedY→t(0~1) → ValueChanged 이벤트 발생" },
+        { "node": "scene_a_ui_ctrl",  "text": "OnThicknessChanged(t) — Lerp(toolMin, toolMax, t) → SetBrushSize()" },
+        { "node": "scene_a_ui_ctrl",  "text": "팔레트 슬롯 클릭 → ApplyColorToSelection() → SetBrushColor() + HSV 동기화" },
+        { "node": "scene_a_ui_ctrl",  "text": "RGB 입력 onEndEdit → RGBToHSV → isUpdatingRgbFields 플래그로 무한루프 차단" },
+        { "node": "drawing_canvas",   "text": "Picker 도구 PointerDown → GetColorAtScreenPosition() → ColorPicked 이벤트 → 팔레트 갱신 → Pen 자동 전환" }
+      ]
+    },
+    {
+      "id": "scoring",
+      "title": "채점 알고리즘 상세",
+      "description": "플레이어 텍스처와 기준 이미지를 8×8 그리드로 비교해 0~100점을 산출하는 ScoreCalculator 내부 흐름",
+      "path": ["score_calculator", "customer_data"],
+      "steps": [
+        { "node": "score_calculator", "text": "playerTex + customer.referenceImage 각각 BuildGrid() 호출 — 총 2회 실행" },
+        { "node": "score_calculator", "text": "RenderTexture.GetTemporary(512,512) 경유 읽기 가능 복사 — GPU 렌더 결과 반영" },
+        { "node": "score_calculator", "text": "512÷8=64px 단위로 8×8 칸 분할 — 칸당 4096픽셀" },
+        { "node": "score_calculator", "text": "픽셀 판정: (|r-1|+|g-1|+|b-1|)/3 > INK_THRESHOLD(0.1) → 잉크 픽셀로 분류" },
+        { "node": "score_calculator", "text": "잉크 픽셀 비율 > 5%(≈205px) → 칸 값 = 1, 미만이면 0" },
+        { "node": "customer_data",    "text": "zoneWeights[64] 적용 — 얼굴 중심부 2.0 / 배경 0.5 권장. 미설정 시 1.0 균등" },
+        { "node": "score_calculator", "text": "dx,dy = -2~2 슬라이딩 윈도우 25회 비교 후 최고점 채택 — 그림 위치 오차 보정" },
+        { "node": "score_calculator", "text": "rawScore = (correctScore/totalRefWeight)×100, penaltyScore = (wrongPenalty/totalPlayerInk)×30, 최종 = raw - penalty" }
+      ]
+    }
+  ]
+}
