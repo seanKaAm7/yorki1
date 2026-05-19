@@ -13,7 +13,6 @@ public class CustomerData : ScriptableObject
     public Texture2D referenceImage;
 
     [Header("게임 설정")]
-    public float patienceTime = 0f;
     public int basePay = 10;
 
     [Header("존 가중치 (8x8 = 64칸)")]

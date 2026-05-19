@@ -40,12 +40,12 @@ public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IDragHandler, I
 
     void Start() // 초기화. 텍스처 생성하고 캔버스 초기화한 뒤 RawImage에 적용. 드로잉 색상 저장.
     {
-        rawImage = GetComponent<RawImage>();
+        rawImage = GetComponent<RawImage>(); 
         rectTransform = GetComponent<RectTransform>();
         drawTexture = new Texture2D(canvasWidth, canvasHeight, TextureFormat.RGBA32, false);
         drawTexture.filterMode = FilterMode.Point;
         ResetCanvas();
-        rawImage.texture = drawTexture;
+        rawImage.texture = drawTexture; 
         savedDrawColor = brushColor;
     }
 
@@ -224,11 +224,6 @@ public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IDragHandler, I
             brushColor = color;
     }
 
-    public void SetEraser() // 지우개 도구로 전환. UI 버튼에서 호출.
-    {
-        SetTool(DrawingTool.Eraser);
-    }
-
     public void SetBrushSize(int size) // 굵기 설정. UI 슬라이더에서 호출.
     {
         brushSize = Mathf.Clamp(size, 1, 64);
@@ -256,11 +251,6 @@ public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IDragHandler, I
         }
     }
 
-    public int GetThicknessForCurrentTool() // 현재 도구에 맞는 굵기를 반환. UI 슬라이더 설정할 때 사용.
-    {
-        return brushSize;
-    }
-
     public Color GetColorAtScreenPosition(Vector2 screenPos, Camera cam) // 캔버스 내에서 스크린 좌표에 해당하는 픽셀 색상을 반환. 캔버스 밖이면 투명색 반환.
     {
         Vector2 localPos;
@@ -270,8 +260,6 @@ public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IDragHandler, I
         if (x < 0 || x >= canvasWidth || y < 0 || y >= canvasHeight) return Color.clear;
         return drawTexture.GetPixel(x, y);
     }
-
-    public Texture2D GetDrawTexture() { return drawTexture; }
 
     public Texture2D GetFlattenedTextureForScoring() // 배경색과 섞인 최종 픽셀값을 반환. 투명 배경일 때는 투명 픽셀은 배경색으로 간주하여 섞음.
     {
@@ -284,7 +272,7 @@ public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IDragHandler, I
             Color src = source[i];
             Color mixed = Color.Lerp(backgroundColor, src, src.a);
             mixed.a = 1f;
-            pixels[i] = mixed;
+            pixels[i] = mixed;  
         }
 
         flattened.SetPixels32(pixels);

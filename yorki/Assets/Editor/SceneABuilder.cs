@@ -324,8 +324,7 @@ public class SceneABuilder
         controller.redoInactive = unredoSprite;
         controller.resetSprite  = resetSprite;
 
-        controller.paletteSlots         = paletteSlots;
-        controller.paletteDefaultColors = paletteDefaultColors;
+        controller.paletteSlots = paletteSlots;
 
         controller.saturationValueArea = svArea;
         controller.hueBar              = hueBar;

@@ -29,7 +29,6 @@ public class CustomerDisplay : MonoBehaviour
     public bool useExtraNeutralTalkFrames = false;
 
     Image _img;
-    Coroutine _talkCoroutine;
     string _currentEmotion = "neutral";
     Vector2 _originPos;
     int _talkFrameIndex;
@@ -46,8 +45,6 @@ public class CustomerDisplay : MonoBehaviour
     public void StartTalking(string emotion)
     {
         _currentEmotion = emotion;
-        if (_talkCoroutine != null) StopCoroutine(_talkCoroutine);
-        _talkCoroutine = null;
         _talkFrameIndex = 0;
         _mouthFrameHoldCounter = 0;
         _gestureTalkOpen = false;
@@ -57,8 +54,6 @@ public class CustomerDisplay : MonoBehaviour
     // 대사 끝 시 호출
     public void StopTalking()
     {
-        if (_talkCoroutine != null) StopCoroutine(_talkCoroutine);
-        _talkCoroutine = null;
         SetEmotionSprite(_currentEmotion);
     }
 
@@ -109,8 +104,6 @@ public class CustomerDisplay : MonoBehaviour
 
     void OnDisable()
     {
-        if (_talkCoroutine != null) StopCoroutine(_talkCoroutine);
-        _talkCoroutine = null;
         CloseMouth();
     }
 

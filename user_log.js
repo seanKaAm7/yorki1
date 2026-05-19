@@ -145,7 +145,7 @@
          레퍼런스 추가 수집 후 프롬프트 재작업 예정.
 -----------------------------------------
 [Log #25] [2026-04-27 14:30:00]
- * 사용자: md 파일 정리 및 진행상황 문서화 요청, 스프라이트 문제점 기록, CLAUDE.md 업데이트
+ * 사용자: md 파일 정리 및 진행상황 문서화 요청, 스ㅇ프라이트 문제점 기록, CLAUDE.md 업데이트
  * 작업:
    - SCENE_A_TECH.md 신규 생성 — SceneA 기술 문서 (오브젝트 구조, 수치값, 컴포넌트 동작)
    - SCENE_A_PLAN.md 재작성 — 기획 위주로 정리, NameTag 미구현 항목 추가
@@ -661,583 +661,140 @@
 
 /*
 -----------------------------------------
-[Log #76] [2026-05-12 11:00:00]
- * 사용자: 아 rgb피커 저 ui는 안만들어도 돼. 그리고 계획대로 진행해. 마지막으로부터 두 단계 진행하면 되고. 내가 리셋, 서브밋, 언듀, 리듀, 펜, 브러시, 이레이저, 피커, 슬라이더 바, 8 px글자 크기랑 위치를 내가 다 좀 변경했어... 슬라이더바도 크기를 조금 줄이고 싶은데 그 방법 알아놔줘 / 일단 슬라이더 바 크기는 내가 수동으로 지금 변경해서 괜찮아. 일단 스텝 6해볼래? 그리고 아까 내가 새로 요청한 항목들도 같이 변경해줘. 하기 전에 커밋푸쉬해주고
- * 작업:
-   - RGB 피커 UI 구현 제외 결정
-   - DrawingCanvas.cs: penMin/penDefault/penMax, brushMin/brushDefault/brushMax, eraserMin/eraserDefault/eraserMax 필드로 도구별 굵기 범위 분리. GetDefaultThicknessForTool(DrawingTool) / GetThicknessRangeForTool(DrawingTool, out int min, out int max) 메서드 신규 추가. SetBrushSize 단순화 (도구별 저장 로직 제거)
-   - SceneADrawingUIController.cs: WireToolButton에 PointerDown/PointerUp/PointerExit/PointerClick 이벤트 등록으로 도구 버튼 3상태 sprite(base/selecting/selected) 활성화. SelectTool 호출 시 슬라이더 항상 t=0.5(중앙)로 리셋 + default 굵기 ApplyThicknessVisual. OnThicknessChanged에서 GetThicknessRangeForTool로 도구별 [min,max] 매핑. WirePaletteSlots/SelectPaletteSlot/OnColorPicked로 팔레트 8칸 연동. RefreshActionVisuals에서 Undo/Redo 비활성 sprite(unundo/unredo) 반영. minThickness/maxThickness 필드 제거
-   - SceneABuilder.cs: 사용자 수동 조정값 전부 추출해 하드코딩 (Pen/Brush/Eraser/Picker 위치·크기, Undo/Redo/Reset/Submit 위치·크기, ThicknessText, PreviewDot). ThicknessTrack anchoredPosition y 79.85로 수정 (슬라이더 범위 실제 홈 위치 정렬). PalettePanel + PaletteSlot_0~7 생성, 기본 색상 8종(#E29D68 살색 등) 설정. SceneADrawingUIController에 팔레트 슬롯 배열 자동 연결
-   - 슬라이더 바 크기 조절: SliderHandle 이미지는 Assets/Sprites/UI/SceneA/Controls/slider_handle.png, 범위는 ThicknessSliderHandle.cs의 minY/maxY 필드로 제어한다고 안내
-   - git commit + push 완료
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #77] [2026-05-12 14:00:00]
- * 사용자: 저 파란 모서리 네모가 보니까 움직일 수 있는 범위인거같은데, 저 슬라이드 바가 범위의 우측 하단에 고정되어있어 저거를 모서리 네모의 중앙으로 옮기고 싶은데
- * 작업:
-   - SceneA.unity 확인 — SliderHandle anchoredPosition이 (16.95, -88.07)로 틀어진 것 발견 (에디터 실수 드래그로 추정)
-   - MCP manage_components로 SliderHandle anchoredPosition → (0, 0) 수정 후 씬 저장
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #78] [2026-05-12 14:30:00]
- * 사용자: 일단 계획에 포함시키고 그동한 한거 로그랑 패치노트에 안썼냐? 한거 다써라
- * 작업:
-   - user_log.js에 Log #76~#78 소급 기록
-   - PATCH_NOTES.js v32 prepend — Step 6 작업 전체 + SliderHandle 수정 내용
-   - RGB COLOR 피커 패널(스포이드 제외) 구현을 다음 작업 계획에 포함 확정
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #79] [2026-05-12 14:47:57]
- * 사용자: 클로드코드로 방금까지 작업하다가 지금 용량이 꽉차서 바꿨어. 일단 프로젝트 파악해. 그리고  scene_a_drawing 계획 보고  패치노트 js로 최근에 어디까지 했는지 파악해
- * 작업:
-   - 프로젝트 구조, git 상태, SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md, PATCH_NOTES.js, PROGRESS.md, CLAUDE.md 확인
-   - 최근 변경 파일 DrawingCanvas.cs / SceneADrawingUIController.cs / SceneABuilder.cs / SceneA.unity / PATCH_NOTES.js / user_log.js 상태 파악
-   - v32 기준 최근 진행 범위와 남은 작업 정리 예정
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #80] [2026-05-12 14:49:53]
- * 사용자: 근데 왜 난 로그가 75까지 안보이지. .오류낙
- * 작업:
-   - user_log.js 전체 라인 수와 Log #76~#79 존재 여부 확인
-   - Log #76~#79는 파일 하단에 존재하지만 현재 변경분이 아직 커밋/푸시되지 않은 로컬 상태라 외부/이전 탭에서는 #75까지만 보일 수 있음을 확인
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #81] [2026-05-12 14:50:47]
- * 사용자: 커밋 푸쉬해
- * 작업:
-   - 현재 변경 범위 확인: SceneA 드로잉 UI 코드/씬, PATCH_NOTES.js, user_log.js, 2026-05-12 스크린샷
-   - dotnet build yorki/yorki.slnx --no-restore 검증 시도 — 2분 이상 출력 없이 멈춰 프로세스 종료
-   - 관련 변경 전체를 스테이징 후 커밋 및 origin/main으로 푸시 예정
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #82] [2026-05-12 14:58:32]
- * 사용자: 일단 ㅇㅋ.. 다음 계획봐바
- * 작업:
-   - SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md의 다음 구현 단계와 실제 커밋된 v32 상태 차이 확인 예정
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #83] [2026-05-12 15:00:40]
- * 사용자: 내가 rgb피커를 안만들어도 된다고 한건 ui초안 최종.png에 맨 밑에 있는 color 박스에 있는  [Image #1] 이 피커모양은 뺴도 된다는거야. 나머지는rgb 컬러 박스 자체는  똑같이 구현했으면 좋겠는데
- * 작업:
-   - RGB 구현 범위 재해석: COLOR 박스/RGB 컬러 UI는 ui 초안 최종.png처럼 구현하고, 스포이드/피커 아이콘만 제외
-   - SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md에 해당 범위 정정
-   - PATCH_NOTES.js v33 prepend
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #84] [2026-05-12 15:04:28]
- * 사용자: 구현가능?
- * 작업:
-   - RGB 컬러 박스 구현 가능 여부와 권장 구현 순서 설명 예정
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #85] [2026-05-12 15:05:27]
- * 사용자: ㅇㅋ 일단 해보자
- * 작업:
-   - COLOR 박스 RGB 컬러 UI 구현 착수
-   - Submit 버튼 연결과 제출용 flatten texture 적용도 함께 진행 예정
-   - SceneADrawingUIController.cs: SaturationValueArea/HueBar 클릭·드래그, R/G/B 입력, ColorPreview, 팔레트 슬롯/브러시 색 동기화, 팔레트 선택 Outline, SubmitButton 처리 추가
-   - GameManager.cs: 제출 시 GetFlattenedTextureForScoring() 사용하도록 변경
-   - SceneABuilder.cs: ColorPanel / SaturationValueArea / HueBar / RValueInput / GValueInput / BValueInput / ColorPreview 생성 및 컨트롤러 참조 연결
-   - Yorki/Build Scene A 재실행으로 SceneA.unity 반영
-   - Unity SceneA validate 통과: missing script 0, broken prefab 0
-   - Unity Play 모드 짧은 진입/종료 확인: SceneADrawingUIController 초기화 관련 NullReference/MissingReference 없음
-   - Game view/Scene view 캡처는 도구 한계로 UI 확인용으로 부적합해 생성 파일 삭제
-   - SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md 구현 상태 갱신, PATCH_NOTES.js v34 prepend
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #86] [2026-05-12 15:39:08]
- * 사용자: 다 좋아. 구현 잘 했네. 근데 슬라이더 바의 최대픽셀이랑 최소픽셀부분  [Image #1] [Image #2]  사진들처럼 저 검은색 이상으로 넘어가네
- * 작업:
-   - THICKNESS SliderHandle 이동 범위가 손잡이 중심 기준으로 너무 넓게 잡혀 검은 홈 밖으로 넘어가는 문제 확인
-   - ThicknessSliderHandle.cs 기본 minY/maxY를 -120~120에서 -80~80으로 축소
-   - SceneABuilder.cs의 SliderHandle 생성 값도 -100~100에서 -80~80으로 축소
-   - Yorki/Build Scene A 재실행으로 SceneA.unity 반영
-   - Unity에서 SliderHandle 컴포넌트 minY=-80, maxY=80 확인
-   - SceneA validate 통과: missing script 0, broken prefab 0
-   - PATCH_NOTES.js v35 prepend
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #87] [2026-05-12 15:46:07]
- * 사용자: 너가 계속 슬라이더 바랑 크기를 너무 크게 바꿔서 내가 지금 바꿔놨거든? 이 값이 기본값이여야해 디폴트. 바뀐 값. 그리고 한 70, -70으로 바꿔줘 값들
- * 작업:
-   - 현재 Unity 씬의 SliderHandle 수동 조정값을 확인해 SceneABuilder 기본값으로 반영 예정
-   - SliderHandle 이동 범위를 minY=-70, maxY=70으로 조정 예정
-   - 확인한 수동값: anchoredPosition (14.822153, 4.98325), sizeDelta (34.9842, 28.5703)
-   - ThicknessSliderHandle.cs에 centerY 추가, 기본 minY/maxY를 -70/70으로 조정
-   - SceneABuilder.cs에 사용자가 조정한 SliderHandle 위치/크기와 centerY 4.98325, minY -70, maxY 70 반영
-   - Yorki/Build Scene A 재실행으로 SceneA.unity 반영
-   - Unity에서 SliderHandle 컴포넌트 값 확인: centerY 4.98325, minY -70, maxY 70
-   - SceneA validate 통과: missing script 0, broken prefab 0
-   - PATCH_NOTES.js v36 prepend
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #88] [2026-05-12 15:59:57]
- * 사용자: 너 또 좀 밑으로 내려서 내가 원래대로 바꿔놨다. 바꾸지마라 이제
- * 작업:
-   - SliderHandle 위치/크기는 더 이상 임의로 변경하지 않기로 확인
-   - 현재 Unity 씬의 SliderHandle 값 확인: anchoredPosition (14.822153, 4.98325), sizeDelta (34.9842, 28.5703), centerY 4.98325, minY -70, maxY 70
-   - 현재 값이 이미 SceneABuilder 기본값과 일치하므로 SliderHandle 관련 추가 변경은 하지 않음
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #89] [2026-05-12 16:09:18]
- * 사용자: 아무튼 됐고 해낸거만 로그랑 패치노트에 새롭게 기록해 / 다시 기록해 해낸거만
- * 작업:
-   - 완료 기록만 재정리해 PATCH_NOTES.js v37 prepend
-   - COLOR RGB 컬러 박스 구현 완료: SaturationValueArea, HueBar, R/G/B 입력칸, ColorPreview 생성 및 팔레트 슬롯/브러시 색 동기화
-   - Submit 연결 완료: SubmitButton 클릭 시 제출 흐름 실행, 제출 텍스처는 GetFlattenedTextureForScoring() 사용
-   - SceneABuilder 반영 완료: ColorPanel 계층과 RGB 컬러 박스 참조 자동 생성/연결
-   - SliderHandle 최종 기본값 반영 완료: anchoredPosition (14.822153, 4.98325), sizeDelta (34.9842, 28.5703), centerY 4.98325, minY -70, maxY 70
-   - 검증 완료: Yorki/Build Scene A 재실행, SceneA validate 통과(missing script 0, broken prefab 0), Play 모드 짧은 진입/종료에서 UI 초기화 오류 없음
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #90] [2026-05-12 16:13:16]
- * 사용자: 이제 그거 해야하는데 그.. scene a랑 캔버스 반칸이랑 이어지는건 언제하지..? 프로젝트 혹시 알고있어?
- * 작업:
-   - TalkScene/SceneA 전환 구조와 캔버스 반칸 연결 현재 상태 확인 예정
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #91] [2026-05-13 16:13:16]
- * 사용자: 어제 capacity가 차서 오늘 다시 한다. 다시 확인해봐
- * 작업:
-   - git 상태, 최신 user_log.js, PATCH_NOTES.js, TalkScene/SceneA 전환 코드와 Scene A 드로잉 UI 상태 재확인
-   - 현재 main이 origin/main보다 1커밋 앞선 상태 확인
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #92] [2026-05-13 13:29:15]
- * 사용자: 유니티에서 대화씬을 보고싶으면 어떻게 하는지 질문
- * 작업:
-   - 대화씬 파일 위치 확인: yorki/Assets/Scenes/TalkScene.unity
-   - 현재 SceneA에 변경 표시(*)가 있으므로 저장 후 TalkScene을 열어 Play 모드에서 확인하도록 안내
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #93] [2026-05-13 13:34:22]
- * 사용자: TalkScene에서 직접 조정한 Customer, DialogueBox, DialogueText 크기/위치를 기본값으로 삼아달라고 요청
- * 작업:
-   - TalkScene.unity에서 현재 RectTransform 값 확인
-   - TalkSceneBuilder.cs 기본 생성값을 현재 수동 조정값으로 반영
-   - 반영값: Customer pos(-9.320013, -29.144989) size(652.1983, 778.29)
-   - 반영값: DialogueBox pos(-0.00002193451, -209.67) size(923.7028, 256.5178)
-   - 반영값: DialogueText pos(92.86897, 14.530113) size(-44, -146)
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #94] [2026-05-13 13:37:08]
- * 사용자: Scene A Drawing이 다 끝난 상태인지 질문
- * 작업:
-   - SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md / PATCH_NOTES.js / PROGRESS.md 기준 완료 상태 재확인
-   - 결론: Scene A Drawing UI 기능 구현은 1차 완료, 남은 것은 전체 플레이 플로우 검증/미세 조정/문서 최신화
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #95] [2026-05-13 13:38:06]
- * 사용자: 일단 내가 봤을떄 프로토타입은 잘 됐어. 이제 코드 정리나. 좀.. 필요없는 코드나 이런거 확인해서 정리해
- * 작업:
-   - 코드 정리 착수: 현재 git 상태, 프로젝트 지침, C# 스크립트/씬 참조 구조 확인
-   - 명확한 임시 테스트 코드와 미사용 코드 후보를 선별해 안전한 범위에서 정리 예정
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #96] [2026-05-13 13:42:25]
- * 사용자: 코드 정리 요청 계속
- * 작업:
-   - SceneATestTransitionInput 임시 G/B 결과 전환 입력 스크립트와 meta 삭제
-   - SceneABuilder에서 SceneATestTransitionInput 생성 코드 제거
-   - SceneA.unity 루트의 SceneATestTransitionInput 오브젝트와 삭제 스크립트 참조 제거
-   - TalkSceneController로 대체되어 참조가 없는 SceneADialogue 스크립트와 meta 삭제
-   - 삭제 스크립트/GUID 잔존 참조 없음 확인
-   - Unity 전체 강제 refresh/compile 후 Assembly-CSharp.dll 재생성 확인
-   - dotnet build Assembly-CSharp.csproj / Assembly-CSharp-Editor.csproj 경고 0 오류 0 통과
-   - PATCH_NOTES.js v38 prepend
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #97] [2026-05-13 13:47:49]
- * 사용자: 혹시 배경을 맵 배경초안2로 바꿔볼래? 다른 샘플이미지야
- * 작업:
-   - TalkScene 배경 교체 작업 착수
-   - `맵 배경초안2` 후보 이미지 파일 위치 확인 후 TalkScene과 TalkSceneBuilder 기본 배경 경로 반영 예정
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #98] [2026-05-13 13:50:36]
- * 사용자: 배경을 맵 배경초안2로 교체 요청 계속
- * 작업:
-   - 원본 확인: Play Ref/맵 초안/맵 배경초안 2.png
-   - Unity 에셋 추가: yorki/Assets/Sprites/SceneA/MapBackgroundDraft2.png 및 meta
-   - TalkScene.unity Background Image sprite를 MapBackgroundDraft2로 교체
-   - TalkSceneBuilder.cs 기본 배경 경로를 Assets/Sprites/SceneA/MapBackgroundDraft2.png로 교체
-   - 새 배경 import 설정을 point filter / uncompressed로 조정
-   - Unity assets refresh 완료, TalkScene validate 통과(missing script 0, broken prefab 0)
-   - dotnet build Assembly-CSharp-Editor.csproj 경고 0 오류 0 통과
-   - PATCH_NOTES.js v39 prepend
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #99] [2026-05-13 13:56:57]
- * 사용자: 조금 컷 변화  프레임을 줄여야할거같아.. 내가 이미지별로 픽셀단위 consistency가 없어서 로봇이 움직이는것처럼 나온다
- * 작업:
-   - CustomerDisplay/TalkSceneController의 말하기 프레임 전환 구조 확인
-   - 현재 한 글자마다 talk2/neutralTalk/talk1/neutralTalk 프레임을 바꿔 픽셀 불일치가 크게 보이는 상태 확인
-   - 말하기 프레임 전환 빈도와 사용 프레임 수를 줄이는 방향으로 조정 예정
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #100] [2026-05-13 13:59:24]
- * 사용자: 컷 변화 프레임 감소 요청 계속
- * 작업:
-   - CustomerDisplay.cs에 mouthFrameInterval 추가, 기본값 3으로 설정
-   - CustomerDisplay.cs에 useExtraNeutralTalkFrames 추가, 기본값 false로 설정
-   - 기본 neutral 말하기 프레임을 talk2/talk1 순환 대신 neutralTalk 단일 프레임 중심으로 축소
-   - gesture 말하기 프레임도 mouthFrameInterval 기준으로 덜 자주 전환되도록 조정
-   - TalkScene.unity CustomerDisplay serialized 값에 mouthFrameInterval 3, useExtraNeutralTalkFrames 0 반영
-   - TalkSceneBuilder.cs 생성 기본값에도 동일하게 반영
-   - Unity scripts refresh 후 Assembly-CSharp.dll/Assembly-CSharp-Editor.dll 재생성 확인
-   - dotnet build Assembly-CSharp.csproj / Assembly-CSharp-Editor.csproj 경고 0 오류 0 통과
-   - PATCH_NOTES.js v40 prepend
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #101] [2026-05-13 14:04:07]
- * 사용자: 아니면 그냥 한 대사에 한 컷어떄?
- * 작업:
-   - 한 대사 한 컷 방식의 장단점과 현재 스프라이트 픽셀 불일치 문제에 더 적합한지 판단해 설명 예정
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #102] [2026-05-13 14:08:44]
- * 사용자: 폰트를 바꾸고 싶어서 제미나이에게 받은 Kenney 폰트팩 다운로드/맥 폰트 설치 명령어 공유
- * 작업:
-   - 현재 프로젝트 폰트 사용 지점 확인
-   - 현재 TalkScene/SceneA 빌더와 씬 Text들이 Unity 기본 LegacyRuntime.ttf를 사용 중임을 확인
-   - 시스템 폰트 설치보다 Unity 프로젝트 Assets/Fonts에 폰트를 넣고 빌더/씬 참조를 바꾸는 방식이 적합하다고 판단
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #103] [2026-05-13 14:15:06]
- * 사용자: 폰트 폴더에 새로운 폰트 폴더 추가했는데 한번 보고 너가 해볼래?
- * 작업:
-   - 새 폰트 후보 확인: Play Ref/폰트/Moneygraphy Font
-   - Moneygraphy-Pixel.ttf / Moneygraphy-Rounded.ttf 및 OTF 버전 확인
-   - Unity 프로젝트 적용을 위해 Assets/Fonts에 폰트를 복사하고 TalkScene/SceneA Text 참조를 교체 예정
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #104] [2026-05-13 14:15:48]
- * 사용자: 에셋이 아니라 '폰트'폴더야
- * 작업:
-   - 사용자가 추가한 원본 폴더가 Play Ref/폰트/Moneygraphy Font임을 재확인
-   - 원본 폴더는 그대로 두고 Unity 적용을 위한 복사본만 Assets 하위에 둘 필요가 있음을 설명
-   - TTF/OTF/WOFF/EOT 구성 확인, Unity 적용 후보는 TTF의 Moneygraphy-Pixel / Moneygraphy-Rounded
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #105] [2026-05-13 14:19:21]
- * 사용자: 폰트 적용 요청 계속
- * 작업:
-   - Moneygraphy-Pixel.ttf를 Play Ref/폰트/Moneygraphy Font/TTF에서 yorki/Assets/Fonts/Moneygraphy-Pixel.ttf로 복사
-   - Unity refresh로 Moneygraphy-Pixel.ttf.meta 생성 확인: guid a62ebdfe2de6842fcb8899f1d4388413
-   - TalkSceneBuilder.cs / SceneABuilder.cs에 uiFontPath 및 LoadUIFont() 추가
-   - 빌더 생성 Text들이 Moneygraphy-Pixel을 기본 사용하고 없을 때만 LegacyRuntime.ttf fallback 사용하도록 변경
-   - TalkScene.unity의 DialogueText / ContinueArrow 폰트를 Moneygraphy-Pixel로 교체
-   - SceneA.unity의 THICKNESS/RGB 라벨/입력 Text 폰트를 Moneygraphy-Pixel로 교체
-   - Unity refresh 완료, 삭제 스크립트 잔존 참조 없음 확인
-   - dotnet build Assembly-CSharp-Editor.csproj 경고 0 오류 0 통과
-   - PATCH_NOTES.js v41 prepend
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #106] [2026-05-13 14:22:36]
- * 사용자: 혹시 유니티에서 플레이모드가 커맨드 p인데, 젅체화면으로는 어떻게해??
- * 작업:
-   - Unity Editor에서 Play 모드 화면을 크게/전체화면처럼 보는 방법 안내 예정
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #107] [2026-05-13 14:26:07]
- * 사용자: 일단 고생했고 코드 정리, 유지보수를 위한 계획을 세우고 진행해
- * 작업:
-   - 현재 git 상태와 기존 변경 범위 확인
-   - 코드/문서의 구버전 참조, 중복 폰트 로딩, 빌더 유지보수 위험 요소 조사
-   - 유지보수 계획을 세우고 안전한 범위의 정리 패치 진행 예정
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #108] [2026-05-13 14:36:10]
- * 사용자: 일단 고생했고 코드 정리, 유지보수를 위한 계획을 세우고 진행해
- * 작업:
-   - MAINTENANCE_PLAN.md 신규 작성: 현재 기준 상태, 빌더 재실행 주의점, 남은 유지보수 우선순위 정리
-   - YorkiEditorAssets.cs 신규 작성: Editor 빌더 공통 폰트 로딩/스프라이트 import 설정 유틸화
-   - TalkSceneBuilder.cs / SceneABuilder.cs의 중복 폰트 로딩과 스프라이트 import 설정을 공통 유틸로 정리
-   - PROGRESS.md / SCENE_A_TECH.md / SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md를 현재 TalkScene/SceneA 분리 구조와 SceneA 드로잉 UI 완료 상태 기준으로 최신화
-   - Unity refresh 완료 및 YorkiEditorAssets.cs.meta 생성 확인
-   - dotnet build Assembly-CSharp.csproj / Assembly-CSharp-Editor.csproj 경고 0 오류 0 통과
-   - TalkScene / SceneA validate 통과, Build Settings TalkScene(0) / SceneA(1) 확인
-   - PATCH_NOTES.js v42 prepend
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #109] [2026-05-13 14:39:27]
- * 사용자: md도 너무 많아서.. 이미 쓴거나 필요업슨ㄴ건 일단 지우고 (레퍼런스 슈퍼페이퍼마리오랑 역재컷활용정보는지우지마) 조금 겹치는게 있다면 수정해서 파일 양을 좀 줄여줘 그의 채팅내역 rtf도 지워도 된다
- * 작업:
-   - 프로젝트 루트의 md/rtf 문서 목록과 크기 확인
-   - 보존 대상 확인: 레퍼런스_SuperPaperMario_interludes.md, 역재 컷 활용 정보.md
-   - 삭제 전 핵심 내용 흡수: SCENE_A_TECH.md에 스프라이트 정렬 원칙 요약 추가, MAINTENANCE_PLAN.md에 문서 보존/삭제 기준 기록
-   - CLAUDE.md 자동 로드 목록에서 삭제 대상 문서 제거, MAINTENANCE_PLAN.md 자동 로드 추가
-   - 완료된 옛 계획서 삭제: SCENE_A_PLAN.md, SCENE_A_CUT_PLAN.md, SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md, UI 계획.md, pivot.md
-   - 삭제 허용된 RTF 채팅 기록 삭제: 그의 채팅내역.rtf
-   - 루트 md/rtf 목록 확인: md 12개 + rtf 1개에서 md 7개로 축소, rtf 0개
-   - PATCH_NOTES.js v43 prepend
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #110] [2026-05-13 14:52:45]
- * 사용자: 다음은 뭘 해야할까.. 대화, 그리는 프로토타입까지 다 한거같은데
- * 작업:
-   - 현재 프로토타입 완료 범위 기준으로 다음 개발 우선순위 제안 예정
-   - 단일 대화/그리기 기능 이후에는 전체 플레이 루프 검증과 다음 손님/하루 루프가 우선이라고 판단
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #111] [2026-05-13 15:00:43]
- * 사용자: [Image #1] 그냥 대화창 이렇게 바꿀까..?? 검은색으로? 지금 대화창 솔직히 너무 좀 그래
- * 작업:
-   - 첨부 레퍼런스처럼 어두운 반투명 대화창으로 바꾸는 방향에 대한 디자인 의견 제안 예정
-   - 현재 나무 9-slice 대화창보다 가독성과 픽셀아트 일관성이 좋아질 가능성이 높다고 판단
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #112] [2026-05-13 15:02:11]
- * 사용자: 대화창만 바꾸자
- * 작업:
-   - TalkScene 대화창 오브젝트와 TalkSceneBuilder 대화창 생성 코드 확인
-   - TalkSceneBuilder.cs에서 DialogueBox를 어두운 반투명 Image + 얇은 Outline 방식으로 변경
-   - TalkSceneBuilder.cs에 현재 TalkScene.unity DialogueBox 위치/크기 기본값 반영
-   - TalkScene.unity의 DialogueBox sprite 제거, 어두운 반투명 배경색/Outline 적용
-   - DialogueText / ContinueArrow 색상을 어두운 대화창에 맞는 밝은 크림 계열로 변경
-   - PROGRESS.md / SCENE_A_TECH.md 대화창 설명 최신화
-   - dotnet build Assembly-CSharp-Editor.csproj 경고 0 오류 0 통과
-   - TalkScene validate 통과
-   - PATCH_NOTES.js v44 prepend
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #113] [2026-05-13 15:12:16]
- * 사용자: 대화창이 너무 크다 그리고.. 조금 반투명해씅면 좋겠어. 그리고 반반씩 켄버스랑 나오는 컷에서. 손님 입이 벌어져있어서 가장 기본사진으로바꿔줘
- * 작업:
-   - TalkScene 대화창 크기/투명도와 SceneA 진입 시 손님 컷 상태 확인
-   - TalkSceneBuilder.cs 대화창 기본값 변경: 820x160, y -250, alpha 0.78, text padding 재조정
-   - TalkScene.unity DialogueBox / DialogueText / ContinueArrow RectTransform 및 색상 반영
-   - SceneTransition.cs에 SceneA 진입용 ResetCustomerForDrawing() 추가
-   - TalkSceneController.cs에서 PreDraw 종료 시 neutral 기본 컷으로 고정 후 SceneA 전환
-   - SCENE_A_TECH.md 대화창 기본값 최신화
-   - dotnet build Assembly-CSharp.csproj / Assembly-CSharp-Editor.csproj 경고 0 오류 0 통과
-   - TalkScene / SceneA validate 통과
-   - PATCH_NOTES.js v45 prepend
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #114] [2026-05-13 22:32:16]
- * 사용자: 채팅 끌건데 다음 채팅에게 이어서 할 수 있도록 프롬프트를 만들어줘. 복붙하게 / technote부분을 scene a뿐만이 아니라 캔버스부분까지 기술 다 설명해줘
- * 작업:
-   - 다음 채팅용 복붙 프롬프트 작성 예정
-   - 프롬프트 안에 Scene A뿐 아니라 DrawingCanvas, SceneADrawingUIController, ThicknessSliderHandle, Submit/채점 흐름까지 기술 노트로 포함 예정
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #115] [2026-05-13 22:34:23]
- * 사용자: 아니.. 여기다가 하지 말고.. 아까 프롬프트 써달라고 한건 지웠는데 왜 된거야. 아무튼 지금 용량이 다시 회복되서 그건 신경쓰지마. 그냥 scene_a_tech이 파일만 최신화하라는 소리야 캔버스까지 포함해서. 자세하게
- * 작업:
-   - 이전 프롬프트 작성 요청으로 잘못 이해한 점 확인
-   - 작업 범위를 SCENE_A_TECH.md 최신화로 제한
-   - SCENE_A_TECH.md를 Scene A / Drawing Canvas 통합 기술 문서로 재작성
-   - TalkScene, SceneTransition, CustomerDisplay, SceneA UI 계층, DrawingCanvas 입력/텍스처/Undo/Redo/제출 합성 설명 추가
-   - SceneADrawingUIController, ThicknessSliderHandle, 팔레트/COLOR RGB 박스, Submit/ScoreCalculator/ReactionSystem/CustomerData 흐름 상세 추가
-   - git diff --check 기준 SCENE_A_TECH.md / user_log.js 공백 오류 없음 확인
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #116] [2026-05-14 12:01:31]
- * 사용자: 그 문서를 훨씬 더 자세히 써줘 오래걸려도 돼
- * 작업:
-   - SCENE_A_TECH.md를 기존 통합 기술 문서보다 더 자세히 확장
-   - 실제 코드/씬 구현 기준으로 파일별 책임, 씬 생명주기, Canvas 계층, TalkScene/SceneA 오브젝트 필드, DrawingCanvas 내부 동작, SceneADrawingUIController UI 제어, 채점 알고리즘, 빌더 절차, 수동 검증 체크리스트, 흔한 문제, 다음 확장 방향 추가
-   - 코드 변경 없이 문서와 작업 로그만 최신화
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #117] [2026-05-14 12:29:59]
- * 사용자: 혹시 다른 ai한테 프로젝트를 이해시키려면 무슨 md파일 봉져ㅜ면 될까
- * 작업:
-   - 현재 남아있는 md 파일 목록 확인
-   - 다른 AI에게 전달할 우선순위 문서 조합 정리
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #118] [2026-05-14 12:44:05]
- * 사용자: 내가 바이브코드들을로 만들어서 직접 코드 보면서 해체분석하려고 하는데 drawingcanvas는 무슨 언어지 씨샵이였나? 막 texture2d, color32[]이런건 이미 있는 자료형이야?
- * 작업:
-   - DrawingCanvas.cs가 Unity C# 스크립트임을 설명
-   - Texture2D, Color32[], Color, RawImage 등 Unity/C# 자료형의 출처와 역할 설명
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #119] [2026-05-14 12:45:02]
- * 사용자: 아 이거 공불르 어떻게 해야하지 내가 읽을 수 있게ㅁ나 하면 되나
- * 작업:
-   - Unity C# 코드를 직접 해체 분석하기 위한 공부 방향 설명
-   - 우선 목표를 '코드를 읽고 수정할 수 있는 수준'으로 잡는 방식을 안내
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #120] [2026-05-14 13:22:25]
- * 사용자: 짧게 얘기해. MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler 이것들은 이름을 왜 이렇게 지었어
- * 작업:
-   - Unity C# 상속 클래스와 UI 입력 인터페이스 이름의 의미를 짧게 설명
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #121] [2026-05-14 13:27:05]
- * 사용자: public으로 드로잉캔버스 클래스를 한 이유는 뭐야? 퍼블릭으로 굳이 선언안하면 변경이 안되서 그런가
- * 작업:
-   - C# public class의 의미와 Unity 컴포넌트 접근성 설명
------------------------------------------
-*/
-
-/*
------------------------------------------
-[Log #122] [2026-05-14 16:12:56]
- * 사용자: 이거 로그에 정리해
- * 작업:
-   - 현재 TalkScene/SceneA 빌드 흐름에 필요 없는 구형 스크립트와 구형 SampleScene 참조를 정리한 작업 내역 기록
-   - 삭제 대상 참조를 Assets, ProjectSettings, csproj, 현재 빌드 씬 기준으로 재확인
-   - DialogueUI, NarratorController, ReactionUI, DrawingToolbar, GameSceneBuilder, DrawingSceneBuilder, SampleScene 삭제 기록
-   - GameManager.cs에서 구형 내레이터/툴바/반응 UI 필드와 함수 제거 기록
-   - ProjectSettings 기본 씬을 TalkScene으로 변경하고 Assembly-CSharp.csproj의 stale include 제거 기록
-   - dotnet build 런타임/에디터 csproj 경고 0 오류 0, git diff --check 통과 기록
------------------------------------------
-*/
-/*
------------------------------------------
-[Log #123] [2026-05-18 00:00:00]
- * 사용자: 이 프로젝트를 파악해봐
- * 작업: 세션 시작. user_log.js 로그 #122까지 확인.
-         DrawingCanvas.cs, SceneTransition.cs 현재 수정 상태 확인 (빈 줄 제거 + 한국어 주석 추가 수준의 마이너 변경).
-         전체 프로젝트 현황 파악 완료 — TalkScene/SceneA 분리 구조, 씬 전환, 드로잉 캔버스, 채점/반응 시스템 1차 구현 완료 상태.
-         미구현: 결과 대사 종료 후 다음 손님/하루 루프, 저녁 정산 화면, 손님별 기준 이미지 연동.
------------------------------------------
-*/
-/*
------------------------------------------
-[Log #124] [2026-05-18 00:00:00]
- * 사용자: 너가 만들어준 html에서 이런게 이해가 안돼. 조금 이해하기 쉽게 설명해줘 다 변수명이라서 이해도 잘 안돼고
- * 작업: architecture.html STEPS 패널의 씬 전환 애니메이션 단계들을 변수명·함수명 없이 일상 언어로 재설명.
-         또한 이번 세션 전반의 코드 이해 교육 내용(SceneTransition 코루틴, EnsureInstance, ReactionResult 자료형 등) 기록.
+[Log #76] [2026-05-19 00:00:00]
+ * 사용자: ㅎㅇ
+ * 작업: 대화 시작, 로그 번호 갱신
+-----------------------------------------
+[Log #77] [2026-05-19]
+ * 사용자: md들 읽고 프로젝트 파악해
+ * 작업: GAME_PLAN.md, SCENE_A_TECH.md, PROGRESS.md, MAINTENANCE_PLAN.md, SCENE_A_DRAWING_UI_IMPLEMENTATION_PLAN.md,
+         레퍼런스_SuperPaperMario_interludes.md, 역재 컷 활용 정보.md, 초기플랜.md 전체 검토.
+         현재 구현 상태 및 남은 작업 파악 완료.
+-----------------------------------------
+[Log #78] [2026-05-19]
+ * 사용자: deskbase 파일어디있어?
+ * 작업: yorki/Assets/Sprites/UI/SceneA/Desk/ui_fixed.png 위치 안내.
+-----------------------------------------
+[Log #79] [2026-05-19]
+ * 사용자: 이 파일을 그 파일위치랑 이름으로 대체해서 로 바꿀 수 있어?
+ * 작업: Play Ref/UI 초안/전체/ui 고정.png → yorki/Assets/Sprites/UI/SceneA/Desk/ui_fixed.png 덮어쓰기 완료.
+-----------------------------------------
+[Log #80] [2026-05-19]
+ * 사용자: 내 계획을 말해줄까? / 일단 하루치를 만들거고 손님 3명치를 만들거야 (고로/헤일리/윈터).
+         헤일리 대사가 코드 내에 있어서 고치고 싶음. 지피티 프롬프트 복붙 예정.
+ * 작업: 메모리에 세션 계획 저장 (project_session_plan.md). 손님 3명 순서: 고로(아저씨)/헤일리(기존)/윈터(여자B).
+-----------------------------------------
+[Log #81] [2026-05-19]
+ * 사용자: [지피티 프롬프트] 하드코딩된 대사 데이터를 ScriptableObject로 분리. DialogueLineData,
+         CustomerEpisodeData 생성 + TalkSceneController 수정 + 헤일리 에셋 생성.
+ * 작업: 1) Assets/Scripts/DialogueLineData.cs 생성 (speakerName/emotion/text/shake).
+         2) Assets/Scripts/CustomerEpisodeData.cs 생성 (ScriptableObject, sprite 분류는 프로젝트의 CustomerDisplay와 일치).
+         3) TalkSceneController.cs 수정 — TalkSceneLine struct 및 하드코딩 배열 3개 제거,
+            currentEpisode 필드 추가, GetLinesForPhase가 currentEpisode에서 가져옴.
+            currentEpisode null이거나 phase 배열이 비어 있으면 OnDialogueEnd() 직행.
+         4) Assets/Data/CustomerEpisodes/CustomerEpisode_02_Hailey.asset 생성 — 기존 헤일리 대사 12+4+4줄 그대로 이전.
+         5) TalkSceneBuilder.cs 수정 — 빌더 재실행 시 currentEpisode 자동 재연결.
+         6) TalkScene.unity의 TalkSceneController에 currentEpisode 참조 직접 박음 (빌더 실행 없이도 즉시 동작).
+         7) Assembly-CSharp.csproj에 신규 .cs 2개 등록.
+         8) dotnet build Assembly-CSharp / Assembly-CSharp-Editor 둘 다 오류 0 / 경고 0 통과.
+         주의: sprite 필드는 모두 null. CustomerDisplay 컴포넌트가 가진 기본 컷 그대로 사용.
+         손님별 sprite 분리는 다음 작업(고로/윈터 추가) 때.
+-----------------------------------------
+[Log #82] [2026-05-19]
+ * 사용자: currentEpisode null / phase 배열 비어있을 때 Debug.LogWarning만 보강.
+ * 작업: TalkSceneController.GetLinesForPhase에 phase 배열이 null 또는 빈 배열일 때
+         어떤 에피소드의 어떤 phase가 비었는지 출력하는 LogWarning 추가.
+         흐름은 그대로 (빈 배열 → OnDialogueEnd 직행). 컴파일 0 오류.
+-----------------------------------------
+[Log #83] [2026-05-19]
+ * 사용자: submit 후 결과 대사가 첫 한글자에 잘리고 엔터를 눌러야 모든 문장이 나오는 오류.
+ * 작업: 원인 — TalkScene 재로드 시 빌더가 만든 새 PersistentBootstrap이 자기 자신을
+         Destroy하며 자식 Customer/CustomerDisplay도 함께 파괴됨. TalkSceneController의
+         인스펙터 customerDisplay 참조는 파괴 직전 새 인스턴스를 가리킴 → TypeLine 코루틴
+         첫 yield 후 다음 프레임에 MissingReferenceException → 코루틴 종료 → _typing=true
+         상태로 멈춤 → 엔터 누르면 스킵 분기로 전체 텍스트 출력.
+         수정 — TalkSceneController.BindReferences가 인스펙터 참조와 무관하게 영속 싱글턴
+         (SceneTransition.Instance, PersistentBootstrap.Instance.customerDisplay) 우선 사용.
+         컴파일 0 오류.
+-----------------------------------------
+[Log #84] [2026-05-19]
+ * 사용자: 일단 고로 먼저 만들어봐 / 컷 하나니까 goro 초안.png / 첫번째 손님으로 하자.
+ * 작업: 1) Play Ref/캐릭터 초안/goro 초안.png → yorki/Assets/Sprites/SceneA/Customer_Goro.png 복사.
+         2) Customer_Goro.png.meta 생성 (Sprite single mode, fileID 21300000 표준).
+         3) Assets/Data/CustomerEpisodes/CustomerEpisode_01_Goro.asset 생성.
+            sprite 8필드 모두 Customer_Goro 연결 (컷 하나라서). 대사: 아저씨/튜토리얼 컨셉으로
+            PreDraw 7줄, GoodResult 4줄, BadResult 4줄 작성.
+         4) CustomerEpisode_02_Hailey.asset의 sprite 8필드를 기존 Customer_* 8종으로 채움
+            (고로↔헤일리 전환 시 sprite 복원 안전성 확보).
+         5) TalkSceneController에 ApplyEpisodeSprites() 메서드 추가, Start()에서 호출.
+            currentEpisode의 sprite가 null이 아닐 때만 CustomerDisplay에 주입 + neutral로 재설정.
+         6) TalkScene.unity의 currentEpisode 참조를 고로 에셋으로 변경.
+         7) TalkSceneBuilder의 defaultEpisodePath도 고로로 변경 (첫 손님).
+         8) dotnet build Assembly-CSharp / Assembly-CSharp-Editor 둘 다 오류 0 / 경고 0.
+-----------------------------------------
+[Log #85] [2026-05-19]
+ * 사용자: 헤일리로 안 이어지는데? 고로가 가면 그 사이에 한 6초 텀이 있어야 해.
+ * 작업: 손님 큐 시스템 1차 구현.
+         1) GameManager 수정 — DontDestroyOnLoad 추가 (영속 싱글턴).
+            episodeQueue, currentEpisodeIndex, interCustomerDelay 필드 추가.
+            CurrentEpisode/HasNextEpisode getter, AdvanceToNextEpisode() 메서드.
+         2) TalkSceneController 수정 —
+            - dayEpisodeQueue(시드용), interCustomerDelay(6초), customerFadeDuration(1초) 필드.
+            - EnsureGameManager() — GameManager 없으면 자동 생성하고 dayEpisodeQueue로 시드.
+            - Start()에서 GameManager.CurrentEpisode가 있으면 currentEpisode 덮어쓰기.
+            - 결과 대사 종료 시 NextCustomerRoutine 시작:
+              페이드아웃 1초 → 빈 좌석 4초 → 큐 진행 → 페이드인 1초 → PreDraw 재시작.
+            - 다음 손님 없으면 "하루 종료" 로그.
+         3) TalkScene.unity의 TalkSceneController에 dayEpisodeQueue 시드 [고로, 헤일리] +
+            interCustomerDelay 6, customerFadeDuration 1 추가.
+         4) dotnet build 0 오류 0 경고.
+         흐름: 고로 PreDraw → SceneA → 결과대사 → 6초 텀(페이드아웃/빈/페이드인) →
+              헤일리 PreDraw → SceneA → 결과대사 → 하루 종료.
+         윈터는 아직 에셋 없음. CustomerData(채점)는 SampleCustomer fallback 공유.
+-----------------------------------------
+[Log #86] [2026-05-19]
+ * 사용자: 클로드 코드 한글 깨져 보임 / 폰트만 바꾸고 작업 계속.
+ * 작업: user_log.js NFC 정규화 시도 — 이미 NFC. Claude Code 터미널 폰트 문제로 판명.
+         사용자가 한글 지원 폰트로 변경하기로 함. 파일은 안 건드림.
+-----------------------------------------
+[Log #87] [2026-05-19]
+ * 사용자: 일단 지금까지 한거 기록해.
+ * 작업: PATCH_NOTES.js에 v47 패치 노트 추가 (역순/맨 위 prepend).
+         - 대사 데이터 분리 (DialogueLineData, CustomerEpisodeData, 헤일리 에셋)
+         - 결과 대사 첫 글자 잘림 버그 수정 (영속 싱글턴 우선 사용)
+         - 고로 손님 추가 + 헤일리 sprite 보강 + ApplyEpisodeSprites
+         - 하루 루프 1차 구현 (GameManager 영속 큐 + 6초 텀 전환)
+         PROGRESS.md 갱신:
+         - 전체 진행 요약에 "대사 데이터 분리", "손님 큐 / 하루 루프" 항목 추가
+         - GameManager 섹션에 영속 큐 항목 추가
+         - "대사 데이터 / 손님 에피소드" 섹션 신설
+         - 다음 작업 우선순위 갱신 (Play 모드 검증 → 윈터 → 채점 분리 → 정산 → 대사 확장)
+-----------------------------------------
+[Log #88] [2026-05-19]
+ * 사용자: 리액션 시스템에 아직도 대사 있는데 이거 필요한거야?
+ * 작업: ReactionSystem.cs 분석 — dialogues 5x5 배열, GetDialogue(), ReactionResult.dialogue
+         필드 모두 죽은 코드 확인 (CustomerEpisodeData로 완전 이전됨).
+         제거 후 ReactionSystem.cs 87줄 → 28줄로 축소.
+         using UnityEngine 도 불필요해져서 제거. dotnet build 0 오류 0 경고.
+-----------------------------------------
+[Log #89] [2026-05-19]
+ * 사용자: 그거 말고도 필요없는 코드들 다 지워. 리팩토링해 클린코드로.
+ * 작업: 전체 스크립트(14개) 스캔, 호출처 0인 데드 심볼 일괄 제거.
+         1) DrawingCanvas — SetEraser(), GetDrawTexture(), GetThicknessForCurrentTool() 제거.
+         2) CustomerDisplay — _talkCoroutine 필드 제거 (선언만 되고 StartCoroutine으로 set된 적 없음).
+            관련 StopCoroutine/null 체크 5곳 정리. StartTalking/StopTalking/OnDisable 간결화.
+         3) CustomerData — patienceTime 필드 제거 (읽는 코드 0).
+         4) GameManager — interCustomerDelay 제거 (실제 사용은 TalkSceneController 동명 필드).
+                       HasNextEpisode 제거 (호출처 0). 주석은 CurrentEpisode null 기준으로 갱신.
+         5) SceneADrawingUIController — paletteDefaultColors 필드 제거 (할당만 되고 읽히지 않음).
+            SceneABuilder의 할당 라인도 제거.
+         6) DialogueLineData — speakerName 제거 (asset에 데이터 있지만 출력 코드 없음).
+            asset의 빈 speakerName 라인은 Unity가 자동 무시.
+         결과: Scripts 합계 2078 → 2051 줄. dotnet build Assembly-CSharp / Editor 둘 다
+         경고 0 오류 0.
+-----------------------------------------
+[Log #90] [2026-05-19]
+ * 사용자: 안녕
+ * 작업: 새 대화 세션 시작. 마지막 로그 #89 확인. 대기 중.
 -----------------------------------------
 */

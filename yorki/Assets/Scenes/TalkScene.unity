@@ -929,6 +929,12 @@ MonoBehaviour:
   continueArrow: {fileID: 1072122568}
   dialogueBoxGroup: {fileID: 571746565}
   sceneTransition: {fileID: 1140529207}
+  currentEpisode: {fileID: 11400000, guid: f09c584ee49e4ce6979680bde09afe65, type: 2}
+  dayEpisodeQueue:
+  - {fileID: 11400000, guid: f09c584ee49e4ce6979680bde09afe65, type: 2}
+  - {fileID: 11400000, guid: 31a9bdfd26ba47a5a8b1add93df70962, type: 2}
+  interCustomerDelay: 6
+  customerFadeDuration: 1
   phase: 0
   useGameManagerPhase: 1
   typeSpeed: 0.04

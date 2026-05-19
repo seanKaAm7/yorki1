@@ -14,7 +14,7 @@ public class PersistentBootstrap : MonoBehaviour
     public RectTransform    background;
     public CustomerDisplay  customerDisplay;
 
-    void Awake()
+    void Awake() // 싱글톤 패턴 구현. 이미 인스턴스가 존재하면 자신을 파괴하고, 그렇지 않으면 인스턴스로 설정하고 씬 전환 시에도 파괴되지 않도록 함.
     {
         // 동일 객체가 이미 살아있으면(예: TalkScene 재진입) 본인 파괴
         if (Instance != null && Instance != this)

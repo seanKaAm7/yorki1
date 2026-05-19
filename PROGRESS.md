@@ -1,6 +1,6 @@
 # Yorki, the Portraitist 구현 진행 현황
 
-> 마지막 업데이트: 2026-05-13
+> 마지막 업데이트: 2026-05-19
 
 ## 전체 진행 요약
 
@@ -10,7 +10,8 @@
 | SceneA 드로잉 씬 | 프로토타입 1차 구현 완료 |
 | TalkScene ↔ SceneA 전환 | 구현 완료, 전체 플레이 플로우 수동 검증 필요 |
 | 채점 / 반응 시스템 | 프로토타입 완료 |
-| 하루 루프 | 미착수 |
+| 대사 데이터 분리 | CustomerEpisodeData 기반으로 추출 완료 |
+| 손님 큐 / 하루 루프 | 1차 구현 (고로 → 헤일리, 6초 텀, 페이드 전환). 윈터 미추가, 정산 화면 없음 |
 | 자리 선택 | 미착수 |
 | 저녁 정산 화면 | 미착수 |
 
@@ -32,9 +33,10 @@
 - [x] 사용자가 조정한 Customer / DialogueBox / DialogueText 위치와 크기를 현재 기본값으로 취급
 
 남음:
-- [ ] 결과 대사 종료 후 다음 손님/하루 루프로 넘기는 방식 결정
+- [x] 결과 대사 종료 후 다음 손님으로 넘기는 방식 결정 → 6초 텀 + 페이드 + in-place PreDraw 재시작
 - [ ] NameTag 필요 여부 결정
-- [ ] 실제 플레이 모드에서 전체 흐름 최종 확인
+- [ ] 실제 플레이 모드에서 전체 흐름 최종 확인 (고로 → 헤일리 연속 진행 검증)
+- [ ] 하루 종료 후 정산 화면
 
 ### SceneA.unity
 
@@ -86,10 +88,27 @@
 - [x] 5단계 반응 결과
 - [x] 수입 계산
 - [x] Submit 결과를 Good / Bad 대사 페이즈로 분기
+- [x] GameManager DontDestroyOnLoad + episodeQueue + AdvanceToNextEpisode (영속 큐)
 
 남음:
-- [ ] 하루 수입/손님 수를 실제 루프에 연결
+- [ ] 손님별 CustomerData 분리 (현재 셋 다 SampleCustomer 공유)
+- [ ] 하루 수입/손님 수를 정산 화면에 연결
 - [ ] 저녁 정산 화면
+
+### 대사 데이터 / 손님 에피소드
+
+완료:
+- [x] DialogueLineData (Serializable)
+- [x] CustomerEpisodeData (ScriptableObject) — 손님별 sprite 8종 + PreDraw/Good/Bad 대사 배열
+- [x] CustomerEpisode_01_Goro.asset (튜토리얼 아저씨)
+- [x] CustomerEpisode_02_Hailey.asset (기존 하드코딩 대사 이전)
+- [x] TalkSceneController가 currentEpisode 기반으로 대사 출력
+- [x] ApplyEpisodeSprites — 손님별 sprite를 CustomerDisplay에 자동 주입
+- [x] TalkScene 재로드 시 doomed 참조 사용해서 코루틴 죽던 버그 수정
+
+남음:
+- [ ] CustomerEpisode_03_Winter.asset (윈터 / 여자 B)
+- [ ] 대사 풀 확장 + 조건 필터링 시스템 (방문 횟수/시간대/친밀도 등)
 
 ### Editor 빌더
 
@@ -119,8 +138,8 @@
 
 ## 다음 작업 우선순위
 
-1. TalkScene -> SceneA -> Submit -> TalkScene 결과 대사 전체 플로우 수동 검증
-2. 결과 대사 이후 다음 손님/하루 루프 설계
-3. 손님별 기준 이미지와 채점 데이터 연결
-4. 오래된 SampleScene 계열 스크립트 유지/삭제 결정
-5. 실제 손님 에셋과 대사 데이터 확장
+1. 고로 → 헤일리 연속 루프 Play 모드 수동 검증 (6초 텀, 페이드 자연스러움)
+2. 윈터(CustomerEpisode_03_Winter) 에셋 생성, dayEpisodeQueue에 추가
+3. 손님별 채점 데이터(CustomerData) 분리 및 GameManager.currentCustomer 큐 연동
+4. 하루 종료 후 정산 화면 (수입/손님 수/멘탈)
+5. 대사 풀 확장 + 조건 필터링

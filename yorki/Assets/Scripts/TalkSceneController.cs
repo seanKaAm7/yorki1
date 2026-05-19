@@ -9,14 +9,6 @@ public enum TalkScenePhase
     ResultBad
 }
 
-[System.Serializable]
-public struct TalkSceneLine
-{
-    public string text;
-    public string emotion;
-    public bool shake;
-}
-
 public class TalkSceneController : MonoBehaviour
 {
     [Header("References")]
@@ -26,6 +18,17 @@ public class TalkSceneController : MonoBehaviour
     public CanvasGroup dialogueBoxGroup;
     public SceneTransition sceneTransition;
 
+    [Header("Episode")]
+    [Tooltip("현재 진행 중인 손님. 게임 시작 시 GameManager 큐의 첫 손님으로 자동 교체됨.")]
+    public CustomerEpisodeData currentEpisode;
+
+    [Tooltip("게임 첫 시작 시 GameManager 큐에 시드할 손님 순서. GameManager가 이미 있으면 무시됨.")]
+    public CustomerEpisodeData[] dayEpisodeQueue;
+
+    [Tooltip("결과 대사 끝 ~ 다음 손님 등장까지 텀(초). 페이드아웃/페이드인 포함.")]
+    public float interCustomerDelay = 6f;
+    public float customerFadeDuration = 1f;
+
     [Header("Settings")]
     public TalkScenePhase phase = TalkScenePhase.PreDraw;
     public bool useGameManagerPhase = true;
@@ -33,39 +36,7 @@ public class TalkSceneController : MonoBehaviour
     public float poseDelay = 0.35f;
     public float arrowBlinkRate = 0.5f;
 
-    readonly TalkSceneLine[] _preDrawLines = new TalkSceneLine[]
-    {
-        new TalkSceneLine { text = "안녕하세요.", emotion = "neutral", shake = false },
-        new TalkSceneLine { text = "잘 부탁드려요.", emotion = "neutral", shake = false },
-        new TalkSceneLine { text = "오늘 날씨 좋죠?", emotion = "neutral", shake = false },
-        new TalkSceneLine { text = "긴장되네요, 처음이라서.", emotion = "neutral", shake = false },
-        new TalkSceneLine { text = "잘 그려주실 거죠?", emotion = "happy", shake = false },
-        new TalkSceneLine { text = "저 나중에 사진 찍어도 될까요?", emotion = "happy", shake = false },
-        new TalkSceneLine { text = "천천히 해도 괜찮아요.", emotion = "neutral", shake = false },
-        new TalkSceneLine { text = "여기서 자주 하세요?", emotion = "gesture", shake = false },
-        new TalkSceneLine { text = "오래 걸려요?", emotion = "gesture", shake = false },
-        new TalkSceneLine { text = "어떤 스타일로 그려주세요.", emotion = "gesture", shake = false },
-        new TalkSceneLine { text = "저 어떤 표정 짓고 있으면 될까요?", emotion = "thinking", shake = false },
-        new TalkSceneLine { text = "조용히 있을게요.", emotion = "neutral", shake = false },
-    };
-
-    readonly TalkSceneLine[] _resultGoodLines = new TalkSceneLine[]
-    {
-        new TalkSceneLine { text = "와...!", emotion = "surprised", shake = true },
-        new TalkSceneLine { text = "진짜 저예요?", emotion = "happy", shake = false },
-        new TalkSceneLine { text = "너무 잘 그려주셨어요.", emotion = "happy", shake = false },
-        new TalkSceneLine { text = "친구들한테 꼭 보여줘야겠다.", emotion = "gesture", shake = false },
-    };
-
-    readonly TalkSceneLine[] _resultBadLines = new TalkSceneLine[]
-    {
-        new TalkSceneLine { text = "...음.", emotion = "neutral", shake = false },
-        new TalkSceneLine { text = "뭐... 나쁘지 않네요.", emotion = "neutral", shake = false },
-        new TalkSceneLine { text = "저 이렇게 생겼나요?", emotion = "neutral", shake = false },
-        new TalkSceneLine { text = "다시 해줄 수 있어요?", emotion = "neutral", shake = false },
-    };
-
-    TalkSceneLine[] _lines;
+    DialogueLineData[] _lines;
     int _index;
     bool _typing;
     bool _ended;
@@ -75,6 +46,13 @@ public class TalkSceneController : MonoBehaviour
     void Start()
     {
         BindReferences();
+        EnsureGameManager();
+
+        // GameManager의 큐가 살아 있으면 인스펙터 currentEpisode를 덮어쓴다.
+        if (GameManager.Instance != null && GameManager.Instance.CurrentEpisode != null)
+            currentEpisode = GameManager.Instance.CurrentEpisode;
+
+        ApplyEpisodeSprites();
 
         if (useGameManagerPhase)
             phase = GameManager.currentTalkPhase;
@@ -89,8 +67,10 @@ public class TalkSceneController : MonoBehaviour
         if (!sceneTransition.IsTransitioning)
             sceneTransition.PlaceStageForTalkScene();
 
-        if (_lines.Length > 0)
+        if (_lines != null && _lines.Length > 0)
             StartCoroutine(ShowLineRoutine(_index));
+        else
+            OnDialogueEnd();
     }
 
     void Update()
@@ -103,10 +83,15 @@ public class TalkSceneController : MonoBehaviour
 
     void BindReferences()
     {
-        if (sceneTransition == null)
-            sceneTransition = SceneTransition.EnsureInstance();
+        // SceneTransition / CustomerDisplay는 영속 싱글턴이다.
+        // 빌더가 만든 새 인스턴스는 Awake에서 자기를 Destroy하므로,
+        // 인스펙터에 박힌 참조는 곧 파괴될 객체를 가리킨다.
+        // 항상 살아있는 싱글턴으로 재바인딩한다.
+        SceneTransition persistentTransition = SceneTransition.EnsureInstance();
+        if (persistentTransition != null)
+            sceneTransition = persistentTransition;
 
-        if (customerDisplay == null && PersistentBootstrap.Instance != null)
+        if (PersistentBootstrap.Instance != null && PersistentBootstrap.Instance.customerDisplay != null)
             customerDisplay = PersistentBootstrap.Instance.customerDisplay;
 
         if (customerDisplay == null)
@@ -158,7 +143,7 @@ public class TalkSceneController : MonoBehaviour
 
     IEnumerator ShowLineRoutine(int i)
     {
-        TalkSceneLine line = _lines[i];
+        DialogueLineData line = _lines[i];
 
         if (i > 0 && GetPoseGroup(line.emotion) != GetPoseGroup(_lines[i - 1].emotion))
         {
@@ -244,17 +229,121 @@ public class TalkSceneController : MonoBehaviour
             return;
         }
 
-        Debug.Log("[TalkSceneController] 결과 대사 종료");
+        // 결과 대사 종료 → 다음 손님으로 in-place 전환
+        StartCoroutine(NextCustomerRoutine());
     }
 
-    TalkSceneLine[] GetLinesForPhase(TalkScenePhase targetPhase)
+    IEnumerator NextCustomerRoutine()
     {
+        // 1) 현재 손님 페이드아웃
+        yield return FadeCustomer(1f, 0f, customerFadeDuration);
+
+        // 2) 빈 좌석 텀 (총 interCustomerDelay에서 페이드 시간 빼기)
+        float idle = Mathf.Max(0f, interCustomerDelay - customerFadeDuration * 2f);
+        yield return new WaitForSeconds(idle);
+
+        // 3) 큐 진행
+        if (GameManager.Instance != null)
+            GameManager.Instance.AdvanceToNextEpisode();
+
+        if (GameManager.Instance == null || GameManager.Instance.CurrentEpisode == null)
+        {
+            Debug.Log("[TalkSceneController] 하루 종료 — 손님 모두 응대 완료");
+            yield break;
+        }
+
+        // 4) 다음 손님으로 교체 + 스프라이트 갱신
+        currentEpisode = GameManager.Instance.CurrentEpisode;
+        ApplyEpisodeSprites();
+
+        // 5) 페이드인
+        yield return FadeCustomer(0f, 1f, customerFadeDuration);
+
+        // 6) PreDraw 다시 시작
+        phase = TalkScenePhase.PreDraw;
+        GameManager.currentTalkPhase = TalkScenePhase.PreDraw;
+        _lines = GetLinesForPhase(phase);
+        _index = 0;
+        _ended = false;
+        _typing = false;
+
+        if (_lines != null && _lines.Length > 0)
+            StartCoroutine(ShowLineRoutine(_index));
+        else
+            OnDialogueEnd();
+    }
+
+    IEnumerator FadeCustomer(float from, float to, float duration)
+    {
+        if (customerDisplay == null) yield break;
+        Image img = customerDisplay.GetComponent<Image>();
+        if (img == null) yield break;
+
+        Color c = img.color;
+        c.a = from;
+        img.color = c;
+
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            c.a = Mathf.Lerp(from, to, Mathf.Clamp01(t / duration));
+            img.color = c;
+            yield return null;
+        }
+        c.a = to;
+        img.color = c;
+    }
+
+    void EnsureGameManager()
+    {
+        if (GameManager.Instance != null) return;
+
+        GameObject go = new GameObject("GameManager");
+        GameManager gm = go.AddComponent<GameManager>();
+        if (dayEpisodeQueue != null && dayEpisodeQueue.Length > 0)
+            gm.episodeQueue = dayEpisodeQueue;
+    }
+
+    void ApplyEpisodeSprites()
+    {
+        if (currentEpisode == null || customerDisplay == null) return;
+
+        if (currentEpisode.neutralIdle != null) customerDisplay.neutralIdle = currentEpisode.neutralIdle;
+        if (currentEpisode.neutralTalk != null) customerDisplay.neutralTalk = currentEpisode.neutralTalk;
+        if (currentEpisode.talk1       != null) customerDisplay.talk1       = currentEpisode.talk1;
+        if (currentEpisode.talk2       != null) customerDisplay.talk2       = currentEpisode.talk2;
+        if (currentEpisode.happyIdle   != null) customerDisplay.happyIdle   = currentEpisode.happyIdle;
+        if (currentEpisode.surprised   != null) customerDisplay.surprised   = currentEpisode.surprised;
+        if (currentEpisode.gestureIdle != null) customerDisplay.gestureIdle = currentEpisode.gestureIdle;
+        if (currentEpisode.gestureTalk != null) customerDisplay.gestureTalk = currentEpisode.gestureTalk;
+
+        customerDisplay.SetEmotion("neutral");
+    }
+
+    DialogueLineData[] GetLinesForPhase(TalkScenePhase targetPhase)
+    {
+        if (currentEpisode == null)
+        {
+            Debug.LogWarning("[TalkSceneController] currentEpisode가 비어 있음. Inspector에서 CustomerEpisodeData를 연결하세요.");
+            return new DialogueLineData[0];
+        }
+
+        DialogueLineData[] lines;
         switch (targetPhase)
         {
-            case TalkScenePhase.ResultGood: return _resultGoodLines;
-            case TalkScenePhase.ResultBad: return _resultBadLines;
-            default: return _preDrawLines;
+            case TalkScenePhase.ResultGood: lines = currentEpisode.goodResultLines; break;
+            case TalkScenePhase.ResultBad:  lines = currentEpisode.badResultLines;  break;
+            default:                        lines = currentEpisode.preDrawLines;    break;
         }
+
+        if (lines == null || lines.Length == 0)
+        {
+            Debug.LogWarning($"[TalkSceneController] '{currentEpisode.name}' 에피소드의 {targetPhase} 대사 배열이 비어 있음.");
+            return new DialogueLineData[0];
+        }
+
+        return lines;
     }
 
     static string GetPoseGroup(string emotion)

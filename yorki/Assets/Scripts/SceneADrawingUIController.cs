@@ -56,7 +56,6 @@ public class SceneADrawingUIController : MonoBehaviour
 
     [Header("Palette (8 slots)")]
     public Image[] paletteSlots;
-    public Color[] paletteDefaultColors;
 
     [Header("COLOR / RGB Box")]
     public RawImage saturationValueArea;
@@ -186,11 +185,6 @@ public class SceneADrawingUIController : MonoBehaviour
             click.callback.AddListener(_ => SelectPaletteSlot(idx));
             trigger.triggers.Add(click);
         }
-    }
-
-    void EnsureRaycast(Image image)
-    {
-        image.raycastTarget = true;
     }
 
     void EnsureRaycast(Graphic graphic)
@@ -345,7 +339,7 @@ public class SceneADrawingUIController : MonoBehaviour
         Texture2D playerTex = drawingCanvas.GetFlattenedTextureForScoring();
         int score = ScoreCalculator.Calculate(playerTex, fallbackCustomer);
         ReactionResult result = ReactionSystem.Evaluate(score, fallbackCustomer);
-        TalkScenePhase nextPhase = IsGoodResult(result.level) ? TalkScenePhase.ResultGood : TalkScenePhase.ResultBad;
+        TalkScenePhase nextPhase = ReactionSystem.IsGoodResult(result.level) ? TalkScenePhase.ResultGood : TalkScenePhase.ResultBad;
         Debug.Log($"[SceneADrawingUIController] Submit fallback 점수: {score} | 반응: {result.level}");
         SceneTransition.EnsureInstance().SceneAToTalkScene(nextPhase);
     }
@@ -549,8 +543,4 @@ public class SceneADrawingUIController : MonoBehaviour
         outline.effectDistance = new Vector2(3f, -3f);
     }
 
-    static bool IsGoodResult(ReactionLevel level)
-    {
-        return level == ReactionLevel.Satisfied || level == ReactionLevel.VerySatisfied;
-    }
 }

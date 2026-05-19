@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8907aefbc7b423f80d3185f39744301, type: 3}
+  m_Name: CustomerEpisode_01_Goro
+  m_EditorClassIdentifier:
+  customerId: goro
+  customerName: "고로"
+  neutralIdle: {fileID: 21300000, guid: 2ec5ce25c5ce41a3b914aedd32f914e8, type: 3}
+  neutralTalk: {fileID: 21300000, guid: 2ec5ce25c5ce41a3b914aedd32f914e8, type: 3}
+  talk1: {fileID: 21300000, guid: 2ec5ce25c5ce41a3b914aedd32f914e8, type: 3}
+  talk2: {fileID: 21300000, guid: 2ec5ce25c5ce41a3b914aedd32f914e8, type: 3}
+  happyIdle: {fileID: 21300000, guid: 2ec5ce25c5ce41a3b914aedd32f914e8, type: 3}
+  surprised: {fileID: 21300000, guid: 2ec5ce25c5ce41a3b914aedd32f914e8, type: 3}
+  gestureIdle: {fileID: 21300000, guid: 2ec5ce25c5ce41a3b914aedd32f914e8, type: 3}
+  gestureTalk: {fileID: 21300000, guid: 2ec5ce25c5ce41a3b914aedd32f914e8, type: 3}
+  preDrawLines:
+  - speakerName:
+    emotion: neutral
+    text: "오, 새로 자리 잡았네."
+    shake: 0
+  - speakerName:
+    emotion: neutral
+    text: "여기서 한 번 그려보려고?"
+    shake: 0
+  - speakerName:
+    emotion: neutral
+    text: "긴장하지 말고, 편하게 그려."
+    shake: 0
+  - speakerName:
+    emotion: gesture
+    text: "허허, 나도 옛날엔 그랬지."
+    shake: 0
+  - speakerName:
+    emotion: gesture
+    text: "이 자리 좋아. 사람도 많이 와."
+    shake: 0
+  - speakerName:
+    emotion: neutral
+    text: "오늘은 시간 많으니까 천천히 해도 돼."
+    shake: 0
+  - speakerName:
+    emotion: happy
+    text: "자, 시작해봐."
+    shake: 0
+  goodResultLines:
+  - speakerName:
+    emotion: surprised
+    text: "오, 잘 그렸네!"
+    shake: 1
+  - speakerName:
+    emotion: happy
+    text: "신입치고 손이 좋아."
+    shake: 0
+  - speakerName:
+    emotion: happy
+    text: "고마워, 잘 받았네."
+    shake: 0
+  - speakerName:
+    emotion: gesture
+    text: "다음에 또 들를게."
+    shake: 0
+  badResultLines:
+  - speakerName:
+    emotion: neutral
+    text: "허허..."
+    shake: 0
+  - speakerName:
+    emotion: neutral
+    text: "괜찮아, 처음엔 다 그래."
+    shake: 0
+  - speakerName:
+    emotion: neutral
+    text: "다음에 더 잘 그리면 돼."
+    shake: 0
+  - speakerName:
+    emotion: happy
+    text: "수고했어, 정말."
+    shake: 0

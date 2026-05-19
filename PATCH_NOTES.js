@@ -1,5 +1,25 @@
 /*
 ---------
+[2026-05-19] (v47)
+ * 대사 데이터 분리 — TalkSceneController 안에 하드코딩되어 있던 PreDraw/Good/Bad 대사 배열을 ScriptableObject로 추출
+   - 신규: DialogueLineData (speakerName/emotion/text/shake)
+   - 신규: CustomerEpisodeData (손님 식별 + 8종 sprite + 3종 대사 배열) — `Yorki/Customer Episode` 메뉴
+   - 신규 에셋: Assets/Data/CustomerEpisodes/CustomerEpisode_02_Hailey.asset (기존 하드코딩 대사 그대로 이전)
+ * TalkSceneController 재구성 — currentEpisode 필드 기반 동작, GetLinesForPhase가 에피소드에서 대사 조회
+   - currentEpisode null / phase 배열 비어 있을 때 LogWarning 후 OnDialogueEnd 직행
+ * 결과 대사 첫 글자 잘림 버그 수정 — TalkScene 재로드 시 새 PersistentBootstrap이 자기 자신을 Destroy하면서 새 Customer/CustomerDisplay도 같이 파괴되는데, TalkSceneController가 인스펙터에 박힌 doomed 참조를 사용 → 코루틴 첫 yield 직후 MissingReferenceException으로 코루틴 중단되던 문제
+   - 수정: BindReferences에서 SceneTransition.EnsureInstance()와 PersistentBootstrap.Instance.customerDisplay를 항상 우선 사용
+ * 고로 손님 추가 (첫 번째 손님) — Customer_Goro.png 및 CustomerEpisode_01_Goro.asset 생성, 튜토리얼 아저씨 컨셉 대사 (PreDraw 7 / Good 4 / Bad 4)
+ * 헤일리 에피소드 sprite 8필드 보강 — 고로↔헤일리 전환 시 sprite 복원 안전성 확보
+ * 손님별 sprite 자동 주입 — TalkSceneController.ApplyEpisodeSprites()가 currentEpisode의 sprite를 CustomerDisplay에 주입 (null 필드는 보존)
+ * 하루 루프 1차 구현 — GameManager에 DontDestroyOnLoad + episodeQueue + AdvanceToNextEpisode 추가, TalkSceneController.NextCustomerRoutine으로 결과 대사 종료 후 6초 텀(페이드아웃 1초 + 빈 좌석 4초 + 페이드인 1초) 거치고 다음 손님 PreDraw 재시작
+ * 빌더 정합성 — TalkSceneBuilder 재실행 시 currentEpisode 기본값을 고로 에셋으로 자동 연결
+ * 씬 시드 — TalkScene.unity의 TalkSceneController에 dayEpisodeQueue [고로, 헤일리] + interCustomerDelay 6 + customerFadeDuration 1 인스펙터 시드
+ * 검증 — dotnet build Assembly-CSharp / Assembly-CSharp-Editor 둘 다 경고 0 오류 0
+---------
+*/
+/*
+---------
 [2026-05-14] (v46)
  * 구형 런타임 정리 — 현재 TalkScene/SceneA 흐름에 쓰이지 않는 DialogueUI, NarratorController, ReactionUI, DrawingToolbar 제거
  * 구형 빌더 제거 — SampleScene 기반 GameSceneBuilder, DrawingSceneBuilder 제거

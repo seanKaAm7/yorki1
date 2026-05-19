@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8907aefbc7b423f80d3185f39744301, type: 3}
+  m_Name: CustomerEpisode_02_Hailey
+  m_EditorClassIdentifier: 
+  customerId: hailey
+  customerName: "\uD5E4\uC77C\uB9AC"
+  neutralIdle: {fileID: 4981517323163233701, guid: 00c814e8e3aca4ab9aeb854b668bccac, type: 3}
+  neutralTalk: {fileID: 8563209403616396985, guid: 725f3566aaada4c659728b7a6436e542, type: 3}
+  talk1: {fileID: -3428629399926601764, guid: b75e1150dd67d4fbab71eaebc60de54e, type: 3}
+  talk2: {fileID: 8237795281725868376, guid: 4d1f519edd8954a4c87170d3ad827e91, type: 3}
+  happyIdle: {fileID: 72094713831318622, guid: 1b2d8a1129fe5475eb25177a8e3b6443, type: 3}
+  surprised: {fileID: 2010508286964961909, guid: b9005e0382c764e789601925e4b4d36b, type: 3}
+  gestureIdle: {fileID: -749850063, guid: 53e5e6b1732fc4eaaa5b90bac7439173, type: 3}
+  gestureTalk: {fileID: -1320084081, guid: b9ce771b401df4938945acaed8383633, type: 3}
+  preDrawLines:
+  - speakerName: 
+    emotion: neutral
+    text: "\uC548\uB155\uD558\uC138\uC694!!"
+    shake: 0
+  - speakerName: 
+    emotion: neutral
+    text: "\uADF8\uB9BC \uADF8\uB9AC\uC2DC\uB294 \uAC70\uC5D0\uC694?"
+    shake: 0
+  - speakerName: 
+    emotion: neutral
+    text: "\uC800\uB294 \uC5EC\uAE30 \uC0AC\uB294\uB370 \uCC98\uC74C \uBD59\uB124\uC694 "
+    shake: 0
+  - speakerName: 
+    emotion: neutral
+    text: "\uC800\uB3C4 \uD55C \uBC88 \uBD80\uD0C1\uB4DC\uB9B4\uAC8C\uC694!!"
+    shake: 0
+  - speakerName: 
+    emotion: happy
+    text: "\uC5EC\uAE30 \uC549\uC73C\uBA74 \uB418\uB098\uC694..?"
+    shake: 0
+  - speakerName: 
+    emotion: gesture
+    text: "\uC798 \uBD80\uD0C1\uB4DC\uB824\uC694!"
+    shake: 0
+  - speakerName: 
+    emotion: thinking
+    text: "\uC5B4\uB290\uC815\uB3C4 \uAC78\uB9B4\uAE4C\uC694?"
+    shake: 0
+  goodResultLines:
+  - speakerName: 
+    emotion: surprised
+    text: "\uC640...!"
+    shake: 1
+  - speakerName: 
+    emotion: happy
+    text: "\uC9C4\uC9DC \uC800\uC608\uC694?"
+    shake: 0
+  - speakerName: 
+    emotion: happy
+    text: "\uB108\uBB34 \uC798 \uADF8\uB824\uC8FC\uC168\uC5B4\uC694."
+    shake: 0
+  - speakerName: 
+    emotion: gesture
+    text: "\uCE5C\uAD6C\uB4E4\uD55C\uD14C \uAF2D \uBCF4\uC5EC\uC918\uC57C\uACA0\uB2E4."
+    shake: 0
+  badResultLines:
+  - speakerName: 
+    emotion: neutral
+    text: "...\uC74C."
+    shake: 0
+  - speakerName: 
+    emotion: neutral
+    text: "\uBB50... \uB098\uC058\uC9C0 \uC54A\uB124\uC694."
+    shake: 0
+  - speakerName: 
+    emotion: neutral
+    text: "\uC800 \uC774\uB807\uAC8C \uC0DD\uACBC\uB098\uC694?"
+    shake: 0
+  - speakerName: 
+    emotion: neutral
+    text: "\uB2E4\uC2DC \uD574\uC904 \uC218 \uC788\uC5B4\uC694?"
+    shake: 0

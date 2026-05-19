@@ -5,8 +5,12 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
     public static TalkScenePhase currentTalkPhase = TalkScenePhase.PreDraw;
 
-    [Header("손님 데이터")]
+    [Header("손님 데이터 (채점용)")]
     public CustomerData currentCustomer;
+
+    [Header("하루 에피소드 큐 (대사/표정)")]
+    public CustomerEpisodeData[] episodeQueue;
+    public int currentEpisodeIndex = 0;
 
     [Header("씬 레퍼런스")]
     public DrawingCanvas drawingCanvas;
@@ -16,12 +20,33 @@ public class GameManager : MonoBehaviour
     public int customersServed = 0;
     public int mentalHealth = 5;
 
-    void Awake()
+    public CustomerEpisodeData CurrentEpisode
     {
-        Instance = this;
+        get
+        {
+            if (episodeQueue == null || episodeQueue.Length == 0) return null;
+            if (currentEpisodeIndex < 0 || currentEpisodeIndex >= episodeQueue.Length) return null;
+            return episodeQueue[currentEpisodeIndex];
+        }
     }
 
-    public void OnSubmit()
+    public void AdvanceToNextEpisode() // 큐의 다음 손님으로 인덱스 진행. 마지막 손님 이후 호출되면 CurrentEpisode가 null이 됨.
+    {
+        currentEpisodeIndex++;
+    }
+
+    void Awake() // 영속 싱글턴. 두 번째 인스턴스는 자기 자신을 파괴해서 기존 큐 상태를 보존.
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
+    public void OnSubmit() // 그리기 제출 버튼을 눌렀을 때 호출. DrawingCanvas에서 점수를 계산하고 ReactionSystem으로 반응 평가를 받은 후 수입과 정신 건강에 반영. 그리고 SceneTransition을 통해 TalkScene으로 돌아가면서 결과에 따라 다음 대화 단계 설정.
     {
         if (drawingCanvas == null) return;
 

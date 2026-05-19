@@ -27,6 +27,9 @@ public class TalkSceneBuilder
     const string gestureIdlePath = "Assets/Sprites/SceneA/Customer_Gesture_Idle.png";
     const string gestureTalkPath = "Assets/Sprites/SceneA/Customer_Gesture_Talk.png";
 
+    // 기본 에피소드 (빌더 재실행 시 currentEpisode 참조 자동 복원용 — 첫 손님)
+    const string defaultEpisodePath = "Assets/Data/CustomerEpisodes/CustomerEpisode_01_Goro.asset";
+
     [MenuItem("Yorki/Build Talk Scene")]
     public static void Build()
     {
@@ -207,6 +210,12 @@ public class TalkSceneBuilder
         controller.continueArrow    = arrowTxt;
         controller.dialogueBoxGroup = dlgGroup;
         controller.sceneTransition  = transition;
+
+        var defaultEpisode = AssetDatabase.LoadAssetAtPath<CustomerEpisodeData>(defaultEpisodePath);
+        if (defaultEpisode != null)
+            controller.currentEpisode = defaultEpisode;
+        else
+            Debug.LogWarning($"[TalkSceneBuilder] 기본 에피소드를 찾지 못함: {defaultEpisodePath}");
 
         if (!AssetDatabase.IsValidFolder("Assets/Scenes"))
             AssetDatabase.CreateFolder("Assets", "Scenes");
