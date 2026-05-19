@@ -14,6 +14,7 @@ public class TalkSceneController : MonoBehaviour
     [Header("References")]
     public CustomerDisplay customerDisplay;
     public Text dialogueText;
+    public Text speakerNameText;
     public Text continueArrow;
     public CanvasGroup dialogueBoxGroup;
     public SceneTransition sceneTransition;
@@ -29,6 +30,10 @@ public class TalkSceneController : MonoBehaviour
     public float interCustomerDelay = 6f;
     public float customerFadeDuration = 1f;
 
+    [Header("Intro Monologue")]
+    public DialogueLineData[] introMonologueLines;
+    public string introSpeakerName = "요르키";
+
     [Header("Settings")]
     public TalkScenePhase phase = TalkScenePhase.PreDraw;
     public bool useGameManagerPhase = true;
@@ -40,6 +45,7 @@ public class TalkSceneController : MonoBehaviour
     int _index;
     bool _typing;
     bool _ended;
+    bool _playingIntro;
     Coroutine _typeCoroutine;
     Coroutine _blinkCoroutine;
 
@@ -57,7 +63,19 @@ public class TalkSceneController : MonoBehaviour
         if (useGameManagerPhase)
             phase = GameManager.currentTalkPhase;
 
-        _lines = GetLinesForPhase(phase);
+        if (ShouldPlayIntroMonologue())
+        {
+            _playingIntro = true;
+            GameManager.Instance.introMonologueShown = true;
+            StopInitialCustomerFadeIn();
+            SetCustomerAlpha(0f);
+            _lines = introMonologueLines;
+        }
+        else
+        {
+            _playingIntro = false;
+            _lines = GetLinesForPhase(phase);
+        }
         _index = 0;
 
         SetArrowVisible(false);
@@ -103,6 +121,12 @@ public class TalkSceneController : MonoBehaviour
             if (go != null) dialogueText = go.GetComponent<Text>();
         }
 
+        if (speakerNameText == null)
+        {
+            GameObject go = GameObject.Find("SpeakerNameText");
+            if (go != null) speakerNameText = go.GetComponent<Text>();
+        }
+
         if (continueArrow == null)
         {
             GameObject go = GameObject.Find("ContinueArrow");
@@ -123,7 +147,8 @@ public class TalkSceneController : MonoBehaviour
             if (_typeCoroutine != null) StopCoroutine(_typeCoroutine);
             if (dialogueText != null)
                 dialogueText.text = _lines[_index].text;
-            customerDisplay?.StopTalking();
+            if (!_playingIntro)
+                customerDisplay?.StopTalking();
             _typing = false;
             StartBlink();
             return;
@@ -144,18 +169,22 @@ public class TalkSceneController : MonoBehaviour
     IEnumerator ShowLineRoutine(int i)
     {
         DialogueLineData line = _lines[i];
+        UpdateSpeakerName(line);
 
-        if (i > 0 && GetPoseGroup(line.emotion) != GetPoseGroup(_lines[i - 1].emotion))
+        if (!_playingIntro && i > 0 && GetPoseGroup(line.emotion) != GetPoseGroup(_lines[i - 1].emotion))
         {
             customerDisplay?.StopTalking();
             yield return new WaitForSeconds(poseDelay);
         }
 
-        customerDisplay?.SetEmotion(line.emotion);
-        customerDisplay?.StartTalking(line.emotion);
+        if (!_playingIntro)
+        {
+            customerDisplay?.SetEmotion(line.emotion);
+            customerDisplay?.StartTalking(line.emotion);
 
-        if (line.shake)
-            customerDisplay?.Shake();
+            if (line.shake)
+                customerDisplay?.Shake();
+        }
 
         if (_typeCoroutine != null) StopCoroutine(_typeCoroutine);
         _typeCoroutine = StartCoroutine(TypeLine(line.text));
@@ -171,14 +200,18 @@ public class TalkSceneController : MonoBehaviour
         {
             if (dialogueText != null)
                 dialogueText.text += c;
-            if (ShouldMoveMouth(c))
-                customerDisplay?.AdvanceTalkFrame();
-            else
-                customerDisplay?.CloseMouth();
+            if (!_playingIntro)
+            {
+                if (ShouldMoveMouth(c))
+                    customerDisplay?.AdvanceTalkFrame();
+                else
+                    customerDisplay?.CloseMouth();
+            }
             yield return new WaitForSeconds(typeSpeed);
         }
 
-        customerDisplay?.StopTalking();
+        if (!_playingIntro)
+            customerDisplay?.StopTalking();
         _typing = false;
         StartBlink();
     }
@@ -219,7 +252,14 @@ public class TalkSceneController : MonoBehaviour
         customerDisplay?.StopTalking();
         if (dialogueText != null)
             dialogueText.text = "";
+        UpdateSpeakerName(null);
         SetArrowVisible(false);
+
+        if (_playingIntro)
+        {
+            StartCoroutine(StartFirstCustomerAfterIntro());
+            return;
+        }
 
         if (phase == TalkScenePhase.PreDraw)
         {
@@ -233,10 +273,33 @@ public class TalkSceneController : MonoBehaviour
         StartCoroutine(NextCustomerRoutine());
     }
 
+    IEnumerator StartFirstCustomerAfterIntro()
+    {
+        _playingIntro = false;
+
+        if (GameManager.Instance != null && GameManager.Instance.CurrentEpisode != null)
+            currentEpisode = GameManager.Instance.CurrentEpisode;
+
+        ApplyEpisodeSprites();
+        yield return FadeCustomer(0f, 1f, customerFadeDuration);
+
+        phase = TalkScenePhase.PreDraw;
+        GameManager.currentTalkPhase = TalkScenePhase.PreDraw;
+        _lines = GetLinesForPhase(phase);
+        _index = 0;
+        _ended = false;
+        _typing = false;
+
+        if (_lines != null && _lines.Length > 0)
+            StartCoroutine(ShowLineRoutine(_index));
+        else
+            OnDialogueEnd();
+    }
+
     IEnumerator NextCustomerRoutine()
     {
-        // 1) 현재 손님 페이드아웃
-        yield return FadeCustomer(1f, 0f, customerFadeDuration);
+        // 1) 현재 손님 + 대화창 페이드아웃
+        yield return FadeCustomerAndDialogueBox(1f, 0f, customerFadeDuration);
 
         // 2) 빈 좌석 텀 (총 interCustomerDelay에서 페이드 시간 빼기)
         float idle = Mathf.Max(0f, interCustomerDelay - customerFadeDuration * 2f);
@@ -256,8 +319,8 @@ public class TalkSceneController : MonoBehaviour
         currentEpisode = GameManager.Instance.CurrentEpisode;
         ApplyEpisodeSprites();
 
-        // 5) 페이드인
-        yield return FadeCustomer(0f, 1f, customerFadeDuration);
+        // 5) 다음 손님 + 대화창 페이드인
+        yield return FadeCustomerAndDialogueBox(0f, 1f, customerFadeDuration);
 
         // 6) PreDraw 다시 시작
         phase = TalkScenePhase.PreDraw;
@@ -295,14 +358,92 @@ public class TalkSceneController : MonoBehaviour
         img.color = c;
     }
 
+    IEnumerator FadeCustomerAndDialogueBox(float from, float to, float duration)
+    {
+        Image img = customerDisplay != null ? customerDisplay.GetComponent<Image>() : null;
+        if (img == null && dialogueBoxGroup == null) yield break;
+
+        SetCustomerAlpha(from);
+        SetDialogueBoxAlpha(from);
+
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float alpha = Mathf.Lerp(from, to, Mathf.Clamp01(t / duration));
+            SetCustomerAlpha(alpha);
+            SetDialogueBoxAlpha(alpha);
+            yield return null;
+        }
+
+        SetCustomerAlpha(to);
+        SetDialogueBoxAlpha(to);
+    }
+
+    void StopInitialCustomerFadeIn()
+    {
+        if (customerDisplay == null) return;
+
+        FadeIn fadeIn = customerDisplay.GetComponent<FadeIn>();
+        if (fadeIn == null) return;
+
+        fadeIn.StopAllCoroutines();
+        fadeIn.enabled = false;
+    }
+
+    void SetCustomerAlpha(float alpha)
+    {
+        if (customerDisplay == null) return;
+
+        Image img = customerDisplay.GetComponent<Image>();
+        if (img == null) return;
+
+        Color c = img.color;
+        c.a = alpha;
+        img.color = c;
+    }
+
+    void SetDialogueBoxAlpha(float alpha)
+    {
+        if (dialogueBoxGroup != null)
+            dialogueBoxGroup.alpha = alpha;
+    }
+
     void EnsureGameManager()
     {
-        if (GameManager.Instance != null) return;
+        if (GameManager.Instance != null)
+        {
+            SeedEpisodeQueueIfNeeded(GameManager.Instance);
+            return;
+        }
 
         GameObject go = new GameObject("GameManager");
         GameManager gm = go.AddComponent<GameManager>();
-        if (dayEpisodeQueue != null && dayEpisodeQueue.Length > 0)
+        SeedEpisodeQueueIfNeeded(gm);
+    }
+
+    void SeedEpisodeQueueIfNeeded(GameManager gm)
+    {
+        if (gm == null || dayEpisodeQueue == null || dayEpisodeQueue.Length == 0)
+            return;
+
+        int currentLength = gm.episodeQueue != null ? gm.episodeQueue.Length : 0;
+        if (currentLength < dayEpisodeQueue.Length)
             gm.episodeQueue = dayEpisodeQueue;
+    }
+
+    bool ShouldPlayIntroMonologue()
+    {
+        if (phase != TalkScenePhase.PreDraw)
+            return false;
+        if (introMonologueLines == null || introMonologueLines.Length == 0)
+            return false;
+        if (GameManager.Instance == null)
+            return false;
+        if (GameManager.Instance.currentEpisodeIndex != 0)
+            return false;
+
+        return !GameManager.Instance.introMonologueShown;
     }
 
     void ApplyEpisodeSprites()
@@ -319,6 +460,29 @@ public class TalkSceneController : MonoBehaviour
         if (currentEpisode.gestureTalk != null) customerDisplay.gestureTalk = currentEpisode.gestureTalk;
 
         customerDisplay.SetEmotion("neutral");
+    }
+
+    void UpdateSpeakerName(DialogueLineData line)
+    {
+        if (speakerNameText == null) return;
+
+        if (line == null)
+        {
+            speakerNameText.text = "";
+            speakerNameText.enabled = false;
+            return;
+        }
+
+        string speakerName = "";
+        if (!string.IsNullOrWhiteSpace(line.speakerName))
+            speakerName = line.speakerName;
+        else if (_playingIntro)
+            speakerName = introSpeakerName;
+        else if (currentEpisode != null)
+            speakerName = currentEpisode.customerName;
+
+        speakerNameText.text = speakerName;
+        speakerNameText.enabled = !string.IsNullOrWhiteSpace(speakerName);
     }
 
     DialogueLineData[] GetLinesForPhase(TalkScenePhase targetPhase)

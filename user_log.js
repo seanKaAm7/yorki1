@@ -658,7 +658,6 @@
    - 미구현 (3차): COLOR 박스 안 RGB 피커, 팔레트 8칸 기본 색상
 -----------------------------------------
 */
-
 /*
 -----------------------------------------
 [Log #76] [2026-05-19 00:00:00]
@@ -796,5 +795,161 @@
 [Log #90] [2026-05-19]
  * 사용자: 안녕
  * 작업: 새 대화 세션 시작. 마지막 로그 #89 확인. 대기 중.
+-----------------------------------------
+*/
+/*
+-----------------------------------------
+[Log #91] [2026-05-19 17:29:02]
+ * 사용자: ㅇㅋ 프로젝트파악해봐
+ * 작업: 프로젝트 구조 파악.
+         1) Unity 6000.4.0f1 / URP 2D 프로젝트 확인.
+         2) 핵심 문서(CLAUDE.md, PROGRESS.md, GAME_PLAN.md) 확인.
+         3) 핵심 스크립트 흐름 확인:
+            TalkSceneController, GameManager, SceneTransition, DrawingCanvas,
+            SceneADrawingUIController, CustomerDisplay, CustomerEpisodeData,
+            CustomerData, ScoreCalculator, ReactionSystem.
+         4) TalkScene.unity 빌드 설정 및 dayEpisodeQueue [고로, 헤일리] 연결 확인.
+         5) Unity MCP로 현재 활성 씬 TalkScene, 빌드 씬 TalkScene/SceneA 확인.
+         6) 현재 git 상태 확인: main이 origin/main보다 5커밋 앞섬,
+            TalkSceneController.cs에 디버그 로그 변경 1건 존재.
+-----------------------------------------
+*/
+/*
+-----------------------------------------
+[Log #92] [2026-05-19 17:41:14]
+ * 사용자: 클로드코드 이전 대화 공유. 고로 다음 헤일리가 안 나오고 하루 종료가 뜨는 문제 이어서 처리 요청.
+ * 작업: TalkSceneController.cs 수정.
+         1) Claude가 추가했던 임시 [DEBUG] 로그 제거.
+         2) EnsureGameManager() 보강:
+            기존 GameManager가 이미 존재해도 바로 return하지 않고 SeedEpisodeQueueIfNeeded() 호출.
+         3) SeedEpisodeQueueIfNeeded(GameManager gm) 추가:
+            GameManager.episodeQueue가 null이거나 TalkSceneController.dayEpisodeQueue보다 짧으면
+            dayEpisodeQueue를 다시 주입하도록 변경.
+         4) 의도:
+            런타임에 큐가 비었거나 1명짜리 상태로 살아있는 GameManager 때문에
+            AdvanceToNextEpisode 후 CurrentEpisode가 null이 되어 하루 종료로 빠지는 상황 방지.
+         5) 검증:
+            dotnet build Assembly-CSharp.csproj --no-restore 경고 0 / 오류 0.
+            dotnet build Assembly-CSharp-Editor.csproj --no-restore 경고 0 / 오류 0.
+            Unity scene validate(TalkScene) clean.
+-----------------------------------------
+*/
+/*
+-----------------------------------------
+[Log #93] [2026-05-19 17:47:21]
+ * 사용자: 스크린샷 공유. 수정 후에도 헤일리가 안 나오고 하루 종료가 뜬다고 보고.
+ * 작업:
+         1) Unity Play 중 런타임 TalkSceneController 컴포넌트 상태 확인.
+            currentEpisode는 CustomerEpisode_01_Goro였지만 dayEpisodeQueue가 빈 배열인 것 확인.
+         2) Play 종료 후 에디터 씬의 TalkSceneController.dayEpisodeQueue를
+            CustomerEpisode_01_Goro, CustomerEpisode_02_Hailey 두 에셋으로 다시 연결.
+         3) TalkScene 저장 및 validate clean 확인.
+         4) 저장 과정에서 생긴 TalkScene.unity YAML 순서 변경 diff는 수동으로 되돌려
+            실제 git diff에는 씬 파일 변경이 남지 않게 정리.
+         5) 다시 Play 진입 후 런타임 TalkSceneController.dayEpisodeQueue가
+            [CustomerEpisode_01_Goro, CustomerEpisode_02_Hailey]로 들어간 것 확인.
+-----------------------------------------
+*/
+/*
+-----------------------------------------
+[Log #94] [2026-05-19 17:54:07]
+ * 사용자: 나온다. 이번엔 윈터 추가해줘 헤일리 뒤. 세번째 손님으로 캐릭터초안폴더에 윈터초안있어.
+ * 작업:
+         1) Play Ref/캐릭터 초안/윈터 초안.png를 Assets/Sprites/SceneA/Customer_Winter.png로 복사.
+         2) Customer_Winter.png.meta 생성 — Sprite single 설정, guid 7261c34f63be474d93cd96ab59cb3ff9.
+         3) CustomerEpisode_03_Winter.asset 및 meta 생성.
+            윈터 컷 하나를 neutral/talk/happy/surprised/gesture 8필드에 공통 연결.
+            PreDraw 5줄, GoodResult 4줄, BadResult 4줄 작성.
+         4) TalkScene.unity의 dayEpisodeQueue를 [고로, 헤일리, 윈터] 순서로 확장.
+         5) TalkSceneBuilder.cs 갱신 — 빌더 재실행 시에도 고로/헤일리/윈터 큐 자동 연결.
+         6) PROGRESS.md, PATCH_NOTES.js 갱신.
+         7) Unity refresh/compile, TalkScene validate clean, Assembly-CSharp / Assembly-CSharp-Editor 빌드 경고 0 오류 0.
+         8) Unity asset info로 Customer_Winter.png와 CustomerEpisode_03_Winter.asset 인식 확인.
+-----------------------------------------
+*/
+/*
+-----------------------------------------
+[Log #95] [2026-05-19 18:05:42]
+ * 사용자: 첫손님 오기전에 짧은 독백이랑, 손님과 대화창에서 이름도 보이게 해주셈
+ * 작업:
+         1) DialogueLineData.speakerName 필드를 복원.
+            대사별 speakerName이 비어 있으면 TalkSceneController가
+            독백 중에는 introSpeakerName, 손님 대사 중에는 currentEpisode.customerName을 표시.
+         2) TalkSceneController에 SpeakerNameText 참조와 introMonologueLines 추가.
+            첫 PreDraw 시작이면서 GameManager.currentEpisodeIndex가 0이고
+            introMonologueShown이 false일 때만 요르키 독백 2줄 출력.
+         3) 독백 중에는 초기 Customer FadeIn 코루틴을 멈추고 손님 alpha를 0으로 고정.
+            독백 종료 후 첫 손님을 customerFadeDuration 동안 페이드인한 뒤 기존 PreDraw 대사 시작.
+         4) GameManager에 introMonologueShown 플래그 추가.
+            SceneA 왕복 후 TalkScene으로 돌아와도 첫 독백이 반복되지 않도록 처리.
+         5) TalkSceneBuilder 갱신.
+            SpeakerNameText 생성, DialogueText 영역 조정, 첫 독백/화자명 참조/고로→헤일리→윈터 큐 자동 연결.
+         6) Yorki/Build Talk Scene 실행으로 TalkScene.unity 재생성 및 저장.
+         7) PROGRESS.md, PATCH_NOTES.js 갱신.
+         8) 검증:
+            dotnet build Assembly-CSharp.csproj --no-restore 경고 0 / 오류 0.
+            dotnet build Assembly-CSharp-Editor.csproj --no-restore 경고 0 / 오류 0.
+            Unity refresh/compile 완료, TalkScene validate clean.
+-----------------------------------------
+*/
+/*
+-----------------------------------------
+[Log #96] [2026-05-19 18:18:57]
+ * 사용자: 문제점 보고.
+           1) 채팅창에서 고로가 떠났는데도 "고로" 글자가 남아 있음.
+           2) 헤일리가 등장해야 하는데 이미지가 고로로 나옴. 윈터는 정상.
+ * 작업:
+         1) TalkSceneController.UpdateSpeakerName(null)이 currentEpisode 이름을 다시 채우던 문제 수정.
+            line == null이면 speakerNameText.text를 빈 문자열로 만들고 enabled=false 처리.
+         2) CustomerEpisode_02_Hailey.asset의 sprite 8필드 fileID 수정.
+            TalkSceneBuilder가 헤일리 PNG들을 Single Sprite로 재임포트하면서
+            기존 sub-sprite fileID 참조가 깨져 null처럼 로드되던 상태였음.
+            각 sprite 참조를 Single Sprite 기본 fileID 21300000으로 재연결.
+         3) 검증:
+            dotnet build Assembly-CSharp.csproj --no-restore 경고 0 / 오류 0.
+            dotnet build Assembly-CSharp-Editor.csproj --no-restore 경고 0 / 오류 0.
+            Unity refresh/compile 완료, TalkScene validate clean, git diff --check clean.
+-----------------------------------------
+*/
+/*
+-----------------------------------------
+[Log #97] [2026-05-19 18:21:16]
+ * 사용자: 대화창도 손님이 가면 같이 없어졌으면 좋겠어
+ * 작업:
+         1) TalkSceneController.NextCustomerRoutine() 수정.
+            기존 손님 교체 구간의 FadeCustomer 호출을 FadeCustomerAndDialogueBox로 교체.
+         2) FadeCustomerAndDialogueBox(from, to, duration) 추가.
+            Customer Image alpha와 dialogueBoxGroup.alpha를 같은 duration으로 동시에 보간.
+         3) 결과 대사 종료 후:
+            손님 + 대화창이 같이 페이드아웃 → 빈 좌석 동안 대화창 숨김 →
+            다음 손님 + 대화창이 같이 페이드인 → 다음 PreDraw 대사 시작.
+         4) 검증:
+            dotnet build Assembly-CSharp.csproj --no-restore 경고 0 / 오류 0.
+            dotnet build Assembly-CSharp-Editor.csproj --no-restore 경고 0 / 오류 0.
+            Unity refresh/compile 완료, TalkScene validate clean.
+-----------------------------------------
+*/
+/*
+-----------------------------------------
+[Log #98] [2026-05-19 18:30:51]
+ * 사용자: 현재 있는 html파일을 지금 기준으로 바꿔줘. 현재 html은 옜날버전이야
+ * 작업:
+         1) 루트의 architecture.html 확인.
+            기존 문서는 Prototype v46 기준이며, 다음 손님 미구현 등 오래된 설명이 남아 있었음.
+         2) architecture.html의 DATA를 Prototype v51 현재 구현 기준으로 갱신.
+            노드 20개, 엣지 34개, 플로우 6개 구성으로 재정리.
+         3) 반영한 현재 기능:
+            첫 요르키 독백, SpeakerNameText 화자명 표시, CustomerEpisodeData/DialogueLineData,
+            dayEpisodeQueue 고로→헤일리→윈터, 결과 대사 후 다음 손님 루프,
+            손님+대화창 동시 페이드아웃/페이드인.
+         4) 남은 작업도 현재 기준으로 표시:
+            손님별 CustomerData 분리, 하루 종료 정산 화면, 전체 Play 모드 수동 검증.
+         5) HTML 안내 문구 정리:
+            헤더에 Prototype v51 표시, 필터 라벨 Actor→Type,
+            오른쪽 FLOWS 패널 안내 문구 수정.
+         6) 검증:
+            node로 architecture.html 내장 script 파싱 확인.
+            DATA 로드 결과 Prototype v51 / nodes 20 / edges 34 / flows 6 확인.
+            git diff --check clean.
 -----------------------------------------
 */

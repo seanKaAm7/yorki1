@@ -55,11 +55,11 @@ body{background:var(--bg);color:var(--txt);font-family:-apple-system,'Segoe UI',
 <div class="hdr">
   <h1>Yorki, the Portraitist</h1>
   <span class="hdr-sep">—</span>
-  <span class="hdr-sub">Architecture &amp; Flows</span>
+  <span class="hdr-sub">Architecture &amp; Flows · Prototype v51</span>
   <div class="hdr-hint">노드 호버 → 설명 표시 / 우측 FLOWS 클릭 → 경로 강조 및 단계 표시</div>
 </div>
 <div class="filters" id="filters">
-  <span class="f-lbl">Actor</span>
+  <span class="f-lbl">Type</span>
 </div>
 <div class="body">
   <div class="diag"><svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg></div>
@@ -70,7 +70,7 @@ body{background:var(--bg);color:var(--txt);font-family:-apple-system,'Segoe UI',
     </div>
     <div class="steps-wrap">
       <div class="rp-hd" id="steps-hd">STEPS</div>
-      <div id="step-list"><p class="steps-empty">좌측 FLOWS에서 항목을 선택하면<br>단계별 설명이 표시됩니다.</p></div>
+      <div id="step-list"><p class="steps-empty">우측 FLOWS에서 항목을 선택하면<br>단계별 설명이 표시됩니다.</p></div>
     </div>
   </div>
 </div>
@@ -78,7 +78,7 @@ body{background:var(--bg);color:var(--txt);font-family:-apple-system,'Segoe UI',
 
 <script>
 const DATA = {
-  "project":{"name":"Yorki, the Portraitist","subtitle":"Architecture & Flows","engine":"Unity 6000.4.0f1 · URP 2D","version":"Prototype v46"},
+  "project":{"name":"Yorki, the Portraitist","subtitle":"Architecture & Flows","engine":"Unity 6000.4.0f1 · URP 2D","version":"Prototype v51"},
   "nodeTypes":[
     {"id":"scene","label":"씬","color":"#4A9EFF"},
     {"id":"singleton","label":"싱글톤","color":"#f0a841"},
@@ -88,104 +88,132 @@ const DATA = {
     {"id":"ui","label":"UI 컴포넌트","color":"#95e06c"}
   ],
   "nodes":[
-    {"id":"talk_scene","label":"TalkScene","type":"scene","description":"손님과 대화하는 씬. 손님이 먼저 말을 걸고 그림 그리러 가거나, 제출 후 손님 반응 대사를 듣는 곳.","x":20,"y":50},
-    {"id":"scene_a","label":"SceneA","type":"scene","description":"그림을 그리는 씬. 오른쪽 절반에 도구와 캔버스가 있고, 왼쪽 손님·배경은 씬이 바뀌어도 그대로 유지됨.","x":540,"y":50},
-    {"id":"persistent_bootstrap","label":"PersistentBootstrap","type":"singleton","description":"씬이 바뀌어도 사라지지 않는 관리자. 손님 캐릭터와 배경의 위치 정보를 들고 씬 전환 내내 살아 있음.","x":280,"y":50},
-    {"id":"scene_transition","label":"SceneTransition","type":"singleton","description":"씬 전환 애니메이션 담당. 대화창↔드로잉 화면을 0.7초 동안 슬라이드+페이드로 전환함.","x":280,"y":180},
-    {"id":"game_manager","label":"GameManager","type":"controller","description":"제출 후 채점과 결과 처리를 총괄. 오늘 수입, 손님 수, 멘탈 수치를 관리함.","x":280,"y":310},
-    {"id":"talk_scene_ctrl","label":"TalkSceneController","type":"controller","description":"대사를 한 글자씩 타이핑 출력 담당. Enter/Space로 스킵 가능. 결과 대사가 끝난 후 다음 손님으로 이어지는 부분은 아직 미구현.","x":20,"y":180},
-    {"id":"customer_display","label":"CustomerDisplay","type":"controller","description":"손님 표정과 입 모양을 제어. 말하는 동안 입이 움직이고, 특정 반응에서 흔들리는 연출을 담당.","x":20,"y":310},
-    {"id":"fade_in","label":"FadeIn","type":"ui","description":"손님이 등장할 때 0.8초 동안 서서히 나타나게 하는 컴포넌트.","x":20,"y":440},
-    {"id":"scene_a_ui_ctrl","label":"SceneADrawingUIController","type":"controller","description":"드로잉 화면 UI 전체를 연결하는 컨트롤러. 도구 4종, 팔레트, 색상 박스, 실행 취소/제출 버튼을 모두 관리.","x":540,"y":180},
-    {"id":"drawing_canvas","label":"DrawingCanvas","type":"system","description":"실제 그림이 저장되는 캔버스. 마우스로 선을 그리고, 최대 20번 되돌리기 가능. 배경은 투명.","x":540,"y":310},
-    {"id":"thickness_slider","label":"ThicknessSliderHandle","type":"ui","description":"브러시 굵기를 조절하는 세로 슬라이더. 위아래로 드래그하면 굵기가 바뀜.","x":540,"y":440},
-    {"id":"score_calculator","label":"ScoreCalculator","type":"system","description":"그림 채점 담당. 기준 이미지와 플레이어 그림을 8×8 격자로 나눠 잉크 분포를 비교해 0~100점을 줌.","x":140,"y":500},
-    {"id":"reaction_system","label":"ReactionSystem","type":"system","description":"점수와 손님 성격을 보고 만족도 5단계를 결정. 수입과 멘탈 피해 여부도 여기서 결정됨.","x":420,"y":500},
-    {"id":"customer_data","label":"CustomerData","type":"data","description":"손님 한 명의 데이터. 이름, 성격 유형, 채점 기준 이미지, 기본 요금, 그림 채점 가중치를 담고 있음.","x":280,"y":620}
+    {"id":"talk_scene","label":"TalkScene","type":"scene","description":"대화 씬. 첫 시작 독백, 손님 PreDraw 대사, 제출 후 Good/Bad 결과 대사, 다음 손님 전환을 처리한다.","x":20,"y":40},
+    {"id":"talk_scene_ctrl","label":"TalkSceneController","type":"controller","description":"대사 타이핑, Enter/Space 진행, 첫 독백, 화자명 표시, 손님별 sprite 주입, 결과 대사 후 다음 손님 루프를 담당한다.","x":20,"y":155},
+    {"id":"dialogue_box","label":"DialogueBox","type":"ui","description":"어두운 반투명 대화창. SceneA 전환 때 사라지고, 손님 교체 때도 손님과 함께 페이드아웃/페이드인된다.","x":20,"y":270},
+    {"id":"speaker_name","label":"SpeakerNameText","type":"ui","description":"대화창 상단 화자명. 대사별 speakerName이 비어 있으면 현재 손님 이름 또는 요르키 독백 이름을 자동 표시한다.","x":20,"y":385},
+    {"id":"customer_display","label":"CustomerDisplay","type":"controller","description":"손님 표정, 말하기 프레임, 흔들림 연출을 제어한다. 에피소드가 바뀔 때 CustomerEpisodeData의 sprite 8종을 주입받는다.","x":20,"y":500},
+    {"id":"fade_in","label":"FadeIn","type":"ui","description":"초기 손님 등장 페이드. 첫 독백 중에는 TalkSceneController가 멈춰 손님을 숨긴 뒤 독백 종료 후 직접 페이드인한다.","x":20,"y":615},
+
+    {"id":"persistent_bootstrap","label":"PersistentBootstrap","type":"singleton","description":"씬 전환 중에도 유지되는 Canvas, CustomerStage, Background, CustomerDisplay 참조를 보존한다.","x":300,"y":40},
+    {"id":"scene_transition","label":"SceneTransition","type":"singleton","description":"TalkScene과 SceneA 사이의 씬 로드, CustomerStage 슬라이드, DialogueBox/RightPanel 페이드를 담당한다.","x":300,"y":155},
+    {"id":"game_manager","label":"GameManager","type":"controller","description":"DontDestroyOnLoad 싱글턴. 현재 TalkScenePhase, 하루 수입/손님 수/멘탈, 에피소드 큐 인덱스, 첫 독백 표시 여부를 관리한다.","x":300,"y":270},
+    {"id":"episode_queue","label":"dayEpisodeQueue","type":"data","description":"하루 손님 순서. 현재 TalkScene은 고로 → 헤일리 → 윈터 순서로 CustomerEpisodeData를 시드한다.","x":300,"y":385},
+    {"id":"customer_episode","label":"CustomerEpisodeData","type":"data","description":"손님별 식별자, 표시 이름, sprite 8종, PreDraw/Good/Bad 대사 배열을 담는 ScriptableObject.","x":300,"y":500},
+    {"id":"dialogue_line","label":"DialogueLineData","type":"data","description":"대사 한 줄 데이터. speakerName, emotion, text, shake를 담고 비어 있는 speakerName은 컨트롤러가 자동 보완한다.","x":300,"y":615},
+    {"id":"customer_data","label":"CustomerData","type":"data","description":"채점용 손님 데이터. 현재 세 손님 모두 GameManager의 SampleCustomer fallback을 공유하고 있어 분리 작업이 남아 있다.","x":300,"y":730},
+
+    {"id":"scene_a","label":"SceneA","type":"scene","description":"드로잉 씬. 오른쪽 작업대 UI와 투명 DrawingCanvas를 표시하고, 왼쪽 손님과 배경은 PersistentBootstrap 쪽 stage로 유지한다.","x":580,"y":40},
+    {"id":"scene_a_ui_ctrl","label":"SceneADrawingUIController","type":"controller","description":"드로잉 화면 UI 전체를 연결한다. 도구, 팔레트, RGB 컬러 박스, Undo/Redo/Reset/Submit을 관리한다.","x":580,"y":155},
+    {"id":"right_panel","label":"RightPanel","type":"ui","description":"SceneA의 오른쪽 작업대 UI. SceneTransition에서 TalkScene 복귀 시 페이드아웃되고, SceneA 진입 시 페이드인된다.","x":580,"y":270},
+    {"id":"drawing_canvas","label":"DrawingCanvas","type":"system","description":"투명 드로잉 캔버스. Pen/Brush/Eraser/Picker, 브러시 크기, 색상, Undo/Redo, 제출용 흰 배경 합성 텍스처를 제공한다.","x":580,"y":385},
+    {"id":"thickness_slider","label":"ThicknessSliderHandle","type":"ui","description":"세로 굵기 슬라이더. 도구별 기본 굵기와 최소/최대 범위에 맞춰 DrawingCanvas의 브러시 크기를 바꾼다.","x":580,"y":500},
+    {"id":"score_calculator","label":"ScoreCalculator","type":"system","description":"제출 그림과 기준 이미지를 8×8 격자로 비교하고 ±2칸 위치 보정을 적용해 0~100점을 계산한다.","x":580,"y":615},
+    {"id":"reaction_system","label":"ReactionSystem","type":"system","description":"점수와 CustomerData 성향을 바탕으로 만족도 5단계, 수입, 멘탈 피해 여부를 산출한다.","x":580,"y":730}
   ],
   "edges":[
     {"from":"talk_scene","to":"talk_scene_ctrl","label":"포함"},
-    {"from":"talk_scene","to":"game_manager","label":"대화 단계 확인"},
-    {"from":"talk_scene_ctrl","to":"scene_transition","label":"드로잉 씬으로 전환"},
-    {"from":"talk_scene_ctrl","to":"customer_display","label":"표정·말하기 제어"},
-    {"from":"talk_scene_ctrl","to":"game_manager","label":"대화 단계 확인"},
+    {"from":"talk_scene_ctrl","to":"dialogue_box","label":"대사·페이드 제어"},
+    {"from":"talk_scene_ctrl","to":"speaker_name","label":"화자명 표시"},
+    {"from":"talk_scene_ctrl","to":"customer_display","label":"표정·sprite 제어"},
+    {"from":"talk_scene_ctrl","to":"scene_transition","label":"SceneA 전환"},
+    {"from":"talk_scene_ctrl","to":"game_manager","label":"phase·큐 상태 확인"},
+    {"from":"talk_scene_ctrl","to":"episode_queue","label":"초기 큐 시드"},
+    {"from":"talk_scene_ctrl","to":"customer_episode","label":"현재 에피소드 적용"},
+    {"from":"talk_scene_ctrl","to":"dialogue_line","label":"대사 타이핑"},
     {"from":"customer_display","to":"fade_in","label":"같은 오브젝트"},
-    {"from":"persistent_bootstrap","to":"customer_display","label":"손님 참조 보관"},
-    {"from":"persistent_bootstrap","to":"scene_transition","label":"손님 위치 제공"},
+    {"from":"persistent_bootstrap","to":"customer_display","label":"영속 손님 참조"},
+    {"from":"persistent_bootstrap","to":"scene_transition","label":"stage 위치 제공"},
     {"from":"scene_transition","to":"talk_scene","label":"씬 로드"},
     {"from":"scene_transition","to":"scene_a","label":"씬 로드"},
-    {"from":"scene_transition","to":"customer_display","label":"손님 상태 초기화"},
+    {"from":"scene_transition","to":"customer_display","label":"드로잉 진입 전 neutral 초기화"},
+    {"from":"scene_transition","to":"dialogue_box","label":"TalkScene UI 페이드"},
+    {"from":"scene_transition","to":"right_panel","label":"SceneA UI 페이드"},
+    {"from":"game_manager","to":"episode_queue","label":"currentEpisodeIndex"},
+    {"from":"game_manager","to":"drawing_canvas","label":"채점 텍스처 요청"},
     {"from":"game_manager","to":"score_calculator","label":"채점 요청"},
     {"from":"game_manager","to":"reaction_system","label":"반응 계산"},
-    {"from":"game_manager","to":"customer_data","label":"현재 손님"},
-    {"from":"game_manager","to":"scene_transition","label":"대화 씬으로 전환"},
-    {"from":"game_manager","to":"drawing_canvas","label":"채점용 이미지 추출"},
+    {"from":"game_manager","to":"customer_data","label":"현재 채점 데이터"},
+    {"from":"game_manager","to":"scene_transition","label":"TalkScene 복귀"},
+    {"from":"episode_queue","to":"customer_episode","label":"고로→헤일리→윈터"},
+    {"from":"customer_episode","to":"dialogue_line","label":"3종 대사 배열"},
+    {"from":"customer_episode","to":"customer_display","label":"sprite 8종 주입"},
     {"from":"scene_a","to":"scene_a_ui_ctrl","label":"포함"},
+    {"from":"scene_a_ui_ctrl","to":"right_panel","label":"UI 버튼·패널 연결"},
     {"from":"scene_a_ui_ctrl","to":"drawing_canvas","label":"도구·색·크기 제어"},
     {"from":"scene_a_ui_ctrl","to":"thickness_slider","label":"굵기 값 수신"},
-    {"from":"scene_a_ui_ctrl","to":"game_manager","label":"제출"},
+    {"from":"scene_a_ui_ctrl","to":"game_manager","label":"Submit"},
+    {"from":"drawing_canvas","to":"score_calculator","label":"흰 배경 합성 텍스처"},
     {"from":"score_calculator","to":"customer_data","label":"기준 이미지·가중치"},
-    {"from":"reaction_system","to":"customer_data","label":"점수 보정·수입 계산"}
+    {"from":"reaction_system","to":"customer_data","label":"성향별 기준"}
   ],
   "flows":[
-    {"id":"predraw","title":"손님 등장 → 드로잉 이동","description":"손님이 등장해 말을 걸고, 대화가 끝나면 그림 그리는 화면으로 넘어가는 흐름",
-     "path":["talk_scene","talk_scene_ctrl","customer_display","scene_transition","scene_a"],
+    {"id":"intro_predraw","title":"첫 독백 → 첫 손님","description":"게임 첫 시작에 요르키 독백을 한 번만 출력하고, 고로를 페이드인해 PreDraw 대사를 시작하는 흐름",
+     "path":["talk_scene","talk_scene_ctrl","game_manager","episode_queue","customer_episode","dialogue_line","speaker_name","dialogue_box","customer_display","scene_transition","scene_a"],
      "steps":[
-       {"node":"talk_scene","text":"대화 씬이 시작되면 현재 단계가 '손님 등장' 상태인지 확인"},
-       {"node":"talk_scene_ctrl","text":"손님 등장 대사 목록에서 첫 번째 대사를 꺼내 타이핑 출력 시작"},
-       {"node":"customer_display","text":"대사에 맞게 손님 표정이 바뀌고, 말하는 동안 입이 움직임"},
-       {"node":"talk_scene_ctrl","text":"Enter 또는 Space를 누르면 타이핑을 건너뛰거나 다음 대사로 넘어감"},
-       {"node":"talk_scene_ctrl","text":"마지막 대사가 끝나면 손님이 다시 무표정·입 닫힌 상태로 돌아감"},
-       {"node":"scene_transition","text":"대화창이 서서히 사라지고 손님이 왼쪽으로 밀리면서 드로잉 화면으로 이동"},
-       {"node":"scene_transition","text":"전환 시작 0.5초 후, 드로잉 씬 파일을 실제로 불러옴"},
-       {"node":"scene_a","text":"도구와 캔버스가 서서히 나타나며 그림 그릴 준비 완료"}
+       {"node":"talk_scene","text":"TalkScene 시작 시 TalkSceneController가 영속 싱글턴과 UI 참조를 다시 바인딩한다."},
+       {"node":"game_manager","text":"GameManager가 없으면 생성하고, dayEpisodeQueue가 더 길면 고로→헤일리→윈터 큐를 시드한다."},
+       {"node":"talk_scene_ctrl","text":"PreDraw 첫 손님이고 introMonologueShown이 false면 손님 FadeIn을 멈추고 손님 alpha를 0으로 둔다."},
+       {"node":"dialogue_line","text":"introMonologueLines의 요르키 독백 2줄을 타이핑한다."},
+       {"node":"speaker_name","text":"독백 중에는 SpeakerNameText에 요르키를 표시한다."},
+       {"node":"customer_display","text":"독백이 끝나면 현재 에피소드 고로의 sprite를 적용하고 손님을 페이드인한다."},
+       {"node":"customer_episode","text":"고로의 PreDraw 대사와 표정 키를 읽어 손님 대화를 시작한다."},
+       {"node":"scene_transition","text":"PreDraw 대사가 끝나면 DialogueBox를 페이드아웃하고 SceneA로 이동한다."}
      ]},
-    {"id":"submit","title":"제출 → 채점 → 결과 대사","description":"그림을 제출하면 채점하고 손님 반응을 결정해 결과 대사를 출력하는 흐름",
-     "path":["scene_a_ui_ctrl","drawing_canvas","game_manager","score_calculator","reaction_system","customer_data","scene_transition","talk_scene_ctrl"],
+    {"id":"submit_result","title":"제출 → 채점 → 결과 대사","description":"SceneA에서 그림을 제출하고 Good/Bad 결과 대사를 TalkScene에서 출력하는 흐름",
+     "path":["scene_a","scene_a_ui_ctrl","drawing_canvas","game_manager","score_calculator","customer_data","reaction_system","scene_transition","talk_scene","talk_scene_ctrl","customer_episode","dialogue_line","dialogue_box"],
      "steps":[
-       {"node":"scene_a_ui_ctrl","text":"제출 버튼을 누르면 채점 과정이 시작됨"},
-       {"node":"drawing_canvas","text":"투명 배경으로 그린 그림에 흰 배경을 합쳐서 채점용 이미지를 만듦"},
-       {"node":"game_manager","text":"현재 손님 데이터가 없으면 기본 샘플 손님으로 대체"},
-       {"node":"score_calculator","text":"플레이어 그림과 기준 이미지를 격자로 나눠 25번 위치를 맞춰가며 유사도 계산"},
-       {"node":"reaction_system","text":"점수와 손님 성격을 보고 만족도 5단계, 수입, 멘탈 피해 여부 결정"},
-       {"node":"customer_data","text":"손님 성격에 따라 점수 기준이 달라짐 — 까다로운 손님은 더 높은 점수를 요구"},
-       {"node":"game_manager","text":"오늘 수입과 손님 수를 업데이트하고 결과가 좋은지 나쁜지 결정"},
-       {"node":"scene_transition","text":"도구 패널이 사라지고 손님이 다시 중앙으로 돌아오며 대화 씬으로 복귀"},
-       {"node":"talk_scene_ctrl","text":"좋은/나쁜 결과에 맞는 손님 대사 출력. 대사가 끝난 후 다음 손님으로 이어지는 부분은 아직 미구현"}
+       {"node":"scene_a_ui_ctrl","text":"Submit 버튼이 GameManager.OnSubmit을 호출한다."},
+       {"node":"drawing_canvas","text":"투명 캔버스 그림을 흰 배경과 합성해 채점용 Texture2D를 만든다."},
+       {"node":"game_manager","text":"currentCustomer가 비어 있으면 Resources/Customers/SampleCustomer를 fallback으로 사용한다."},
+       {"node":"score_calculator","text":"8×8 격자와 ±2칸 위치 보정으로 플레이어 그림 점수를 계산한다."},
+       {"node":"reaction_system","text":"점수를 만족도 5단계와 수입, 멘탈 피해 여부로 변환한다."},
+       {"node":"game_manager","text":"todayEarnings, customersServed, mentalHealth를 갱신하고 결과 페이즈를 ResultGood 또는 ResultBad로 정한다."},
+       {"node":"scene_transition","text":"RightPanel을 페이드아웃하고 손님 stage를 TalkScene 위치로 되돌리며 TalkScene을 로드한다."},
+       {"node":"talk_scene_ctrl","text":"현재 손님 에피소드에서 Good/Bad 결과 대사를 출력한다."}
      ]},
-    {"id":"scene_change","title":"씬 전환 애니메이션","description":"대화 화면 ↔ 드로잉 화면 사이의 슬라이드+페이드 전환이 내부에서 어떻게 진행되는지",
-     "path":["scene_transition","persistent_bootstrap","customer_display","talk_scene","scene_a"],
+    {"id":"next_customer","title":"결과 대사 → 다음 손님","description":"결과 대사가 끝난 뒤 손님과 대화창을 같이 숨기고 다음 손님으로 넘어가는 하루 루프",
+     "path":["talk_scene_ctrl","dialogue_box","customer_display","game_manager","episode_queue","customer_episode","dialogue_line","speaker_name"],
      "steps":[
-       {"node":"scene_transition","text":"전환이 시작되면 그동안 추가 전환 요청을 무시함"},
-       {"node":"scene_transition","text":"지금 보이는 UI(대화창 또는 도구 패널)가 0.3초에 걸쳐 서서히 사라짐"},
-       {"node":"persistent_bootstrap","text":"손님 캐릭터가 자연스러운 가속-감속 움직임으로 옆으로 이동 시작"},
-       {"node":"scene_transition","text":"전환 시작 0.5초 후, 백그라운드에서 새 씬을 불러옴"},
-       {"node":"customer_display","text":"손님이 무표정·입 닫힌 상태로 초기화됨 (드로잉 화면에서 이상해 보이지 않게)"},
-       {"node":"scene_transition","text":"새 씬이 로드되면 새 UI가 서서히 나타남"},
-       {"node":"scene_transition","text":"0.7초가 지나면 손님 위치를 정확히 고정하고 전환 완료"}
+       {"node":"talk_scene_ctrl","text":"결과 대사가 끝나면 dialogueText와 speakerNameText를 비우고 NextCustomerRoutine을 시작한다."},
+       {"node":"dialogue_box","text":"현재 손님 퇴장과 동시에 DialogueBox alpha도 1에서 0으로 페이드아웃된다."},
+       {"node":"customer_display","text":"Customer Image alpha가 0이 되어 빈 좌석 구간을 만든다."},
+       {"node":"game_manager","text":"AdvanceToNextEpisode로 큐 인덱스를 다음 손님으로 이동한다."},
+       {"node":"episode_queue","text":"현재 큐 순서는 고로 → 헤일리 → 윈터다. 마지막 이후에는 하루 종료 로그를 남긴다."},
+       {"node":"customer_episode","text":"다음 에피소드의 sprite 8종을 CustomerDisplay에 주입한다."},
+       {"node":"dialogue_box","text":"다음 손님 페이드인과 함께 DialogueBox도 0에서 1로 다시 나타난다."},
+       {"node":"dialogue_line","text":"새 손님의 PreDraw 대사를 0번부터 다시 출력한다."}
      ]},
-    {"id":"drawing_tool","title":"도구 선택 & 색상 변경","description":"도구를 바꾸고 굵기 슬라이더를 조작하거나 팔레트·색상 박스로 색을 바꾸는 흐름",
-     "path":["scene_a_ui_ctrl","thickness_slider","drawing_canvas"],
+    {"id":"scene_change","title":"TalkScene ↔ SceneA 전환","description":"대화 화면과 드로잉 화면 사이의 씬 로드, stage 이동, UI 페이드를 담당하는 흐름",
+     "path":["scene_transition","persistent_bootstrap","customer_display","dialogue_box","right_panel","talk_scene","scene_a"],
      "steps":[
-       {"node":"scene_a_ui_ctrl","text":"도구 버튼을 클릭하면 현재 도구가 바뀜"},
-       {"node":"drawing_canvas","text":"도구가 바뀌면 해당 도구의 기본 굵기로 자동 설정됨 (펜 6 / 브러시 12 / 지우개 18)"},
-       {"node":"scene_a_ui_ctrl","text":"도구를 바꾸면 굵기 슬라이더가 항상 중앙으로 초기화됨"},
-       {"node":"thickness_slider","text":"슬라이더를 위아래로 드래그하면 굵기 값이 계산되어 전달됨"},
-       {"node":"scene_a_ui_ctrl","text":"슬라이더 위치에 따라 도구별 최소~최대 굵기 범위 안에서 브러시 크기가 결정됨"},
-       {"node":"scene_a_ui_ctrl","text":"팔레트의 색 칸을 클릭하면 브러시 색이 바뀌고 색상 박스도 함께 갱신됨"},
-       {"node":"drawing_canvas","text":"스포이드로 캔버스의 색을 찍으면 팔레트 색이 바뀌고, 자동으로 펜 도구로 돌아옴"}
+       {"node":"scene_transition","text":"전환이 시작되면 IsTransitioning으로 중복 전환을 막는다."},
+       {"node":"persistent_bootstrap","text":"CustomerStage와 CustomerDisplay는 DontDestroyOnLoad 쪽 참조로 유지된다."},
+       {"node":"dialogue_box","text":"TalkScene에서 SceneA로 갈 때 DialogueBox가 0.3초 동안 페이드아웃된다."},
+       {"node":"customer_display","text":"SceneA 진입 전 손님은 neutral, 입 닫힘 상태로 초기화된다."},
+       {"node":"scene_transition","text":"전환 0.5초 지점에서 대상 씬을 로드하고 새 UI CanvasGroup을 찾아 페이드인한다."},
+       {"node":"right_panel","text":"SceneA에서는 RightPanel이 들어오고, TalkScene 복귀 시에는 RightPanel이 나간다."},
+       {"node":"scene_transition","text":"0.7초 후 CustomerStage 위치를 정확히 고정하고 전환을 종료한다."}
      ]},
-    {"id":"scoring","title":"채점 알고리즘 상세","description":"그림을 8×8 격자로 나눠 잉크 분포를 비교해 0~100점을 산출하는 과정",
-     "path":["score_calculator","customer_data"],
+    {"id":"drawing_tool","title":"도구 선택 & 색상 변경","description":"SceneA에서 도구, 굵기, 색상, Undo/Redo/Reset을 조작하는 흐름",
+     "path":["scene_a","scene_a_ui_ctrl","right_panel","thickness_slider","drawing_canvas"],
      "steps":[
-       {"node":"score_calculator","text":"플레이어 그림과 손님 기준 이미지, 각각 격자로 변환"},
-       {"node":"score_calculator","text":"GPU에서 처리된 텍스처 데이터를 정확히 읽기 위한 중간 변환 과정"},
-       {"node":"score_calculator","text":"512×512 이미지를 8×8 격자(칸당 64×64픽셀)로 나눔"},
-       {"node":"score_calculator","text":"각 픽셀이 흰색과 얼마나 다른지 계산해 잉크인지 판단"},
-       {"node":"score_calculator","text":"한 칸의 5% 이상에 잉크가 있으면 '그린 칸', 아니면 '빈 칸'으로 처리"},
-       {"node":"customer_data","text":"손님마다 얼굴의 중요 부위(눈, 코 등)에 가중치를 줄 수 있음"},
-       {"node":"score_calculator","text":"그림이 살짝 치우쳐도 25번 위치를 이동하며 가장 높은 점수를 선택해 보정"},
-       {"node":"score_calculator","text":"맞게 그린 부분은 점수를 올리고, 엉뚱하게 그린 부분은 최대 30점 감점"}
+       {"node":"scene_a_ui_ctrl","text":"Pen, Brush, Eraser, Picker 버튼이 현재 도구를 바꾼다."},
+       {"node":"drawing_canvas","text":"도구 변경 시 도구별 기본 굵기가 적용된다."},
+       {"node":"thickness_slider","text":"세로 슬라이더 드래그로 브러시 크기를 도구별 범위 안에서 갱신한다."},
+       {"node":"scene_a_ui_ctrl","text":"팔레트 8칸과 RGB 컬러 박스가 현재 색상을 바꾼다."},
+       {"node":"drawing_canvas","text":"Picker는 캔버스 색을 읽고, 선택 후 펜 도구로 돌아온다."},
+       {"node":"scene_a_ui_ctrl","text":"Undo, Redo, Reset은 DrawingCanvas의 히스토리와 캔버스 상태를 제어한다."}
+     ]},
+    {"id":"scoring","title":"채점 알고리즘","description":"제출 그림을 기준 이미지와 비교하고 손님 반응을 계산하는 내부 흐름",
+     "path":["drawing_canvas","score_calculator","customer_data","reaction_system","game_manager"],
+     "steps":[
+       {"node":"drawing_canvas","text":"제출 시 흰 배경 합성 텍스처를 GameManager에 제공한다."},
+       {"node":"score_calculator","text":"플레이어 그림과 기준 이미지를 8×8 격자로 변환한다."},
+       {"node":"score_calculator","text":"각 칸의 잉크 분포를 비교하고 ±2칸 슬라이딩 보정으로 가장 높은 점수를 선택한다."},
+       {"node":"customer_data","text":"현재는 세 손님 모두 SampleCustomer 기준을 공유한다. 손님별 분리는 다음 작업이다."},
+       {"node":"reaction_system","text":"점수를 VerySatisfied부터 Angry까지의 반응 단계로 평가한다."},
+       {"node":"game_manager","text":"평가 결과를 하루 수입, 손님 수, 멘탈 수치에 반영하고 TalkScene 결과 페이즈를 정한다."}
      ]}
   ]
 };
@@ -372,7 +400,7 @@ function buildSteps(){
   const list=document.getElementById('step-list');
   if(!activeFlow){
     hd.textContent='STEPS';
-    list.innerHTML='<p class="steps-empty">좌측 FLOWS에서 항목을 선택하면<br>단계별 설명이 표시됩니다.</p>';
+    list.innerHTML='<p class="steps-empty">우측 FLOWS에서 항목을 선택하면<br>단계별 설명이 표시됩니다.</p>';
     return;
   }
   const fl=DATA.flows.find(f=>f.id===activeFlow);

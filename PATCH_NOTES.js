@@ -1,5 +1,53 @@
 /*
 ---------
+[2026-05-19] (v52)
+ * architecture.html 최신화 — Prototype v46 기준의 오래된 구조 문서를 v51 현재 구현 기준으로 갱신
+ * 흐름 반영 — 첫 독백, 고로→헤일리→윈터 하루 큐, 결과 대사 후 다음 손님 전환, 손님+대화창 동시 페이드 반영
+ * 데이터 구조 반영 — CustomerEpisodeData, DialogueLineData, dayEpisodeQueue, SpeakerNameText 노드 추가
+ * 남은 작업 표시 — 손님별 CustomerData 분리와 정산 화면 미구현 상태를 HTML 설명에 반영
+ * 검증 — 내장 script 파싱 확인, DATA 노드/엣지/플로우 로드 확인, git diff --check clean
+---------
+*/
+/*
+---------
+[2026-05-19] (v51)
+ * TalkScene 손님 교체 연출 보강 — 결과 대사 종료 후 손님이 퇴장할 때 대화창도 함께 페이드아웃
+ * 빈 좌석 구간 정리 — 다음 손님 등장 전까지 대화창 alpha 0 유지
+ * 다음 손님 등장 연출 — 다음 손님 페이드인과 동시에 대화창도 다시 페이드인
+ * 검증 — Unity refresh/compile, TalkScene validate, Assembly-CSharp / Assembly-CSharp-Editor 빌드 경고 0 오류 0
+---------
+*/
+/*
+---------
+[2026-05-19] (v50)
+ * TalkScene 이름 잔상 수정 — 대사 종료/손님 퇴장 구간에서 speakerNameText를 확실히 비우도록 처리
+ * 헤일리 sprite 참조 수정 — Single Sprite 재임포트 후 깨진 sub-sprite fileID를 21300000으로 재연결
+ * 원인 — 헤일리 sprite 필드가 null처럼 로드되어 ApplyEpisodeSprites가 이전 고로 컷을 유지하던 문제
+ * 검증 — Unity refresh/compile, TalkScene validate, Assembly-CSharp / Assembly-CSharp-Editor 빌드 경고 0 오류 0, git diff --check clean
+---------
+*/
+/*
+---------
+[2026-05-19] (v49)
+ * TalkScene 첫 독백 추가 — 첫 손님 등장 전 요르키 독백 2줄을 한 번만 출력하고, 독백 종료 후 첫 손님을 페이드인
+ * 대화창 화자명 표시 — DialogueLineData.speakerName 복원, 빈 값이면 현재 CustomerEpisodeData.customerName을 자동 표시
+ * TalkScene UI 갱신 — SpeakerNameText 추가, DialogueText 영역을 이름 표시 공간 아래로 조정
+ * TalkSceneBuilder 갱신 — 씬 재생성 시 첫 독백/화자명 UI/고로→헤일리→윈터 큐가 자동 연결되도록 반영
+ * 검증 — Unity refresh/compile, TalkScene validate, Assembly-CSharp / Assembly-CSharp-Editor 빌드 경고 0 오류 0
+---------
+*/
+/*
+---------
+[2026-05-19] (v48)
+ * 윈터 세 번째 손님 추가 — `Customer_Winter.png` 및 `CustomerEpisode_03_Winter.asset` 생성
+ * 손님 큐 확장 — TalkScene dayEpisodeQueue를 고로 → 헤일리 → 윈터 순서로 갱신
+ * TalkSceneBuilder 갱신 — 씬 재생성 시에도 3명 큐가 자동 연결되도록 기본 에피소드 경로 반영
+ * 문서 반영 — PROGRESS.md의 손님 큐/윈터 진행 상태 및 다음 우선순위 갱신
+ * 검증 — Unity refresh/compile, TalkScene validate, Assembly-CSharp / Assembly-CSharp-Editor 빌드 경고 0 오류 0
+---------
+*/
+/*
+---------
 [2026-05-19] (v47)
  * 대사 데이터 분리 — TalkSceneController 안에 하드코딩되어 있던 PreDraw/Good/Bad 대사 배열을 ScriptableObject로 추출
    - 신규: DialogueLineData (speakerName/emotion/text/shake)

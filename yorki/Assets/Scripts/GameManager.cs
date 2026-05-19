@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     [Header("하루 에피소드 큐 (대사/표정)")]
     public CustomerEpisodeData[] episodeQueue;
     public int currentEpisodeIndex = 0;
+    public bool introMonologueShown = false;
 
     [Header("씬 레퍼런스")]
     public DrawingCanvas drawingCanvas;

@@ -16,6 +16,7 @@ public class TalkSceneBuilder
     static readonly Color DialogueBoxOutlineColor = new Color(0.16f, 0.18f, 0.19f, 0.70f);
     static readonly Color DialogueTextColor = new Color(0.95f, 0.95f, 0.90f, 1f);
     static readonly Color ContinueArrowColor = new Color(0.94f, 0.90f, 0.70f, 1f);
+    static readonly Color SpeakerNameColor = new Color(0.94f, 0.90f, 0.70f, 1f);
 
     // 손님 컷 (Neutral 입 단계 4종 + 그 외 감정)
     const string neutralIdlePath = "Assets/Sprites/SceneA/Customer_Neutral_Idle.png";
@@ -27,8 +28,11 @@ public class TalkSceneBuilder
     const string gestureIdlePath = "Assets/Sprites/SceneA/Customer_Gesture_Idle.png";
     const string gestureTalkPath = "Assets/Sprites/SceneA/Customer_Gesture_Talk.png";
 
-    // 기본 에피소드 (빌더 재실행 시 currentEpisode 참조 자동 복원용 — 첫 손님)
-    const string defaultEpisodePath = "Assets/Data/CustomerEpisodes/CustomerEpisode_01_Goro.asset";
+    // 기본 에피소드 큐 (빌더 재실행 시 TalkSceneController 참조 자동 복원용)
+    const string episode01Path = "Assets/Data/CustomerEpisodes/CustomerEpisode_01_Goro.asset";
+    const string episode02Path = "Assets/Data/CustomerEpisodes/CustomerEpisode_02_Hailey.asset";
+    const string episode03Path = "Assets/Data/CustomerEpisodes/CustomerEpisode_03_Winter.asset";
+    const string defaultEpisodePath = episode01Path;
 
     [MenuItem("Yorki/Build Talk Scene")]
     public static void Build()
@@ -167,6 +171,22 @@ public class TalkSceneBuilder
 
         Font uiFont = YorkiEditorAssets.LoadUIFont();
 
+        // SpeakerNameText
+        var nameGO = new GameObject("SpeakerNameText");
+        nameGO.transform.SetParent(dlgGO.transform, false);
+        var nameTxt = nameGO.AddComponent<Text>();
+        nameTxt.text      = "";
+        nameTxt.font      = uiFont;
+        nameTxt.fontSize  = 18;
+        nameTxt.color     = SpeakerNameColor;
+        nameTxt.alignment = TextAnchor.UpperLeft;
+        var nameRT = nameGO.GetComponent<RectTransform>();
+        nameRT.anchorMin        = new Vector2(0f, 1f);
+        nameRT.anchorMax        = new Vector2(1f, 1f);
+        nameRT.pivot            = new Vector2(0f, 1f);
+        nameRT.anchoredPosition = new Vector2(36f, -18f);
+        nameRT.sizeDelta        = new Vector2(-72f, 24f);
+
         // DialogueText
         var textGO = new GameObject("DialogueText");
         textGO.transform.SetParent(dlgGO.transform, false);
@@ -175,12 +195,12 @@ public class TalkSceneBuilder
         txt.font      = uiFont;
         txt.fontSize  = 22;
         txt.color     = DialogueTextColor;
-        txt.alignment = TextAnchor.MiddleLeft;
+        txt.alignment = TextAnchor.UpperLeft;
         var txtRT = textGO.GetComponent<RectTransform>();
         txtRT.anchorMin = Vector2.zero;
         txtRT.anchorMax = Vector2.one;
-        txtRT.anchoredPosition = Vector2.zero;
-        txtRT.sizeDelta        = new Vector2(-72f, -52f);
+        txtRT.offsetMin = new Vector2(36f, 28f);
+        txtRT.offsetMax = new Vector2(-36f, -46f);
 
         // ContinueArrow
         var arrowGO = new GameObject("ContinueArrow");
@@ -207,15 +227,43 @@ public class TalkSceneBuilder
         var controller   = controllerGO.AddComponent<TalkSceneController>();
         controller.customerDisplay  = cd;
         controller.dialogueText     = txt;
+        controller.speakerNameText  = nameTxt;
         controller.continueArrow    = arrowTxt;
         controller.dialogueBoxGroup = dlgGroup;
         controller.sceneTransition  = transition;
+        controller.introSpeakerName = "요르키";
+        controller.introMonologueLines = new DialogueLineData[]
+        {
+            new DialogueLineData
+            {
+                speakerName = "요르키",
+                emotion = "thinking",
+                text = "오늘도 이 거리 한복판에서 시작이다.",
+                shake = false
+            },
+            new DialogueLineData
+            {
+                speakerName = "요르키",
+                emotion = "thinking",
+                text = "첫 손님이 오기 전에, 손부터 조금 풀어두자.",
+                shake = false
+            }
+        };
 
         var defaultEpisode = AssetDatabase.LoadAssetAtPath<CustomerEpisodeData>(defaultEpisodePath);
         if (defaultEpisode != null)
             controller.currentEpisode = defaultEpisode;
         else
             Debug.LogWarning($"[TalkSceneBuilder] 기본 에피소드를 찾지 못함: {defaultEpisodePath}");
+
+        var haileyEpisode = AssetDatabase.LoadAssetAtPath<CustomerEpisodeData>(episode02Path);
+        var winterEpisode = AssetDatabase.LoadAssetAtPath<CustomerEpisodeData>(episode03Path);
+        controller.dayEpisodeQueue = new CustomerEpisodeData[]
+        {
+            defaultEpisode,
+            haileyEpisode,
+            winterEpisode
+        };
 
         if (!AssetDatabase.IsValidFolder("Assets/Scenes"))
             AssetDatabase.CreateFolder("Assets", "Scenes");

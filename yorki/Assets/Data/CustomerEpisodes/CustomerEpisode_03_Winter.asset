@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8907aefbc7b423f80d3185f39744301, type: 3}
+  m_Name: CustomerEpisode_03_Winter
+  m_EditorClassIdentifier: 
+  customerId: winter
+  customerName: "윈터"
+  neutralIdle: {fileID: 21300000, guid: 7261c34f63be474d93cd96ab59cb3ff9, type: 3}
+  neutralTalk: {fileID: 21300000, guid: 7261c34f63be474d93cd96ab59cb3ff9, type: 3}
+  talk1: {fileID: 21300000, guid: 7261c34f63be474d93cd96ab59cb3ff9, type: 3}
+  talk2: {fileID: 21300000, guid: 7261c34f63be474d93cd96ab59cb3ff9, type: 3}
+  happyIdle: {fileID: 21300000, guid: 7261c34f63be474d93cd96ab59cb3ff9, type: 3}
+  surprised: {fileID: 21300000, guid: 7261c34f63be474d93cd96ab59cb3ff9, type: 3}
+  gestureIdle: {fileID: 21300000, guid: 7261c34f63be474d93cd96ab59cb3ff9, type: 3}
+  gestureTalk: {fileID: 21300000, guid: 7261c34f63be474d93cd96ab59cb3ff9, type: 3}
+  preDrawLines:
+  - emotion: neutral
+    text: "여기 앉으면 되는 거죠?"
+    shake: 0
+  - emotion: neutral
+    text: "사람들이 여기 그림 잘 그린다길래요."
+    shake: 0
+  - emotion: thinking
+    text: "근데 너무 예쁘게만 그리진 말고요."
+    shake: 0
+  - emotion: gesture
+    text: "그냥, 딱 저처럼 보이게."
+    shake: 0
+  - emotion: neutral
+    text: "가능하죠?"
+    shake: 0
+  goodResultLines:
+  - emotion: surprised
+    text: "오."
+    shake: 1
+  - emotion: neutral
+    text: "생각보다 훨씬 괜찮네요."
+    shake: 0
+  - emotion: happy
+    text: "나쁘지 않아요. 진짜로."
+    shake: 0
+  - emotion: gesture
+    text: "다음에도 여기 있으면 또 올게요."
+    shake: 0
+  badResultLines:
+  - emotion: neutral
+    text: "음..."
+    shake: 0
+  - emotion: thinking
+    text: "이건 저보단 다른 사람 같은데요."
+    shake: 0
+  - emotion: neutral
+    text: "그래도 열심히 그린 건 알겠어요."
+    shake: 0
+  - emotion: gesture
+    text: "다음엔 조금만 더 차분히 봐주세요."
+    shake: 0

@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   customerId: hailey
   customerName: "\uD5E4\uC77C\uB9AC"
-  neutralIdle: {fileID: 4981517323163233701, guid: 00c814e8e3aca4ab9aeb854b668bccac, type: 3}
-  neutralTalk: {fileID: 8563209403616396985, guid: 725f3566aaada4c659728b7a6436e542, type: 3}
-  talk1: {fileID: -3428629399926601764, guid: b75e1150dd67d4fbab71eaebc60de54e, type: 3}
-  talk2: {fileID: 8237795281725868376, guid: 4d1f519edd8954a4c87170d3ad827e91, type: 3}
-  happyIdle: {fileID: 72094713831318622, guid: 1b2d8a1129fe5475eb25177a8e3b6443, type: 3}
-  surprised: {fileID: 2010508286964961909, guid: b9005e0382c764e789601925e4b4d36b, type: 3}
-  gestureIdle: {fileID: -749850063, guid: 53e5e6b1732fc4eaaa5b90bac7439173, type: 3}
-  gestureTalk: {fileID: -1320084081, guid: b9ce771b401df4938945acaed8383633, type: 3}
+  neutralIdle: {fileID: 21300000, guid: 00c814e8e3aca4ab9aeb854b668bccac, type: 3}
+  neutralTalk: {fileID: 21300000, guid: 725f3566aaada4c659728b7a6436e542, type: 3}
+  talk1: {fileID: 21300000, guid: b75e1150dd67d4fbab71eaebc60de54e, type: 3}
+  talk2: {fileID: 21300000, guid: 4d1f519edd8954a4c87170d3ad827e91, type: 3}
+  happyIdle: {fileID: 21300000, guid: 1b2d8a1129fe5475eb25177a8e3b6443, type: 3}
+  surprised: {fileID: 21300000, guid: b9005e0382c764e789601925e4b4d36b, type: 3}
+  gestureIdle: {fileID: 21300000, guid: 53e5e6b1732fc4eaaa5b90bac7439173, type: 3}
+  gestureTalk: {fileID: 21300000, guid: b9ce771b401df4938945acaed8383633, type: 3}
   preDrawLines:
   - speakerName: 
     emotion: neutral
