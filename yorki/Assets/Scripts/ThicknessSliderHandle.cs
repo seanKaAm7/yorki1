@@ -38,7 +38,7 @@ public class ThicknessSliderHandle : MonoBehaviour, IPointerDownHandler, IDragHa
         UpdateValueFromPointer(eventData);
     }
 
-    void UpdateValueFromPointer(PointerEventData eventData)
+    void UpdateValueFromPointer(PointerEventData eventData) // 마우스 위치를 슬라이더 값으로 변환
     {
         if (track == null) return;
 
@@ -54,7 +54,7 @@ public class ThicknessSliderHandle : MonoBehaviour, IPointerDownHandler, IDragHa
         ValueChanged?.Invoke(t);
     }
 
-    public void SetNormalizedValue(float t, bool notify = false)
+    public void SetNormalizedValue(float t, bool notify = false) // 외부에서 값 설정 (0~1), notify=true면 ValueChanged 이벤트 발생
     {
         t = Mathf.Clamp01(t);
         NormalizedValue = t;
@@ -62,7 +62,7 @@ public class ThicknessSliderHandle : MonoBehaviour, IPointerDownHandler, IDragHa
         if (notify) ValueChanged?.Invoke(t);
     }
 
-    void SetHandleY(float y)
+    void SetHandleY(float y) // handle의 y 위치를 centerY 기준으로 설정
     {
         if (handle == null) return;
         Vector2 pos = handle.anchoredPosition;
