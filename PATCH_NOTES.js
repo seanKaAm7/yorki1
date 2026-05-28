@@ -1,5 +1,13 @@
 /*
 ---------
+[2026-05-28] (v53)
+ * TalkSceneController 복구 - 2026-05-21 자동 백업 커밋에서 빠진 첫 독백/화자명/대화창 동시 페이드 로직을 origin/main 정상 버전 기준으로 복원
+ * 빌더 정합성 복구 - TalkSceneBuilder가 참조하는 speakerNameText, introSpeakerName, introMonologueLines 필드가 다시 존재하도록 수정
+ * 검증 - dotnet build Assembly-CSharp / Assembly-CSharp-Editor 경고 0 오류 0
+---------
+*/
+/*
+---------
 [2026-05-19] (v52)
  * architecture.html 최신화 — Prototype v46 기준의 오래된 구조 문서를 v51 현재 구현 기준으로 갱신
  * 흐름 반영 — 첫 독백, 고로→헤일리→윈터 하루 큐, 결과 대사 후 다음 손님 전환, 손님+대화창 동시 페이드 반영

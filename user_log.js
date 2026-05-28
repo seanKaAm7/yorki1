@@ -953,3 +953,31 @@
             git diff --check clean.
 -----------------------------------------
 */
+/*
+-----------------------------------------
+[Log #99] [2026-05-28 16:36:35]
+ * 사용자: 프로젝트 파악해 claude.md나 여러 md파일들 다 읽고. 특히 userlog나 패치노트 읽어. 최신꺼 동기화 안되어있는파일들 있을수도 있으니까 인지하고 일단 읽으셈
+ * 작업: CLAUDE.md, user_log.js, PATCH_NOTES.js 및 루트 Markdown 문서 전체 확인 진행. 문서 간 최신화 불일치 가능성을 전제로 최신 로그/패치 노트와 실제 파일 상태를 교차 확인.
+-----------------------------------------
+*/
+/*
+-----------------------------------------
+[Log #100] [2026-05-28 16:40:26]
+ * 사용자: 동일 요청 계속 - 문서와 로그 기반 프로젝트 파악
+ * 작업: 루트 Markdown 전체, user_log.js, PATCH_NOTES.js 확인 완료. PROGRESS/PATCH_NOTES 최신 기준은 Prototype v52이며, 실제 로컬 HEAD는 origin/main보다 1커밋 앞선 자동 커밋(8ad6cd0) 때문에 TalkSceneController.cs 최신 기능 일부가 제거된 상태 확인. 런타임 Assembly-CSharp 빌드는 성공했으나 Assembly-CSharp-Editor 빌드는 TalkSceneBuilder.cs가 speakerNameText/introSpeakerName/introMonologueLines 필드를 참조해 오류 3건 발생. 코드 수정은 진행하지 않음.
+-----------------------------------------
+*/
+/*
+-----------------------------------------
+[Log #101] [2026-05-28 16:45:46]
+ * 사용자: Assets/Editor/TalkSceneBuilder.cs introMonologueLines 오류가 왜 생겼는지 로그에서 확인 요청
+ * 작업: user_log.js Log #95/#97/#98, PATCH_NOTES v49~v52, git commit ec6f8cf 및 8ad6cd0 diff 확인. 2026-05-19 최신 작업에서는 TalkSceneController에 첫 독백/화자명/대화창 동시 페이드 기능이 추가됐고, 2026-05-21 17시 자동 백업 커밋 8ad6cd0에서 TalkSceneController.cs 187줄이 제거되며 해당 필드들이 빠진 것이 원인으로 확인.
+-----------------------------------------
+*/
+/*
+-----------------------------------------
+[Log #102] [2026-05-28 16:53:34]
+ * 사용자: ㅇㅇ 일단 해버ㅏ
+ * 작업: TalkSceneController.cs를 origin/main 정상 버전 기준으로 복구. speakerNameText, introSpeakerName, introMonologueLines 필드와 첫 독백, 화자명 표시, 손님+대화창 동시 페이드, GameManager 큐 재시드 로직을 되살림. 검증: dotnet build yorki/Assembly-CSharp.csproj 및 yorki/Assembly-CSharp-Editor.csproj 모두 경고 0 오류 0. PATCH_NOTES.js v53 추가.
+-----------------------------------------
+*/
