@@ -17,6 +17,13 @@ public class TalkSceneBuilder
     static readonly Color DialogueTextColor = new Color(0.95f, 0.95f, 0.90f, 1f);
     static readonly Color ContinueArrowColor = new Color(0.94f, 0.90f, 0.70f, 1f);
     static readonly Color SpeakerNameColor = new Color(0.94f, 0.90f, 0.70f, 1f);
+    static readonly Color HudPanelColor = new Color(0.055f, 0.050f, 0.046f, 0.82f);
+    static readonly Color HudOutlineColor = new Color(0.38f, 0.28f, 0.20f, 0.72f);
+    static readonly Color HudTextColor = new Color(0.92f, 0.90f, 0.84f, 1f);
+    static readonly Color HudMutedTextColor = new Color(0.76f, 0.72f, 0.64f, 1f);
+    static readonly Color HudEnergyColor = new Color(0.47f, 0.72f, 0.28f, 1f);
+    static readonly Color HudReputationColor = new Color(0.88f, 0.63f, 0.10f, 1f);
+    static readonly Color HudMaterialsColor = new Color(0.70f, 0.47f, 0.24f, 1f);
 
     // 손님 컷 (Neutral 입 단계 4종 + 그 외 감정)
     const string neutralIdlePath = "Assets/Sprites/SceneA/Customer_Neutral_Idle.png";
@@ -151,6 +158,9 @@ public class TalkSceneBuilder
         sScaler.matchWidthOrHeight  = 0.5f;
         sCanvasGO.AddComponent<GraphicRaycaster>();
 
+        Font uiFont = YorkiEditorAssets.LoadUIFont();
+        CreateHUD(sCanvasGO.transform, uiFont);
+
         // DialogueBox — 어두운 반투명 박스
         var dlgGO     = new GameObject("DialogueBox");
         dlgGO.transform.SetParent(sCanvasGO.transform, false);
@@ -168,8 +178,6 @@ public class TalkSceneBuilder
         var dlgRT = dlgGO.GetComponent<RectTransform>();
         dlgRT.anchoredPosition = new Vector2(0f, -250f);
         dlgRT.sizeDelta        = new Vector2(820f, 160f);
-
-        Font uiFont = YorkiEditorAssets.LoadUIFont();
 
         // SpeakerNameText
         var nameGO = new GameObject("SpeakerNameText");
@@ -270,5 +278,166 @@ public class TalkSceneBuilder
 
         EditorSceneManager.SaveScene(scene, "Assets/Scenes/TalkScene.unity");
         Debug.Log("[TalkSceneBuilder] TalkScene 생성 완료");
+    }
+
+    static TalkSceneHUDController CreateHUD(Transform parent, Font uiFont)
+    {
+        var hudGO = new GameObject("TalkSceneHUD", typeof(RectTransform));
+        hudGO.transform.SetParent(parent, false);
+        var hudRT = hudGO.GetComponent<RectTransform>();
+        hudRT.anchorMin = Vector2.zero;
+        hudRT.anchorMax = Vector2.one;
+        hudRT.offsetMin = Vector2.zero;
+        hudRT.offsetMax = Vector2.zero;
+
+        var hud = hudGO.AddComponent<TalkSceneHUDController>();
+
+        var header = CreatePanel(hudGO.transform, "HUD_LeftHeader", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(8f, -8f), new Vector2(250f, 98f));
+        CreateText(header.transform, "CafeIconText", uiFont, "CAFE", 13, HudMutedTextColor, TextAnchor.MiddleCenter,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(12f, -14f), new Vector2(48f, 28f));
+        hud.placeText = CreateText(header.transform, "PlaceText", uiFont, "Zum Goldenen Hahn", 17, HudTextColor, TextAnchor.UpperLeft,
+            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(70f, -12f), new Vector2(-82f, 24f));
+        hud.dayText = CreateText(header.transform, "DayText", uiFont, "Day 7", 20, HudTextColor, TextAnchor.UpperLeft,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(72f, -43f), new Vector2(80f, 28f));
+        hud.clockText = CreateText(header.transform, "ClockText", uiFont, "10:30", 20, HudTextColor, TextAnchor.UpperRight,
+            new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-14f, -43f), new Vector2(82f, 28f));
+        hud.seasonText = CreateText(header.transform, "SeasonText", uiFont, "섬괴옥", 16, HudTextColor, TextAnchor.UpperLeft,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(72f, -72f), new Vector2(76f, 22f));
+        hud.weekdayText = CreateText(header.transform, "WeekdayText", uiFont, "월요일", 16, HudTextColor, TextAnchor.UpperRight,
+            new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-16f, -72f), new Vector2(82f, 22f));
+
+        var stats = CreatePanel(hudGO.transform, "HUD_LeftStats", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(8f, -114f), new Vector2(250f, 238f));
+        Image unusedFill;
+        Text unusedValue;
+        CreateStatRow(stats.transform, uiFont, hud, "수입", 18f, Color.clear, false, TalkSceneHUDStatKind.Energy, out hud.incomeValueText, out unusedFill);
+        CreateStatRow(stats.transform, uiFont, hud, "시간", 60f, Color.clear, false, TalkSceneHUDStatKind.Energy, out hud.timeValueText, out unusedFill);
+        CreateStatRow(stats.transform, uiFont, hud, "에너지", 102f, HudEnergyColor, true, TalkSceneHUDStatKind.Energy, out unusedValue, out hud.energyFill);
+        CreateStatRow(stats.transform, uiFont, hud, "평판", 144f, HudReputationColor, true, TalkSceneHUDStatKind.Reputation, out unusedValue, out hud.reputationFill);
+        CreateStatRow(stats.transform, uiFont, hud, "재료", 186f, HudMaterialsColor, true, TalkSceneHUDStatKind.Materials, out unusedValue, out hud.materialsFill);
+
+        var settings = CreatePanel(hudGO.transform, "HUD_SettingsButton", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-62f, -8f), new Vector2(48f, 48f));
+        CreateText(settings.transform, "SettingsText", uiFont, "설정", 14, HudTextColor, TextAnchor.MiddleCenter,
+            Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+        var records = CreatePanel(hudGO.transform, "HUD_RecordsButton", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-8f, -8f), new Vector2(48f, 48f));
+        CreateText(records.transform, "RecordsText", uiFont, "기록", 14, HudTextColor, TextAnchor.MiddleCenter,
+            Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+
+        var goal = CreatePanel(hudGO.transform, "HUD_GoalPanel", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-8f, -96f), new Vector2(285f, 112f));
+        hud.goalTitleText = CreateText(goal.transform, "GoalTitleText", uiFont, "다음 목표", 16, HudTextColor, TextAnchor.UpperLeft,
+            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(18f, -14f), new Vector2(-36f, 24f));
+        hud.goalBodyText = CreateText(goal.transform, "GoalBodyText", uiFont, "오늘 손님 3명을 맞이해보세요!", 16, HudTextColor, TextAnchor.UpperLeft,
+            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(18f, -43f), new Vector2(-36f, 42f));
+        hud.goalProgressText = CreateText(goal.transform, "GoalProgressText", uiFont, "(0 / 3)", 16, HudTextColor, TextAnchor.UpperLeft,
+            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(18f, -82f), new Vector2(-36f, 24f));
+
+        var reservation = CreatePanel(hudGO.transform, "HUD_ReservationPanel", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-8f, -218f), new Vector2(285f, 84f));
+        CreateText(reservation.transform, "ReservationTitleText", uiFont, "오늘의 예약", 16, HudTextColor, TextAnchor.UpperLeft,
+            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(18f, -14f), new Vector2(-36f, 24f));
+        hud.reservationBodyText = CreateText(reservation.transform, "ReservationBodyText", uiFont, "없음", 16, HudTextColor, TextAnchor.UpperLeft,
+            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(18f, -48f), new Vector2(-36f, 24f));
+
+        CreateStatTooltip(hudGO.transform, uiFont, hud);
+
+        return hud;
+    }
+
+    static Image CreatePanel(Transform parent, string name, Vector2 anchor, Vector2 pivot, Vector2 anchoredPosition, Vector2 size)
+    {
+        var go = new GameObject(name, typeof(RectTransform));
+        go.transform.SetParent(parent, false);
+        var image = go.AddComponent<Image>();
+        image.color = HudPanelColor;
+        image.raycastTarget = false;
+        var outline = go.AddComponent<Outline>();
+        outline.effectColor = HudOutlineColor;
+        outline.effectDistance = new Vector2(2f, -2f);
+        outline.useGraphicAlpha = true;
+        var rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = anchor;
+        rt.anchorMax = anchor;
+        rt.pivot = pivot;
+        rt.anchoredPosition = anchoredPosition;
+        rt.sizeDelta = size;
+        return image;
+    }
+
+    static Text CreateText(Transform parent, string name, Font font, string text, int fontSize, Color color, TextAnchor alignment,
+        Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot, Vector2 anchoredPosition, Vector2 sizeDelta)
+    {
+        var go = new GameObject(name, typeof(RectTransform));
+        go.transform.SetParent(parent, false);
+        var uiText = go.AddComponent<Text>();
+        uiText.text = text;
+        uiText.font = font;
+        uiText.fontSize = fontSize;
+        uiText.color = color;
+        uiText.alignment = alignment;
+        uiText.raycastTarget = false;
+        var rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = anchorMin;
+        rt.anchorMax = anchorMax;
+        rt.pivot = pivot;
+        rt.anchoredPosition = anchoredPosition;
+        rt.sizeDelta = sizeDelta;
+        return uiText;
+    }
+
+    static void CreateStatRow(Transform parent, Font font, TalkSceneHUDController hud, string label, float topY, Color fillColor, bool hasBar, TalkSceneHUDStatKind statKind, out Text valueText, out Image fillImage)
+    {
+        CreateText(parent, $"Label_{label}", font, label, 16, HudTextColor, TextAnchor.UpperLeft,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(18f, -topY), new Vector2(80f, 24f));
+        fillImage = null;
+
+        if (!hasBar)
+        {
+            valueText = CreateText(parent, $"Value_{label}", font, "", 16, HudTextColor, TextAnchor.UpperRight,
+                new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-18f, -topY), new Vector2(100f, 24f));
+            return;
+        }
+
+        valueText = null;
+
+        var barBack = new GameObject($"Bar_{label}", typeof(RectTransform));
+        barBack.transform.SetParent(parent, false);
+        var backImage = barBack.AddComponent<Image>();
+        backImage.color = new Color(0.13f, 0.12f, 0.11f, 0.92f);
+        backImage.raycastTarget = true;
+        var backRT = barBack.GetComponent<RectTransform>();
+        backRT.anchorMin = new Vector2(0f, 1f);
+        backRT.anchorMax = new Vector2(0f, 1f);
+        backRT.pivot = new Vector2(0f, 1f);
+        backRT.anchoredPosition = new Vector2(108f, -topY - 4f);
+        backRT.sizeDelta = new Vector2(124f, 20f);
+
+        var tooltipTarget = barBack.AddComponent<TalkSceneHUDTooltipTarget>();
+        tooltipTarget.hud = hud;
+        tooltipTarget.statKind = statKind;
+
+        var fillGO = new GameObject($"Fill_{label}", typeof(RectTransform));
+        fillGO.transform.SetParent(barBack.transform, false);
+        fillImage = fillGO.AddComponent<Image>();
+        fillImage.color = fillColor;
+        fillImage.type = Image.Type.Filled;
+        fillImage.fillMethod = Image.FillMethod.Horizontal;
+        fillImage.fillOrigin = 0;
+        fillImage.fillAmount = 0.5f;
+        fillImage.raycastTarget = false;
+        var fillRT = fillGO.GetComponent<RectTransform>();
+        fillRT.anchorMin = Vector2.zero;
+        fillRT.anchorMax = Vector2.one;
+        fillRT.offsetMin = Vector2.zero;
+        fillRT.offsetMax = Vector2.zero;
+
+        barBack.transform.SetSiblingIndex(1);
+    }
+
+    static void CreateStatTooltip(Transform parent, Font font, TalkSceneHUDController hud)
+    {
+        var tooltip = CreatePanel(parent, "HUD_StatTooltip", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(256f, -196f), new Vector2(140f, 34f));
+        tooltip.color = new Color(0.055f, 0.050f, 0.046f, 0.94f);
+        hud.statTooltipRoot = tooltip.GetComponent<RectTransform>();
+        hud.statTooltipText = CreateText(tooltip.transform, "TooltipText", font, "", 15, HudTextColor, TextAnchor.MiddleCenter,
+            Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+        tooltip.gameObject.SetActive(false);
     }
 }

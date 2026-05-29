@@ -21,6 +21,25 @@ public class GameManager : MonoBehaviour
     public int customersServed = 0;
     public int mentalHealth = 5;
 
+    [Header("하루 운영 HUD")]
+    public string placeName = "Zum Goldenen Hahn";
+    public int dayIndex = 7;
+    public int currentHour = 10;
+    public int currentMinute = 30;
+    public int closingHour = 22;
+    public int closingMinute = 0;
+    public int minutesPerCustomer = 90;
+    public int energy = 78;
+    public int maxEnergy = 100;
+    public int energyCostPerCustomer = 8;
+    public float reputation = 4.5f;
+    public int materials = 12;
+    public int maxMaterials = 20;
+    public int materialCostPerCustomer = 1;
+    public int dailyGoalTarget = 3;
+    public string dailyGoalLabel = "오늘 손님 3명을 맞이해보세요!";
+    public string reservationLabel = "없음";
+
     public CustomerEpisodeData CurrentEpisode
     {
         get
@@ -62,6 +81,7 @@ public class GameManager : MonoBehaviour
 
         todayEarnings += result.payment;
         customersServed++;
+        AdvanceDayMeters();
         if (result.mentalDamage) mentalHealth--;
 
         Debug.Log($"[GameManager] 점수: {score} | 반응: {result.level} | 수입: +€{result.payment}");
@@ -76,5 +96,14 @@ public class GameManager : MonoBehaviour
     static bool IsGoodResult(ReactionLevel level)
     {
         return level == ReactionLevel.Satisfied || level == ReactionLevel.VerySatisfied;
+    }
+
+    void AdvanceDayMeters()
+    {
+        int totalMinutes = currentHour * 60 + currentMinute + minutesPerCustomer;
+        currentHour = (totalMinutes / 60) % 24;
+        currentMinute = totalMinutes % 60;
+        energy = Mathf.Max(0, energy - energyCostPerCustomer);
+        materials = Mathf.Max(0, materials - materialCostPerCustomer);
     }
 }

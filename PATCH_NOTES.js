@@ -1,5 +1,24 @@
 /*
 ---------
+[2026-05-28] (v55)
+ * TalkScene HUD 바 수치 표시 방식 변경 - 에너지/평판/재료 행의 상시 숫자 텍스트를 제거하고 바 hover tooltip로만 현재 값을 표시
+ * HUD hover 처리 추가 - 바 배경이 pointer event를 받고 TalkSceneHUDController가 현재 GameManager 수치를 tooltip 문구로 갱신
+ * TalkSceneBuilder 갱신 - Yorki/Build Talk Scene 실행 시 숫자 없는 바, tooltip 패널, hover trigger가 자동 생성되도록 반영
+ * 검증 - Unity refresh/compile, Yorki/Build Talk Scene, TalkScene validate, Assembly-CSharp / Assembly-CSharp-Editor 빌드 경고 0 오류 0
+---------
+*/
+/*
+---------
+[2026-05-28] (v54)
+ * TalkScene 운영 HUD 1차 추가 - 샘플 이미지처럼 좌측 상태 패널, 우측 목표/예약 패널, 우상단 설정/기록 버튼을 대화 씬에 생성
+ * 신규 TalkSceneHUDController - GameManager의 장소, Day, 시간, 수입, 에너지, 평판, 재료, 오늘 목표, 예약 정보를 UI에 반영
+ * GameManager 운영 수치 추가 - 시간, 에너지, 재료, 평판, 목표 손님 수를 보유하고 Submit 시 시간/에너지/재료를 갱신
+ * TalkSceneBuilder 갱신 - Yorki/Build Talk Scene 실행 시 HUD 계층과 참조가 자동 생성되도록 반영
+ * 검증 - Unity refresh/compile, Yorki/Build Talk Scene, TalkScene validate, Assembly-CSharp / Assembly-CSharp-Editor 빌드 경고 0 오류 0
+---------
+*/
+/*
+---------
 [2026-05-28] (v53)
  * TalkSceneController 복구 - 2026-05-21 자동 백업 커밋에서 빠진 첫 독백/화자명/대화창 동시 페이드 로직을 origin/main 정상 버전 기준으로 복원
  * 빌더 정합성 복구 - TalkSceneBuilder가 참조하는 speakerNameText, introSpeakerName, introMonologueLines 필드가 다시 존재하도록 수정

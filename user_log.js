@@ -981,3 +981,31 @@
  * 작업: TalkSceneController.cs를 origin/main 정상 버전 기준으로 복구. speakerNameText, introSpeakerName, introMonologueLines 필드와 첫 독백, 화자명 표시, 손님+대화창 동시 페이드, GameManager 큐 재시드 로직을 되살림. 검증: dotnet build yorki/Assembly-CSharp.csproj 및 yorki/Assembly-CSharp-Editor.csproj 모두 경고 0 오류 0. PATCH_NOTES.js v53 추가.
 -----------------------------------------
 */
+/*
+-----------------------------------------
+[Log #103] [2026-05-28 18:01:36]
+ * 사용자: 일단 이거 내용 가볍게 정리해 md파일 추가해서
+ * 작업: 대화에서 나온 제작 성향, Yorki 고민, 수익화 부담, 피하고 싶은 방향, 가능성 있는 작은 도구 방향을 `수익화_성향_메모.md`로 정리해 프로젝트 루트에 추가. PATCH_NOTES.js는 기능 변경이 아니라 갱신하지 않음.
+-----------------------------------------
+*/
+/*
+-----------------------------------------
+[Log #104] [2026-05-28 18:24:40]
+ * 사용자: 여러 파라미터(수입, 시간, 에너지 등) 도입 가능 여부 질문 후, 샘플 이미지와 비슷한 TalkScene 운영 HUD 구현 요청
+ * 작업: GameManager.cs에 장소, Day, 시간, 영업 종료 시간, 에너지, 평판, 재료, 목표 손님 수, 예약 문구 등 HUD용 운영 수치 추가. Submit 시 시간/에너지/재료가 갱신되도록 처리. TalkSceneHUDController.cs 신규 작성 - GameManager 값을 좌측 상태 패널/우측 목표 패널에 반영. TalkSceneBuilder.cs 수정 - 샘플 이미지처럼 좌측 상단 정보 패널, 좌측 상태 패널, 우상단 설정/기록 버튼, 우측 목표/예약 패널을 생성하고 HUD 컨트롤러 참조 연결. Yorki/Build Talk Scene 실행으로 TalkScene.unity에 반영. PROGRESS.md와 PATCH_NOTES.js v54 갱신. 검증: Unity refresh/compile, TalkScene validate clean, dotnet build Assembly-CSharp 및 Assembly-CSharp-Editor 경고 0 오류 0.
+-----------------------------------------
+*/
+/*
+-----------------------------------------
+[Log #105] [2026-05-28 18:34:13]
+ * 사용자: HUD 에너지/평판/재료 바와 숫자 겹침 문제 지적
+ * 작업: TalkSceneBuilder.cs의 CreateStatRow에서 바 오브젝트를 숫자 텍스트보다 뒤에 렌더링하도록 sibling 순서 수정. Yorki/Build Talk Scene 재실행으로 TalkScene.unity 반영. Unity validate clean, dotnet build Assembly-CSharp-Editor 경고 0 오류 0, git diff --check clean 확인.
+-----------------------------------------
+*/
+/*
+-----------------------------------------
+[Log #106] [2026-05-28 18:44:13]
+ * 사용자: 에너지/평판/재료 숫자를 없애고 바에 마우스를 올리면 숫자를 볼 수 있게 변경 요청
+ * 작업: TalkSceneHUDController.cs에 stat tooltip 표시/갱신 로직과 hover trigger 컴포넌트 추가. TalkSceneBuilder.cs에서 에너지/평판/재료 행의 Value 텍스트 생성을 제거하고 바 배경에 pointer event 및 tooltip trigger를 연결. HUD_StatTooltip 패널 생성 추가. Yorki/Build Talk Scene 재실행으로 TalkScene.unity 반영. 검증: dotnet build Assembly-CSharp 및 Assembly-CSharp-Editor 경고 0 오류 0, Unity refresh/compile, TalkScene validate clean.
+-----------------------------------------
+*/

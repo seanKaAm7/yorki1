@@ -1,6 +1,6 @@
 # Yorki, the Portraitist 구현 진행 현황
 
-> 마지막 업데이트: 2026-05-19
+> 마지막 업데이트: 2026-05-28
 
 ## 전체 진행 요약
 
@@ -13,6 +13,7 @@
 | 대사 데이터 분리 | CustomerEpisodeData 기반으로 추출 완료 |
 | 손님 큐 / 하루 루프 | 1차 구현 (고로 → 헤일리 → 윈터, 6초 텀, 페이드 전환). 정산 화면 없음 |
 | 대화 UI | 첫 독백 + 화자 이름 표시 1차 구현 |
+| 운영 HUD | TalkScene 좌측 상태 패널 + 우측 목표/예약 패널 1차 구현, 바 수치는 hover tooltip 표시 |
 | 자리 선택 | 미착수 |
 | 저녁 정산 화면 | 미착수 |
 
@@ -34,6 +35,8 @@
 - [x] 사용자가 조정한 Customer / DialogueBox / DialogueText 위치와 크기를 현재 기본값으로 취급
 - [x] 첫 손님 등장 전 짧은 요르키 독백
 - [x] 대화창 상단 화자 이름 표시 (`SpeakerNameText`)
+- [x] 샘플 UI 방향의 운영 HUD 1차 구현: 장소/Day/시간/수입/에너지/평판/재료/목표/예약 표시
+- [x] 에너지/평판/재료 바의 상시 숫자 제거, 마우스 hover 시 tooltip으로 수치 표시
 
 남음:
 - [x] 결과 대사 종료 후 다음 손님으로 넘기는 방식 결정 → 6초 텀 + 페이드 + in-place PreDraw 재시작
@@ -91,6 +94,7 @@
 - [x] 수입 계산
 - [x] Submit 결과를 Good / Bad 대사 페이즈로 분기
 - [x] GameManager DontDestroyOnLoad + episodeQueue + AdvanceToNextEpisode (영속 큐)
+- [x] TalkScene HUD용 운영 수치 1차 보유: 장소, Day, 시간, 에너지, 평판, 재료, 목표 손님 수
 
 남음:
 - [ ] 손님별 CustomerData 분리 (현재 셋 다 SampleCustomer 공유)
