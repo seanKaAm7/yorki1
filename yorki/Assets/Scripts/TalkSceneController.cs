@@ -51,6 +51,7 @@ public class TalkSceneController : MonoBehaviour
 
     void Start()
     {
+        YorkiSettingsService.ApplyDialogueSpeed(this);
         BindReferences();
         EnsureGameManager();
 
@@ -94,6 +95,7 @@ public class TalkSceneController : MonoBehaviour
     void Update()
     {
         if (_ended) return;
+        if (TalkSceneMenuController.IsAnyMenuOpen) return;
 
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
             Advance();

@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class TalkSceneHUDController : MonoBehaviour
@@ -107,6 +106,11 @@ public class TalkSceneHUDController : MonoBehaviour
         if (!tooltipVisible || activeTooltipStat != statKind)
             return;
 
+        HideStatTooltip();
+    }
+
+    public void HideStatTooltip()
+    {
         tooltipVisible = false;
         if (statTooltipRoot != null)
             statTooltipRoot.gameObject.SetActive(false);
@@ -163,28 +167,4 @@ public enum TalkSceneHUDStatKind
     Energy,
     Reputation,
     Materials
-}
-
-public class TalkSceneHUDTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerMoveHandler
-{
-    public TalkSceneHUDController hud;
-    public TalkSceneHUDStatKind statKind;
-
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        if (hud != null)
-            hud.ShowStatTooltip(statKind, eventData.position);
-    }
-
-    public void OnPointerMove(PointerEventData eventData)
-    {
-        if (hud != null)
-            hud.MoveStatTooltip(eventData.position);
-    }
-
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        if (hud != null)
-            hud.HideStatTooltip(statKind);
-    }
 }

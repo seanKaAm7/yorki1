@@ -1,5 +1,16 @@
 /*
 ---------
+[2026-06-01] (v60)
+ * TalkScene 우상단 버튼 구현 - 설정/기록 버튼을 실제 모달로 연결하고 ESC, 배경 클릭, 닫기 버튼으로 닫을 수 있도록 구성
+ * 설정 저장 추가 - 전체 음량, 대사 속도(느림/보통/빠름), 전체 화면 값을 PlayerPrefs에 보존하고 즉시 적용
+ * 초상화 기록장 추가 - Submit 시 완성 초상화 PNG와 손님/Day/시간/점수/반응/수입 JSON을 로컬 저장하고 기록 모달에서 목록, 미리보기, 상세 정보 표시
+ * 입력 충돌 방지 - 설정/기록 모달이 열린 동안 TalkScene의 엔터/스페이스 대사 진행과 HUD stat tooltip 표시를 차단
+ * 툴팁 컴포넌트 직렬화 수정 - TalkSceneHUDTooltipTarget을 별도 파일로 분리해 씬 재생 시 missing script 오류 제거
+ * 검증 - Unity 전체 refresh/compile, Yorki/Build Talk Scene, TalkScene validate, Play mode 스모크 테스트, Assembly-CSharp / Assembly-CSharp-Editor 빌드 경고 0 오류 0, git diff --check clean
+---------
+*/
+/*
+---------
 [2026-06-01] (v59)
  * 내부 유지보수 정리 - 플레이 동작을 유지하면서 씬 이름, 주요 UI 오브젝트 이름, 감정 키, Resources 경로를 YorkiConstants.cs로 통합
  * 빌더 경로 통합 - TalkScene / SceneA 저장 경로와 대사 asset 경로를 YorkiEditorAssets.cs에서 한 번만 관리

@@ -339,6 +339,17 @@ public class SceneADrawingUIController : MonoBehaviour
         Texture2D playerTex = drawingCanvas.GetFlattenedTextureForScoring();
         int score = ScoreCalculator.Calculate(playerTex, fallbackCustomer);
         ReactionResult result = ReactionSystem.Evaluate(score, fallbackCustomer);
+        PortraitRecordRepository.SavePortrait(
+            playerTex,
+            "",
+            fallbackCustomer.customerName,
+            1,
+            0,
+            0,
+            score,
+            result.level,
+            result.payment);
+        Destroy(playerTex);
         TalkScenePhase nextPhase = ReactionSystem.IsGoodResult(result.level) ? TalkScenePhase.ResultGood : TalkScenePhase.ResultBad;
         Debug.Log($"[SceneADrawingUIController] Submit fallback 점수: {score} | 반응: {result.level}");
         SceneTransition.EnsureInstance().SceneAToTalkScene(nextPhase);

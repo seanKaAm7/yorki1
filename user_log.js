@@ -1037,3 +1037,28 @@
  * 작업: 중복 문자열과 경로를 프로젝트 전체 검색. YorkiConstants.cs 신규 추가 후 씬 이름(TalkScene/SceneA), 주요 UI 오브젝트 이름(CustomerStage/DialogueBox/RightPanel/DialogueText/SpeakerNameText/ContinueArrow), 감정 키(neutral/happy/surprised/gesture/thinking), SampleCustomer Resources 경로를 공용 상수화. CustomerDisplay, DialogueLineData, SceneTransition, TalkSceneController, GameManager, SceneADrawingUIController가 공용 상수를 사용하도록 변경. YorkiEditorAssets.cs에 씬 저장 경로와 대사 asset 경로를 통합하고 TalkSceneBuilder / SceneABuilder가 이를 사용하도록 변경. GameManager의 ReactionSystem.IsGoodResult 중복 판정을 제거하고 공용 함수 사용. 검증: Unity 전체 refresh/compile, Yorki/Build Talk Scene, TalkScene validate clean, dotnet build Assembly-CSharp 및 Assembly-CSharp-Editor 경고 0 오류 0.
 -----------------------------------------
 */
+/*
+-----------------------------------------
+[Log #111] [2026-06-01 15:23:00]
+ * 사용자: TalkScene 플레이 화면 우측 상단 설정/기록 버튼을 계획대로 구현 요청
+ * 작업:
+         1) TalkSceneMenuController 및 YorkiSettingsService 추가.
+            설정 버튼에서 전체 음량, 대사 속도(느림/보통/빠름), 전체 화면을 조정하고
+            PlayerPrefs에 저장해 다음 실행에도 유지되도록 구성.
+         2) PortraitRecordData / PortraitRecordRepository / PortraitRecordsPanelController 추가.
+            Submit 시 완성 초상화를 PNG로 저장하고 손님, Day, 시간, 점수, 반응, 수입을 JSON 기록에 추가.
+            기록 버튼에서 최신 기록 우선 목록, 초상화 미리보기, 상세 정보를 확인하도록 구성.
+         3) TalkSceneBuilder.cs 확장.
+            우상단 설정/기록 패널을 Button으로 교체하고 HUD_ModalLayer 아래 설정/기록 모달 계층과 참조를 자동 생성.
+         4) 입력 충돌 방지.
+            모달이 열린 동안 TalkSceneController의 엔터/스페이스 진행과 HUD stat tooltip 신규 표시를 차단.
+         5) Play mode 스모크 테스트 중 툴팁 hover 컴포넌트의 missing script 오류 발견 및 수정.
+            TalkSceneHUDTooltipTarget을 TalkSceneHUDController.cs의 두 번째 MonoBehaviour에서 별도 파일로 분리하고
+            Yorki/Build Talk Scene 재실행으로 새 GUID 참조를 씬에 기록.
+         6) 검증:
+            Unity 전체 refresh/compile 완료, TalkScene validate clean.
+            Play mode 재진입 시 프로젝트 런타임 오류 없음.
+            dotnet build Assembly-CSharp.csproj 및 Assembly-CSharp-Editor.csproj 순차 실행 경고 0 / 오류 0.
+            git diff --check clean.
+-----------------------------------------
+*/

@@ -1,6 +1,6 @@
 # Yorki, the Portraitist 구현 진행 현황
 
-> 마지막 업데이트: 2026-05-28
+> 마지막 업데이트: 2026-06-01
 
 ## 전체 진행 요약
 
@@ -13,7 +13,9 @@
 | 대사 데이터 분리 | 손님 대사는 CustomerEpisodeData, 첫 독백은 DialogueSequenceData 기반으로 추출 완료 |
 | 손님 큐 / 하루 루프 | 1차 구현 (고로 → 헤일리 → 윈터, 6초 텀, 페이드 전환). 정산 화면 없음 |
 | 대화 UI | 첫 독백 + 화자 이름 표시 1차 구현 |
-| 운영 HUD | TalkScene 좌측 상태 패널 + 우측 목표/예약 패널 1차 구현, 바 수치는 hover tooltip 표시 |
+| 운영 HUD | TalkScene 좌측 상태 패널 + 우측 목표/예약 패널, 바 수치 hover tooltip, 설정/기록 모달 구현 |
+| 설정 저장 | 전체 음량, 대사 속도, 전체 화면 PlayerPrefs 저장 및 즉시 적용 |
+| 초상화 기록장 | Submit 시 PNG + JSON 로컬 저장, 기록 모달 목록/미리보기/상세 표시 |
 | 자리 선택 | 미착수 |
 | 저녁 정산 화면 | 미착수 |
 
@@ -37,6 +39,9 @@
 - [x] 대화창 상단 화자 이름 표시 (`SpeakerNameText`)
 - [x] 샘플 UI 방향의 운영 HUD 1차 구현: 장소/Day/시간/수입/에너지/평판/재료/목표/예약 표시
 - [x] 에너지/평판/재료 바의 상시 숫자 제거, 마우스 hover 시 tooltip으로 수치 표시
+- [x] 우상단 설정 버튼 모달: 전체 음량, 대사 속도, 전체 화면 설정
+- [x] 우상단 기록 버튼 모달: 완성한 초상화 목록, 미리보기, 상세 정보
+- [x] 모달이 열려 있을 때 엔터/스페이스 대사 입력과 stat tooltip 충돌 차단
 
 남음:
 - [x] 결과 대사 종료 후 다음 손님으로 넘기는 방식 결정 → 6초 텀 + 페이드 + in-place PreDraw 재시작
@@ -95,6 +100,7 @@
 - [x] Submit 결과를 Good / Bad 대사 페이즈로 분기
 - [x] GameManager DontDestroyOnLoad + episodeQueue + AdvanceToNextEpisode (영속 큐)
 - [x] TalkScene HUD용 운영 수치 1차 보유: 장소, Day, 시간, 에너지, 평판, 재료, 목표 손님 수
+- [x] Submit 시 완성 초상화 PNG와 손님/Day/시간/점수/반응/수입 기록 로컬 저장
 
 남음:
 - [ ] 손님별 CustomerData 분리 (현재 셋 다 SampleCustomer 공유)
@@ -118,6 +124,14 @@
 
 남음:
 - [ ] 대사 풀 확장 + 조건 필터링 시스템 (방문 횟수/시간대/친밀도 등)
+
+### 설정 / 초상화 기록
+
+완료:
+- [x] `YorkiSettingsService` - 전체 음량, 대사 속도, 전체 화면 PlayerPrefs 저장 및 적용
+- [x] `PortraitRecordRepository` - `Application.persistentDataPath/Yorki` 아래 PNG + JSON 기록 저장
+- [x] `PortraitRecordsPanelController` - 최신 기록 우선 목록, 미리보기, 상세 정보 표시
+- [x] `TalkSceneMenuController` - 설정/기록 버튼, 모달 열기/닫기, ESC/배경 클릭 처리
 
 ### Editor 빌더
 
@@ -150,6 +164,7 @@
 ## 다음 작업 우선순위
 
 1. 첫 독백 → 고로 → 헤일리 → 윈터 연속 루프 Play 모드 수동 검증 (이름 표시, 6초 텀, 페이드 자연스러움)
-2. 손님별 채점 데이터(CustomerData) 분리 및 GameManager.currentCustomer 큐 연동
-3. 하루 종료 후 정산 화면 (수입/손님 수/멘탈)
-4. 대사 풀 확장 + 조건 필터링
+2. 설정 모달 조작 및 초상화 Submit 후 기록장 미리보기 수동 확인
+3. 손님별 채점 데이터(CustomerData) 분리 및 GameManager.currentCustomer 큐 연동
+4. 하루 종료 후 정산 화면 (수입/손님 수/멘탈)
+5. 대사 풀 확장 + 조건 필터링

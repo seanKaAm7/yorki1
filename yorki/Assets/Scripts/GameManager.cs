@@ -84,6 +84,19 @@ public class GameManager : MonoBehaviour
         AdvanceDayMeters();
         if (result.mentalDamage) mentalHealth--;
 
+        CustomerEpisodeData episode = CurrentEpisode;
+        PortraitRecordRepository.SavePortrait(
+            playerTex,
+            episode != null ? episode.customerId : "",
+            episode != null ? episode.customerName : customer.customerName,
+            dayIndex,
+            currentHour,
+            currentMinute,
+            score,
+            result.level,
+            result.payment);
+        Destroy(playerTex);
+
         Debug.Log($"[GameManager] 점수: {score} | 반응: {result.level} | 수입: +€{result.payment}");
 
         TalkScenePhase nextPhase = ReactionSystem.IsGoodResult(result.level)

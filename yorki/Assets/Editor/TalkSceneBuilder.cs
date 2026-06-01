@@ -271,6 +271,8 @@ public class TalkSceneBuilder
         hudRT.offsetMax = Vector2.zero;
 
         var hud = hudGO.AddComponent<TalkSceneHUDController>();
+        var menu = hudGO.AddComponent<TalkSceneMenuController>();
+        menu.hud = hud;
 
         var header = CreatePanel(hudGO.transform, "HUD_LeftHeader", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(8f, -8f), new Vector2(250f, 98f));
         CreateText(header.transform, "CafeIconText", uiFont, "CAFE", 13, HudMutedTextColor, TextAnchor.MiddleCenter,
@@ -295,12 +297,10 @@ public class TalkSceneBuilder
         CreateStatRow(stats.transform, uiFont, hud, "평판", 144f, HudReputationColor, true, TalkSceneHUDStatKind.Reputation, out unusedValue, out hud.reputationFill);
         CreateStatRow(stats.transform, uiFont, hud, "재료", 186f, HudMaterialsColor, true, TalkSceneHUDStatKind.Materials, out unusedValue, out hud.materialsFill);
 
-        var settings = CreatePanel(hudGO.transform, "HUD_SettingsButton", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-62f, -8f), new Vector2(48f, 48f));
-        CreateText(settings.transform, "SettingsText", uiFont, "설정", 14, HudTextColor, TextAnchor.MiddleCenter,
-            Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-        var records = CreatePanel(hudGO.transform, "HUD_RecordsButton", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-8f, -8f), new Vector2(48f, 48f));
-        CreateText(records.transform, "RecordsText", uiFont, "기록", 14, HudTextColor, TextAnchor.MiddleCenter,
-            Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+        menu.settingsButton = CreateButton(hudGO.transform, "HUD_SettingsButton", uiFont, "설정", 14,
+            new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-62f, -8f), new Vector2(48f, 48f));
+        menu.recordsButton = CreateButton(hudGO.transform, "HUD_RecordsButton", uiFont, "기록", 14,
+            new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-8f, -8f), new Vector2(48f, 48f));
 
         var goal = CreatePanel(hudGO.transform, "HUD_GoalPanel", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-8f, -96f), new Vector2(285f, 112f));
         hud.goalTitleText = CreateText(goal.transform, "GoalTitleText", uiFont, "다음 목표", 16, HudTextColor, TextAnchor.UpperLeft,
@@ -317,6 +317,7 @@ public class TalkSceneBuilder
             new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(18f, -48f), new Vector2(-36f, 24f));
 
         CreateStatTooltip(hudGO.transform, uiFont, hud);
+        CreateMenuModal(hudGO.transform, uiFont, menu);
 
         return hud;
     }
@@ -428,5 +429,251 @@ public class TalkSceneBuilder
         hud.statTooltipText = CreateText(tooltip.transform, "TooltipText", font, "", 15, HudTextColor, TextAnchor.MiddleCenter,
             Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
         tooltip.gameObject.SetActive(false);
+    }
+
+    static void CreateMenuModal(Transform parent, Font font, TalkSceneMenuController menu)
+    {
+        var modalLayer = new GameObject("HUD_ModalLayer", typeof(RectTransform));
+        modalLayer.transform.SetParent(parent, false);
+        Stretch(modalLayer.GetComponent<RectTransform>());
+        menu.modalLayer = modalLayer;
+
+        var dimGO = new GameObject("ModalDim", typeof(RectTransform));
+        dimGO.transform.SetParent(modalLayer.transform, false);
+        Stretch(dimGO.GetComponent<RectTransform>());
+        var dimImage = dimGO.AddComponent<Image>();
+        dimImage.color = new Color(0f, 0f, 0f, 0.58f);
+        dimImage.raycastTarget = true;
+        menu.modalDimButton = dimGO.AddComponent<Button>();
+        menu.modalDimButton.targetGraphic = dimImage;
+
+        CreateSettingsPanel(modalLayer.transform, font, menu);
+        CreateRecordsPanel(modalLayer.transform, font, menu);
+        modalLayer.SetActive(false);
+    }
+
+    static void CreateSettingsPanel(Transform parent, Font font, TalkSceneMenuController menu)
+    {
+        var panel = CreatePanel(parent, "HUD_SettingsPanel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(500f, 390f));
+        panel.raycastTarget = true;
+        menu.settingsPanel = panel.gameObject;
+
+        CreateText(panel.transform, "SettingsTitle", font, "설정", 24, HudTextColor, TextAnchor.UpperLeft,
+            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(28f, -22f), new Vector2(-110f, 32f));
+        menu.settingsCloseButton = CreateButton(panel.transform, "SettingsCloseButton", font, "X", 17,
+            new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-20f, -18f), new Vector2(34f, 34f));
+
+        CreateText(panel.transform, "VolumeLabel", font, "전체 음량", 17, HudTextColor, TextAnchor.MiddleLeft,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(34f, -102f), new Vector2(110f, 28f));
+        menu.masterVolumeSlider = CreateSlider(panel.transform, "MasterVolumeSlider", new Vector2(156f, -102f), new Vector2(240f, 28f));
+        menu.masterVolumeValueText = CreateText(panel.transform, "VolumeValueText", font, "100", 16, HudTextColor, TextAnchor.MiddleRight,
+            new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-34f, -102f), new Vector2(54f, 28f));
+
+        CreateText(panel.transform, "DialogueSpeedLabel", font, "대사 속도", 17, HudTextColor, TextAnchor.MiddleLeft,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(34f, -177f), new Vector2(110f, 28f));
+        menu.slowSpeedButton = CreateButton(panel.transform, "SlowSpeedButton", font, "느림", 15,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(156f, -172f), new Vector2(76f, 34f));
+        menu.normalSpeedButton = CreateButton(panel.transform, "NormalSpeedButton", font, "보통", 15,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(242f, -172f), new Vector2(76f, 34f));
+        menu.fastSpeedButton = CreateButton(panel.transform, "FastSpeedButton", font, "빠름", 15,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(328f, -172f), new Vector2(76f, 34f));
+
+        CreateText(panel.transform, "FullscreenLabel", font, "전체화면", 17, HudTextColor, TextAnchor.MiddleLeft,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(34f, -252f), new Vector2(110f, 28f));
+        menu.fullscreenToggle = CreateToggle(panel.transform, "FullscreenToggle", new Vector2(156f, -252f));
+
+        CreateText(panel.transform, "SettingsFooter", font, "설정은 자동으로 저장됩니다.", 14, HudMutedTextColor, TextAnchor.MiddleLeft,
+            new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector2(34f, 24f), new Vector2(-68f, 24f));
+        panel.gameObject.SetActive(false);
+    }
+
+    static void CreateRecordsPanel(Transform parent, Font font, TalkSceneMenuController menu)
+    {
+        var panel = CreatePanel(parent, "HUD_RecordsPanel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(860f, 550f));
+        panel.raycastTarget = true;
+        menu.recordsPanel = panel.gameObject;
+        var recordsController = panel.gameObject.AddComponent<PortraitRecordsPanelController>();
+        menu.recordsPanelController = recordsController;
+
+        CreateText(panel.transform, "RecordsTitle", font, "작업 기록장", 24, HudTextColor, TextAnchor.UpperLeft,
+            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(26f, -20f), new Vector2(-110f, 32f));
+        recordsController.summaryText = CreateText(panel.transform, "RecordsSummary", font, "완성한 초상화 0점", 15, HudMutedTextColor, TextAnchor.UpperLeft,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(28f, -62f), new Vector2(290f, 24f));
+        menu.recordsCloseButton = CreateButton(panel.transform, "RecordsCloseButton", font, "X", 17,
+            new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-20f, -18f), new Vector2(34f, 34f));
+
+        CreateRecordsList(panel.transform, font, recordsController);
+        CreateRecordDetail(panel.transform, font, recordsController);
+        panel.gameObject.SetActive(false);
+    }
+
+    static void CreateRecordsList(Transform parent, Font font, PortraitRecordsPanelController controller)
+    {
+        var scrollGO = new GameObject("RecordsScroll", typeof(RectTransform));
+        scrollGO.transform.SetParent(parent, false);
+        var scrollRT = scrollGO.GetComponent<RectTransform>();
+        scrollRT.anchorMin = new Vector2(0f, 1f);
+        scrollRT.anchorMax = new Vector2(0f, 1f);
+        scrollRT.pivot = new Vector2(0f, 1f);
+        scrollRT.anchoredPosition = new Vector2(26f, -96f);
+        scrollRT.sizeDelta = new Vector2(300f, 424f);
+        var scrollImage = scrollGO.AddComponent<Image>();
+        scrollImage.color = new Color(0.02f, 0.02f, 0.02f, 0.56f);
+        scrollImage.raycastTarget = true;
+        scrollGO.AddComponent<RectMask2D>();
+        var scroll = scrollGO.AddComponent<ScrollRect>();
+        scroll.horizontal = false;
+        scroll.vertical = true;
+        scroll.viewport = scrollRT;
+
+        var contentGO = new GameObject("RecordsContent", typeof(RectTransform));
+        contentGO.transform.SetParent(scrollGO.transform, false);
+        var contentRT = contentGO.GetComponent<RectTransform>();
+        contentRT.anchorMin = new Vector2(0f, 1f);
+        contentRT.anchorMax = new Vector2(1f, 1f);
+        contentRT.pivot = new Vector2(0.5f, 1f);
+        contentRT.anchoredPosition = new Vector2(0f, -6f);
+        contentRT.sizeDelta = new Vector2(0f, 0f);
+        scroll.content = contentRT;
+        controller.listContent = contentRT;
+
+        controller.recordButtonTemplate = CreateButton(contentRT, "RecordButtonTemplate", font, "", 14,
+            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, 0f), new Vector2(-12f, 38f));
+        controller.recordButtonTemplate.gameObject.SetActive(false);
+    }
+
+    static void CreateRecordDetail(Transform parent, Font font, PortraitRecordsPanelController controller)
+    {
+        var previewBack = CreatePanel(parent, "RecordPreviewBack", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(354f, -96f), new Vector2(244f, 320f));
+        previewBack.color = new Color(0.02f, 0.02f, 0.02f, 0.64f);
+
+        var previewGO = new GameObject("RecordPreview", typeof(RectTransform));
+        previewGO.transform.SetParent(previewBack.transform, false);
+        var previewRT = previewGO.GetComponent<RectTransform>();
+        previewRT.anchorMin = Vector2.zero;
+        previewRT.anchorMax = Vector2.one;
+        previewRT.offsetMin = new Vector2(12f, 12f);
+        previewRT.offsetMax = new Vector2(-12f, -12f);
+        controller.previewImage = previewGO.AddComponent<RawImage>();
+        controller.previewImage.color = Color.clear;
+        controller.previewImage.raycastTarget = false;
+
+        controller.detailText = CreateText(parent, "RecordDetailText", font, "", 16, HudTextColor, TextAnchor.UpperLeft,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(628f, -108f), new Vector2(204f, 240f));
+        controller.emptyText = CreateText(parent, "RecordsEmptyText", font, "아직 완성한 초상화가 없습니다.", 17, HudMutedTextColor, TextAnchor.MiddleCenter,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(350f, -210f), new Vector2(470f, 42f));
+    }
+
+    static Button CreateButton(Transform parent, string name, Font font, string label, int fontSize,
+        Vector2 anchor, Vector2 pivot, Vector2 anchoredPosition, Vector2 size)
+    {
+        return CreateButton(parent, name, font, label, fontSize, anchor, anchor, pivot, anchoredPosition, size);
+    }
+
+    static Button CreateButton(Transform parent, string name, Font font, string label, int fontSize,
+        Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot, Vector2 anchoredPosition, Vector2 size)
+    {
+        var panel = CreatePanel(parent, name, anchorMin, pivot, anchoredPosition, size);
+        var rt = panel.GetComponent<RectTransform>();
+        rt.anchorMax = anchorMax;
+        panel.raycastTarget = true;
+        var button = panel.gameObject.AddComponent<Button>();
+        button.targetGraphic = panel;
+        CreateText(panel.transform, "Label", font, label, fontSize, HudTextColor, TextAnchor.MiddleCenter,
+            Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+        return button;
+    }
+
+    static Slider CreateSlider(Transform parent, string name, Vector2 anchoredPosition, Vector2 size)
+    {
+        var root = new GameObject(name, typeof(RectTransform));
+        root.transform.SetParent(parent, false);
+        var rootRT = root.GetComponent<RectTransform>();
+        rootRT.anchorMin = new Vector2(0f, 1f);
+        rootRT.anchorMax = new Vector2(0f, 1f);
+        rootRT.pivot = new Vector2(0f, 1f);
+        rootRT.anchoredPosition = anchoredPosition;
+        rootRT.sizeDelta = size;
+
+        var background = CreateSliderPart(root.transform, "Background", new Color(0.10f, 0.09f, 0.08f, 1f));
+        var backgroundRT = background.GetComponent<RectTransform>();
+        backgroundRT.anchorMin = new Vector2(0f, 0.5f);
+        backgroundRT.anchorMax = new Vector2(1f, 0.5f);
+        backgroundRT.sizeDelta = new Vector2(0f, 8f);
+
+        var fillArea = new GameObject("FillArea", typeof(RectTransform));
+        fillArea.transform.SetParent(root.transform, false);
+        var fillAreaRT = fillArea.GetComponent<RectTransform>();
+        fillAreaRT.anchorMin = new Vector2(0f, 0.5f);
+        fillAreaRT.anchorMax = new Vector2(1f, 0.5f);
+        fillAreaRT.sizeDelta = new Vector2(-12f, 8f);
+
+        var fill = CreateSliderPart(fillArea.transform, "Fill", HudMaterialsColor);
+        Stretch(fill.GetComponent<RectTransform>());
+
+        var handleArea = new GameObject("HandleSlideArea", typeof(RectTransform));
+        handleArea.transform.SetParent(root.transform, false);
+        Stretch(handleArea.GetComponent<RectTransform>());
+
+        var handle = CreateSliderPart(handleArea.transform, "Handle", HudTextColor);
+        var handleRT = handle.GetComponent<RectTransform>();
+        handleRT.anchorMin = new Vector2(0f, 0.5f);
+        handleRT.anchorMax = new Vector2(0f, 0.5f);
+        handleRT.sizeDelta = new Vector2(14f, 22f);
+
+        var slider = root.AddComponent<Slider>();
+        slider.fillRect = fill.GetComponent<RectTransform>();
+        slider.handleRect = handleRT;
+        slider.targetGraphic = handle;
+        slider.direction = Slider.Direction.LeftToRight;
+        slider.minValue = 0f;
+        slider.maxValue = 100f;
+        slider.wholeNumbers = true;
+        slider.value = 100f;
+        return slider;
+    }
+
+    static Toggle CreateToggle(Transform parent, string name, Vector2 anchoredPosition)
+    {
+        var root = new GameObject(name, typeof(RectTransform));
+        root.transform.SetParent(parent, false);
+        var rootRT = root.GetComponent<RectTransform>();
+        rootRT.anchorMin = new Vector2(0f, 1f);
+        rootRT.anchorMax = new Vector2(0f, 1f);
+        rootRT.pivot = new Vector2(0f, 1f);
+        rootRT.anchoredPosition = anchoredPosition;
+        rootRT.sizeDelta = new Vector2(30f, 30f);
+
+        var background = CreateSliderPart(root.transform, "Background", new Color(0.10f, 0.09f, 0.08f, 1f));
+        Stretch(background.GetComponent<RectTransform>());
+        background.raycastTarget = true;
+        var checkmark = CreateSliderPart(background.transform, "Checkmark", HudEnergyColor);
+        var checkmarkRT = checkmark.GetComponent<RectTransform>();
+        checkmarkRT.anchorMin = Vector2.zero;
+        checkmarkRT.anchorMax = Vector2.one;
+        checkmarkRT.offsetMin = new Vector2(6f, 6f);
+        checkmarkRT.offsetMax = new Vector2(-6f, -6f);
+
+        var toggle = root.AddComponent<Toggle>();
+        toggle.targetGraphic = background;
+        toggle.graphic = checkmark;
+        return toggle;
+    }
+
+    static Image CreateSliderPart(Transform parent, string name, Color color)
+    {
+        var go = new GameObject(name, typeof(RectTransform));
+        go.transform.SetParent(parent, false);
+        var image = go.AddComponent<Image>();
+        image.color = color;
+        return image;
+    }
+
+    static void Stretch(RectTransform rt)
+    {
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
     }
 }
