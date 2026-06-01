@@ -1009,3 +1009,31 @@
  * 작업: TalkSceneHUDController.cs에 stat tooltip 표시/갱신 로직과 hover trigger 컴포넌트 추가. TalkSceneBuilder.cs에서 에너지/평판/재료 행의 Value 텍스트 생성을 제거하고 바 배경에 pointer event 및 tooltip trigger를 연결. HUD_StatTooltip 패널 생성 추가. Yorki/Build Talk Scene 재실행으로 TalkScene.unity 반영. 검증: dotnet build Assembly-CSharp 및 Assembly-CSharp-Editor 경고 0 오류 0, Unity refresh/compile, TalkScene validate clean.
 -----------------------------------------
 */
+/*
+-----------------------------------------
+[Log #107] [2026-06-01 13:21:55]
+ * 사용자: 평판과 재료 바 tooltip은 뜨지만 에너지 바 tooltip은 뜨지 않는 문제 제보
+ * 작업: TalkSceneBuilder.cs에서 바 배경 자체가 hover를 받던 구조와 SetSiblingIndex 의존을 제거. 에너지/평판/재료 바 각각에 전체 크기의 투명 Hover 레이어를 최상단 자식으로 추가하고 TalkSceneHUDTooltipTarget을 연결. Yorki/Build Talk Scene 재실행으로 TalkScene.unity 반영. 씬 YAML에서 Hover_에너지 raycastTarget 1 / statKind 0, Hover_평판 statKind 1, Hover_재료 statKind 2 확인. 검증: dotnet build Assembly-CSharp-Editor 경고 0 오류 0, Unity refresh/compile, TalkScene validate clean.
+-----------------------------------------
+*/
+/*
+-----------------------------------------
+[Log #108] [2026-06-01 13:30:59]
+ * 사용자: 모든 대사를 Inspector에서 쉽게 수정할 수 있도록 코드 밖으로 분리 요청
+ * 작업: 프로젝트 검색 결과 손님별 PreDraw/Good/Bad 대사는 기존 CustomerEpisode_*.asset에 이미 분리되어 있고, 첫 요르키 독백 2줄만 TalkSceneBuilder.cs에 남아 있음을 확인. DialogueSequenceData.cs 신규 추가, Assets/Data/DialogueSequences/IntroMonologue.asset 신규 생성 후 독백 2줄과 기본 화자명을 이전. TalkSceneController.cs는 introMonologueLines / introSpeakerName 대신 DialogueSequenceData 참조를 사용하도록 변경. TalkSceneBuilder.cs도 IntroMonologue.asset을 로드하도록 갱신하고 Yorki/Build Talk Scene 재실행. 검증: 코드 검색 결과 실제 대사 문장은 asset 파일에만 존재, dotnet build Assembly-CSharp 및 Assembly-CSharp-Editor 경고 0 오류 0, Unity 전체 refresh/compile, TalkScene validate clean.
+-----------------------------------------
+*/
+/*
+-----------------------------------------
+[Log #109] [2026-06-01 13:54:51]
+ * 사용자: 대사 데이터를 한 폴더에 묶되 에러 없이 정리 요청
+ * 작업: Assets/Data/Dialogues 폴더 생성. 기존 Assets/Data/CustomerEpisodes를 Assets/Data/Dialogues/CustomerEpisodes로, Assets/Data/DialogueSequences를 Assets/Data/Dialogues/Sequences로 이동. asset 및 폴더 .meta를 함께 이동하여 기존 GUID 참조 유지. TalkSceneBuilder.cs의 고로/헤일리/윈터 에피소드 및 IntroMonologue 문자열 경로를 새 구조로 갱신. PROGRESS.md에 통합 폴더 구조 반영. 검증: GUID 유지 및 TalkScene 씬 참조 확인, Unity 전체 refresh/compile, Yorki/Build Talk Scene, TalkScene validate clean, dotnet build Assembly-CSharp 및 Assembly-CSharp-Editor 경고 0 오류 0.
+-----------------------------------------
+*/
+/*
+-----------------------------------------
+[Log #110] [2026-06-01 14:06:36]
+ * 사용자: 유저 플레이 결과를 바꾸지 않는 범위에서 추가 유지보수 정리 요청
+ * 작업: 중복 문자열과 경로를 프로젝트 전체 검색. YorkiConstants.cs 신규 추가 후 씬 이름(TalkScene/SceneA), 주요 UI 오브젝트 이름(CustomerStage/DialogueBox/RightPanel/DialogueText/SpeakerNameText/ContinueArrow), 감정 키(neutral/happy/surprised/gesture/thinking), SampleCustomer Resources 경로를 공용 상수화. CustomerDisplay, DialogueLineData, SceneTransition, TalkSceneController, GameManager, SceneADrawingUIController가 공용 상수를 사용하도록 변경. YorkiEditorAssets.cs에 씬 저장 경로와 대사 asset 경로를 통합하고 TalkSceneBuilder / SceneABuilder가 이를 사용하도록 변경. GameManager의 ReactionSystem.IsGoodResult 중복 판정을 제거하고 공용 함수 사용. 검증: Unity 전체 refresh/compile, Yorki/Build Talk Scene, TalkScene validate clean, dotnet build Assembly-CSharp 및 Assembly-CSharp-Editor 경고 0 오류 0.
+-----------------------------------------
+*/

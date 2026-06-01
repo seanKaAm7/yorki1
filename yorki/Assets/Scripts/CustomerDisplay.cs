@@ -29,7 +29,7 @@ public class CustomerDisplay : MonoBehaviour
     public bool useExtraNeutralTalkFrames = false;
 
     Image _img;
-    string _currentEmotion = "neutral";
+    string _currentEmotion = YorkiEmotionKeys.Neutral;
     Vector2 _originPos;
     int _talkFrameIndex;
     int _mouthFrameHoldCounter;
@@ -80,7 +80,7 @@ public class CustomerDisplay : MonoBehaviour
 
         _mouthFrameHoldCounter = Mathf.Max(1, mouthFrameInterval) - 1;
 
-        if (_currentEmotion == "neutral")
+        if (_currentEmotion == YorkiEmotionKeys.Neutral)
         {
             Sprite[] frames = GetNeutralTalkFrames();
             _img.sprite = frames[_talkFrameIndex];
@@ -88,17 +88,17 @@ public class CustomerDisplay : MonoBehaviour
             return;
         }
 
-        if (_currentEmotion == "gesture")
+        if (_currentEmotion == YorkiEmotionKeys.Gesture)
         {
             _gestureTalkOpen = !_gestureTalkOpen;
-            _img.sprite = _gestureTalkOpen && gestureTalk != null ? gestureTalk : GetIdleSprite("gesture");
+            _img.sprite = _gestureTalkOpen && gestureTalk != null ? gestureTalk : GetIdleSprite(YorkiEmotionKeys.Gesture);
         }
     }
 
     public void CloseMouth()
     {
         _mouthFrameHoldCounter = 0;
-        if (_currentEmotion == "neutral" || _currentEmotion == "gesture")
+        if (_currentEmotion == YorkiEmotionKeys.Neutral || _currentEmotion == YorkiEmotionKeys.Gesture)
             SetEmotionSprite(_currentEmotion);
     }
 
@@ -110,14 +110,14 @@ public class CustomerDisplay : MonoBehaviour
     Sprite[] GetNeutralTalkFrames()
     {
         if (!useExtraNeutralTalkFrames)
-            return new Sprite[] { GetTalkSprite("neutral") };
+            return new Sprite[] { GetTalkSprite(YorkiEmotionKeys.Neutral) };
 
         return new Sprite[]
         {
-            talk2 != null ? talk2 : GetTalkSprite("neutral"),
-            neutralTalk != null ? neutralTalk : GetTalkSprite("neutral"),
-            talk1 != null ? talk1 : GetTalkSprite("neutral"),
-            neutralTalk != null ? neutralTalk : GetTalkSprite("neutral"),
+            talk2 != null ? talk2 : GetTalkSprite(YorkiEmotionKeys.Neutral),
+            neutralTalk != null ? neutralTalk : GetTalkSprite(YorkiEmotionKeys.Neutral),
+            talk1 != null ? talk1 : GetTalkSprite(YorkiEmotionKeys.Neutral),
+            neutralTalk != null ? neutralTalk : GetTalkSprite(YorkiEmotionKeys.Neutral),
         };
     }
 
@@ -145,9 +145,9 @@ public class CustomerDisplay : MonoBehaviour
     {
         switch (emotion)
         {
-            case "happy":     return happyIdle;
-            case "surprised": return surprised;
-            case "gesture":   return gestureIdle;
+            case YorkiEmotionKeys.Happy:     return happyIdle;
+            case YorkiEmotionKeys.Surprised: return surprised;
+            case YorkiEmotionKeys.Gesture:   return gestureIdle;
             default:          return neutralIdle;
         }
     }
@@ -156,8 +156,8 @@ public class CustomerDisplay : MonoBehaviour
     {
         switch (emotion)
         {
-            case "happy":   return happyIdle;
-            case "gesture": return gestureTalk != null ? gestureTalk : gestureIdle;
+            case YorkiEmotionKeys.Happy:   return happyIdle;
+            case YorkiEmotionKeys.Gesture: return gestureTalk != null ? gestureTalk : gestureIdle;
             default:        return neutralTalk != null ? neutralTalk : neutralIdle;
         }
     }

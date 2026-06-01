@@ -72,7 +72,7 @@ public class GameManager : MonoBehaviour
 
         CustomerData customer = currentCustomer;
         if (customer == null)
-            customer = Resources.Load<CustomerData>("Customers/SampleCustomer");
+            customer = Resources.Load<CustomerData>(YorkiResourcePaths.SampleCustomer);
         if (customer == null) return;
 
         Texture2D playerTex = drawingCanvas.GetFlattenedTextureForScoring();
@@ -86,16 +86,11 @@ public class GameManager : MonoBehaviour
 
         Debug.Log($"[GameManager] 점수: {score} | 반응: {result.level} | 수입: +€{result.payment}");
 
-        TalkScenePhase nextPhase = IsGoodResult(result.level)
+        TalkScenePhase nextPhase = ReactionSystem.IsGoodResult(result.level)
             ? TalkScenePhase.ResultGood
             : TalkScenePhase.ResultBad;
 
         SceneTransition.EnsureInstance().SceneAToTalkScene(nextPhase);
-    }
-
-    static bool IsGoodResult(ReactionLevel level)
-    {
-        return level == ReactionLevel.Satisfied || level == ReactionLevel.VerySatisfied;
     }
 
     void AdvanceDayMeters()

@@ -1,5 +1,43 @@
 /*
 ---------
+[2026-06-01] (v59)
+ * 내부 유지보수 정리 - 플레이 동작을 유지하면서 씬 이름, 주요 UI 오브젝트 이름, 감정 키, Resources 경로를 YorkiConstants.cs로 통합
+ * 빌더 경로 통합 - TalkScene / SceneA 저장 경로와 대사 asset 경로를 YorkiEditorAssets.cs에서 한 번만 관리
+ * 빌더-런타임 정합성 보강 - 빌더가 생성하는 CustomerStage / DialogueBox / RightPanel 등과 런타임 탐색 이름이 같은 상수를 사용
+ * 반응 판정 중복 제거 - GameManager의 별도 good-result 판정을 제거하고 ReactionSystem.IsGoodResult를 공용 사용
+ * 검증 - Unity 전체 refresh/compile, Yorki/Build Talk Scene, TalkScene validate, Assembly-CSharp / Assembly-CSharp-Editor 빌드 경고 0 오류 0
+---------
+*/
+/*
+---------
+[2026-06-01] (v58)
+ * 대사 데이터 폴더 통합 - Assets/Data/Dialogues 아래 CustomerEpisodes / Sequences 구조로 정리
+ * Unity 참조 보존 - 기존 asset과 폴더의 .meta를 함께 이동해 CustomerEpisode 및 IntroMonologue GUID 유지
+ * TalkSceneBuilder 경로 갱신 - 통합된 대사 폴더에서 고로/헤일리/윈터 에피소드와 첫 독백 asset을 로드
+ * 검증 - Unity 전체 refresh/compile, Yorki/Build Talk Scene, TalkScene validate, Assembly-CSharp / Assembly-CSharp-Editor 빌드 경고 0 오류 0
+---------
+*/
+/*
+---------
+[2026-06-01] (v57)
+ * 첫 요르키 독백 데이터 분리 - TalkSceneBuilder.cs에 하드코딩되어 있던 독백 2줄을 IntroMonologue.asset으로 이전
+ * 신규 DialogueSequenceData - 기본 화자명과 DialogueLineData 배열을 Inspector에서 수정 가능한 ScriptableObject로 제공
+ * TalkSceneController 정리 - introMonologueLines / introSpeakerName 대신 DialogueSequenceData 참조 하나를 사용
+ * 전체 대사 편집 경로 통일 - 손님 대사는 CustomerEpisodes, 첫 독백은 DialogueSequences 폴더의 asset에서 수정
+ * 검증 - Unity 전체 refresh/compile, Yorki/Build Talk Scene, TalkScene validate, Assembly-CSharp / Assembly-CSharp-Editor 빌드 경고 0 오류 0
+---------
+*/
+/*
+---------
+[2026-06-01] (v56)
+ * TalkScene HUD 에너지 hover 보강 - 바 배경의 sibling 순서에 기대던 pointer 감지를 제거하고 각 상태 바에 전용 투명 Hover 레이어 추가
+ * 에너지/평판/재료 공통 처리 - Hover 레이어가 바 전체 영역에서 raycast를 받고 TalkSceneHUDTooltipTarget을 통해 tooltip 표시
+ * TalkSceneBuilder 갱신 - Yorki/Build Talk Scene 실행 시 Hover_에너지 / Hover_평판 / Hover_재료 레이어가 자동 생성되도록 반영
+ * 검증 - Unity refresh/compile, Yorki/Build Talk Scene, TalkScene validate, Assembly-CSharp-Editor 빌드 경고 0 오류 0
+---------
+*/
+/*
+---------
 [2026-05-28] (v55)
  * TalkScene HUD 바 수치 표시 방식 변경 - 에너지/평판/재료 행의 상시 숫자 텍스트를 제거하고 바 hover tooltip로만 현재 값을 표시
  * HUD hover 처리 추가 - 바 배경이 pointer event를 받고 TalkSceneHUDController가 현재 GameManager 수치를 tooltip 문구로 갱신

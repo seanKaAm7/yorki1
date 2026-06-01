@@ -4,6 +4,12 @@ using UnityEngine;
 public static class YorkiEditorAssets
 {
     public const string UIFontPath = "Assets/Fonts/Moneygraphy-Pixel.ttf";
+    public const string TalkScenePath = "Assets/Scenes/TalkScene.unity";
+    public const string DrawingScenePath = "Assets/Scenes/SceneA.unity";
+    public const string CustomerEpisode01Path = "Assets/Data/Dialogues/CustomerEpisodes/CustomerEpisode_01_Goro.asset";
+    public const string CustomerEpisode02Path = "Assets/Data/Dialogues/CustomerEpisodes/CustomerEpisode_02_Hailey.asset";
+    public const string CustomerEpisode03Path = "Assets/Data/Dialogues/CustomerEpisodes/CustomerEpisode_03_Winter.asset";
+    public const string IntroMonologuePath = "Assets/Data/Dialogues/Sequences/IntroMonologue.asset";
 
     public static Font LoadUIFont()
     {

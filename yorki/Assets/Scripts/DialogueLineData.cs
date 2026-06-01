@@ -7,7 +7,7 @@ public class DialogueLineData
     public string speakerName;
 
     [Tooltip("CustomerDisplay 감정 키: neutral / happy / surprised / gesture / thinking")]
-    public string emotion = "neutral";
+    public string emotion = YorkiEmotionKeys.Neutral;
 
     [TextArea(2, 4)]
     public string text;

@@ -328,7 +328,7 @@ public class SceneADrawingUIController : MonoBehaviour
             return;
         }
 
-        CustomerData fallbackCustomer = Resources.Load<CustomerData>("Customers/SampleCustomer");
+        CustomerData fallbackCustomer = Resources.Load<CustomerData>(YorkiResourcePaths.SampleCustomer);
         if (fallbackCustomer == null)
         {
             Debug.LogWarning("[SceneADrawingUIController] Submit fallback — SampleCustomer가 없어 ResultGood으로 복귀");

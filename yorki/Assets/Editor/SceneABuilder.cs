@@ -88,7 +88,7 @@ public class SceneABuilder
         canvasGO.AddComponent<GraphicRaycaster>();
 
         // RightPanel
-        var rightGO = new GameObject("RightPanel");
+        var rightGO = new GameObject(YorkiObjectNames.DrawingPanel);
         rightGO.transform.SetParent(canvasGO.transform, false);
         var rightImg = rightGO.AddComponent<Image>();
         var rightGroup = rightGO.AddComponent<CanvasGroup>();
@@ -334,13 +334,13 @@ public class SceneABuilder
         controller.colorPreview        = colorPreview;
 
         // SceneTransition
-        var transitionGO = new GameObject("SceneTransition");
+        var transitionGO = new GameObject(YorkiObjectNames.SceneTransition);
         transitionGO.AddComponent<SceneTransition>();
 
         if (!AssetDatabase.IsValidFolder("Assets/Scenes"))
             AssetDatabase.CreateFolder("Assets", "Scenes");
 
-        EditorSceneManager.SaveScene(scene, "Assets/Scenes/SceneA.unity");
+        EditorSceneManager.SaveScene(scene, YorkiEditorAssets.DrawingScenePath);
         Debug.Log("[SceneABuilder] SceneA 생성 완료 — RGB 컬러 박스 + Submit 연결 + Step 6 UI 반영");
     }
 

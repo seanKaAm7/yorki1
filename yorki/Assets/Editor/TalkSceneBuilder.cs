@@ -36,11 +36,6 @@ public class TalkSceneBuilder
     const string gestureTalkPath = "Assets/Sprites/SceneA/Customer_Gesture_Talk.png";
 
     // 기본 에피소드 큐 (빌더 재실행 시 TalkSceneController 참조 자동 복원용)
-    const string episode01Path = "Assets/Data/CustomerEpisodes/CustomerEpisode_01_Goro.asset";
-    const string episode02Path = "Assets/Data/CustomerEpisodes/CustomerEpisode_02_Hailey.asset";
-    const string episode03Path = "Assets/Data/CustomerEpisodes/CustomerEpisode_03_Winter.asset";
-    const string defaultEpisodePath = episode01Path;
-
     [MenuItem("Yorki/Build Talk Scene")]
     public static void Build()
     {
@@ -97,7 +92,7 @@ public class TalkSceneBuilder
         pCanvasGO.AddComponent<GraphicRaycaster>();
 
         // CustomerStage (빈 부모) — TalkScene 기본 위치 (0, 0)
-        var stageGO = new GameObject("CustomerStage", typeof(RectTransform));
+        var stageGO = new GameObject(YorkiObjectNames.CustomerStage, typeof(RectTransform));
         stageGO.transform.SetParent(pCanvasGO.transform, false);
         var stageRT = stageGO.GetComponent<RectTransform>();
         stageRT.anchorMin        = new Vector2(0.5f, 0.5f);
@@ -162,7 +157,7 @@ public class TalkSceneBuilder
         CreateHUD(sCanvasGO.transform, uiFont);
 
         // DialogueBox — 어두운 반투명 박스
-        var dlgGO     = new GameObject("DialogueBox");
+        var dlgGO     = new GameObject(YorkiObjectNames.DialogueBox);
         dlgGO.transform.SetParent(sCanvasGO.transform, false);
         var dlgImg    = dlgGO.AddComponent<Image>();
         var dlgOutline = dlgGO.AddComponent<Outline>();
@@ -180,7 +175,7 @@ public class TalkSceneBuilder
         dlgRT.sizeDelta        = new Vector2(820f, 160f);
 
         // SpeakerNameText
-        var nameGO = new GameObject("SpeakerNameText");
+        var nameGO = new GameObject(YorkiObjectNames.SpeakerNameText);
         nameGO.transform.SetParent(dlgGO.transform, false);
         var nameTxt = nameGO.AddComponent<Text>();
         nameTxt.text      = "";
@@ -196,7 +191,7 @@ public class TalkSceneBuilder
         nameRT.sizeDelta        = new Vector2(-72f, 24f);
 
         // DialogueText
-        var textGO = new GameObject("DialogueText");
+        var textGO = new GameObject(YorkiObjectNames.DialogueText);
         textGO.transform.SetParent(dlgGO.transform, false);
         var txt = textGO.AddComponent<Text>();
         txt.text      = "";
@@ -211,7 +206,7 @@ public class TalkSceneBuilder
         txtRT.offsetMax = new Vector2(-36f, -46f);
 
         // ContinueArrow
-        var arrowGO = new GameObject("ContinueArrow");
+        var arrowGO = new GameObject(YorkiObjectNames.ContinueArrow);
         arrowGO.transform.SetParent(dlgGO.transform, false);
         var arrowTxt = arrowGO.AddComponent<Text>();
         arrowTxt.text      = "▼";
@@ -227,7 +222,7 @@ public class TalkSceneBuilder
         arrowRT.sizeDelta        = new Vector2(20f, 20f);
 
         // SceneTransition — 전환 중 씬 로드 이후까지 살아있는 싱글턴
-        var transitionGO = new GameObject("SceneTransition");
+        var transitionGO = new GameObject(YorkiObjectNames.SceneTransition);
         var transition   = transitionGO.AddComponent<SceneTransition>();
 
         // TalkSceneController — Phase별 대사 출력
@@ -239,33 +234,18 @@ public class TalkSceneBuilder
         controller.continueArrow    = arrowTxt;
         controller.dialogueBoxGroup = dlgGroup;
         controller.sceneTransition  = transition;
-        controller.introSpeakerName = "요르키";
-        controller.introMonologueLines = new DialogueLineData[]
-        {
-            new DialogueLineData
-            {
-                speakerName = "요르키",
-                emotion = "thinking",
-                text = "오늘도 이 거리 한복판에서 시작이다.",
-                shake = false
-            },
-            new DialogueLineData
-            {
-                speakerName = "요르키",
-                emotion = "thinking",
-                text = "첫 손님이 오기 전에, 손부터 조금 풀어두자.",
-                shake = false
-            }
-        };
+        controller.introMonologue = AssetDatabase.LoadAssetAtPath<DialogueSequenceData>(YorkiEditorAssets.IntroMonologuePath);
+        if (controller.introMonologue == null)
+            Debug.LogWarning($"[TalkSceneBuilder] 첫 독백 데이터를 찾지 못함: {YorkiEditorAssets.IntroMonologuePath}");
 
-        var defaultEpisode = AssetDatabase.LoadAssetAtPath<CustomerEpisodeData>(defaultEpisodePath);
+        var defaultEpisode = AssetDatabase.LoadAssetAtPath<CustomerEpisodeData>(YorkiEditorAssets.CustomerEpisode01Path);
         if (defaultEpisode != null)
             controller.currentEpisode = defaultEpisode;
         else
-            Debug.LogWarning($"[TalkSceneBuilder] 기본 에피소드를 찾지 못함: {defaultEpisodePath}");
+            Debug.LogWarning($"[TalkSceneBuilder] 기본 에피소드를 찾지 못함: {YorkiEditorAssets.CustomerEpisode01Path}");
 
-        var haileyEpisode = AssetDatabase.LoadAssetAtPath<CustomerEpisodeData>(episode02Path);
-        var winterEpisode = AssetDatabase.LoadAssetAtPath<CustomerEpisodeData>(episode03Path);
+        var haileyEpisode = AssetDatabase.LoadAssetAtPath<CustomerEpisodeData>(YorkiEditorAssets.CustomerEpisode02Path);
+        var winterEpisode = AssetDatabase.LoadAssetAtPath<CustomerEpisodeData>(YorkiEditorAssets.CustomerEpisode03Path);
         controller.dayEpisodeQueue = new CustomerEpisodeData[]
         {
             defaultEpisode,
@@ -276,7 +256,7 @@ public class TalkSceneBuilder
         if (!AssetDatabase.IsValidFolder("Assets/Scenes"))
             AssetDatabase.CreateFolder("Assets", "Scenes");
 
-        EditorSceneManager.SaveScene(scene, "Assets/Scenes/TalkScene.unity");
+        EditorSceneManager.SaveScene(scene, YorkiEditorAssets.TalkScenePath);
         Debug.Log("[TalkSceneBuilder] TalkScene 생성 완료");
     }
 
@@ -401,17 +381,13 @@ public class TalkSceneBuilder
         barBack.transform.SetParent(parent, false);
         var backImage = barBack.AddComponent<Image>();
         backImage.color = new Color(0.13f, 0.12f, 0.11f, 0.92f);
-        backImage.raycastTarget = true;
+        backImage.raycastTarget = false;
         var backRT = barBack.GetComponent<RectTransform>();
         backRT.anchorMin = new Vector2(0f, 1f);
         backRT.anchorMax = new Vector2(0f, 1f);
         backRT.pivot = new Vector2(0f, 1f);
         backRT.anchoredPosition = new Vector2(108f, -topY - 4f);
         backRT.sizeDelta = new Vector2(124f, 20f);
-
-        var tooltipTarget = barBack.AddComponent<TalkSceneHUDTooltipTarget>();
-        tooltipTarget.hud = hud;
-        tooltipTarget.statKind = statKind;
 
         var fillGO = new GameObject($"Fill_{label}", typeof(RectTransform));
         fillGO.transform.SetParent(barBack.transform, false);
@@ -428,7 +404,20 @@ public class TalkSceneBuilder
         fillRT.offsetMin = Vector2.zero;
         fillRT.offsetMax = Vector2.zero;
 
-        barBack.transform.SetSiblingIndex(1);
+        var hoverGO = new GameObject($"Hover_{label}", typeof(RectTransform));
+        hoverGO.transform.SetParent(barBack.transform, false);
+        var hoverImage = hoverGO.AddComponent<Image>();
+        hoverImage.color = Color.clear;
+        hoverImage.raycastTarget = true;
+        var hoverRT = hoverGO.GetComponent<RectTransform>();
+        hoverRT.anchorMin = Vector2.zero;
+        hoverRT.anchorMax = Vector2.one;
+        hoverRT.offsetMin = Vector2.zero;
+        hoverRT.offsetMax = Vector2.zero;
+
+        var tooltipTarget = hoverGO.AddComponent<TalkSceneHUDTooltipTarget>();
+        tooltipTarget.hud = hud;
+        tooltipTarget.statKind = statKind;
     }
 
     static void CreateStatTooltip(Transform parent, Font font, TalkSceneHUDController hud)

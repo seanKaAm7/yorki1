@@ -31,8 +31,8 @@ public class TalkSceneController : MonoBehaviour
     public float customerFadeDuration = 1f;
 
     [Header("Intro Monologue")]
-    public DialogueLineData[] introMonologueLines;
-    public string introSpeakerName = "요르키";
+    [Tooltip("첫 손님 등장 전에 한 번만 출력할 독백 데이터입니다.")]
+    public DialogueSequenceData introMonologue;
 
     [Header("Settings")]
     public TalkScenePhase phase = TalkScenePhase.PreDraw;
@@ -69,7 +69,7 @@ public class TalkSceneController : MonoBehaviour
             GameManager.Instance.introMonologueShown = true;
             StopInitialCustomerFadeIn();
             SetCustomerAlpha(0f);
-            _lines = introMonologueLines;
+            _lines = introMonologue.lines;
         }
         else
         {
@@ -117,25 +117,25 @@ public class TalkSceneController : MonoBehaviour
 
         if (dialogueText == null)
         {
-            GameObject go = GameObject.Find("DialogueText");
+            GameObject go = GameObject.Find(YorkiObjectNames.DialogueText);
             if (go != null) dialogueText = go.GetComponent<Text>();
         }
 
         if (speakerNameText == null)
         {
-            GameObject go = GameObject.Find("SpeakerNameText");
+            GameObject go = GameObject.Find(YorkiObjectNames.SpeakerNameText);
             if (go != null) speakerNameText = go.GetComponent<Text>();
         }
 
         if (continueArrow == null)
         {
-            GameObject go = GameObject.Find("ContinueArrow");
+            GameObject go = GameObject.Find(YorkiObjectNames.ContinueArrow);
             if (go != null) continueArrow = go.GetComponent<Text>();
         }
 
         if (dialogueBoxGroup == null)
         {
-            GameObject go = GameObject.Find("DialogueBox");
+            GameObject go = GameObject.Find(YorkiObjectNames.DialogueBox);
             if (go != null) dialogueBoxGroup = SceneTransition.EnsureCanvasGroup(go);
         }
     }
@@ -263,7 +263,7 @@ public class TalkSceneController : MonoBehaviour
 
         if (phase == TalkScenePhase.PreDraw)
         {
-            customerDisplay?.SetEmotion("neutral");
+            customerDisplay?.SetEmotion(YorkiEmotionKeys.Neutral);
             customerDisplay?.StopTalking();
             sceneTransition.TalkSceneToSceneA();
             return;
@@ -417,7 +417,7 @@ public class TalkSceneController : MonoBehaviour
             return;
         }
 
-        GameObject go = new GameObject("GameManager");
+        GameObject go = new GameObject(YorkiObjectNames.GameManager);
         GameManager gm = go.AddComponent<GameManager>();
         SeedEpisodeQueueIfNeeded(gm);
     }
@@ -436,7 +436,7 @@ public class TalkSceneController : MonoBehaviour
     {
         if (phase != TalkScenePhase.PreDraw)
             return false;
-        if (introMonologueLines == null || introMonologueLines.Length == 0)
+        if (introMonologue == null || introMonologue.lines == null || introMonologue.lines.Length == 0)
             return false;
         if (GameManager.Instance == null)
             return false;
@@ -459,7 +459,7 @@ public class TalkSceneController : MonoBehaviour
         if (currentEpisode.gestureIdle != null) customerDisplay.gestureIdle = currentEpisode.gestureIdle;
         if (currentEpisode.gestureTalk != null) customerDisplay.gestureTalk = currentEpisode.gestureTalk;
 
-        customerDisplay.SetEmotion("neutral");
+        customerDisplay.SetEmotion(YorkiEmotionKeys.Neutral);
     }
 
     void UpdateSpeakerName(DialogueLineData line)
@@ -476,8 +476,8 @@ public class TalkSceneController : MonoBehaviour
         string speakerName = "";
         if (!string.IsNullOrWhiteSpace(line.speakerName))
             speakerName = line.speakerName;
-        else if (_playingIntro)
-            speakerName = introSpeakerName;
+        else if (_playingIntro && introMonologue != null)
+            speakerName = introMonologue.defaultSpeakerName;
         else if (currentEpisode != null)
             speakerName = currentEpisode.customerName;
 
@@ -514,15 +514,15 @@ public class TalkSceneController : MonoBehaviour
     {
         switch (emotion)
         {
-            case "neutral":
-            case "happy":
-                return "resting";
-            case "gesture":
-                return "gesture";
-            case "thinking":
-                return "thinking";
+            case YorkiEmotionKeys.Neutral:
+            case YorkiEmotionKeys.Happy:
+                return YorkiPoseGroups.Resting;
+            case YorkiEmotionKeys.Gesture:
+                return YorkiPoseGroups.Gesture;
+            case YorkiEmotionKeys.Thinking:
+                return YorkiPoseGroups.Thinking;
             default:
-                return "reaction";
+                return YorkiPoseGroups.Reaction;
         }
     }
 

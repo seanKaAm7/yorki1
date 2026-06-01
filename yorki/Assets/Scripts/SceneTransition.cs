@@ -25,7 +25,7 @@ public class SceneTransition : MonoBehaviour
         if (existing != null)
             return existing;
 
-        GameObject go = new GameObject("SceneTransition");
+        GameObject go = new GameObject(YorkiObjectNames.SceneTransition);
         return go.AddComponent<SceneTransition>();
     }
 
@@ -69,7 +69,7 @@ public class SceneTransition : MonoBehaviour
     {
         if (IsTransitioning) return;
         ResetCustomerForDrawing();
-        StartCoroutine(TransitionRoutine("SceneA", DrawingStagePosition, true, TalkScenePhase.PreDraw));
+        StartCoroutine(TransitionRoutine(YorkiSceneNames.Drawing, DrawingStagePosition, true, TalkScenePhase.PreDraw));
     }
 
     public void SceneAToTalkScene(TalkScenePhase nextPhase) // SceneA에서 TalkScene으로 전환. 다음 대화 단계(nextPhase)를 인자로 받아서 씬이 로드될 때 GameManager.currentTalkPhase에 설정하도록 함.
@@ -77,7 +77,7 @@ public class SceneTransition : MonoBehaviour
         if (IsTransitioning) return;
 
         GameManager.currentTalkPhase = nextPhase;
-        StartCoroutine(TransitionRoutine("TalkScene", TalkStagePosition, false, nextPhase));
+        StartCoroutine(TransitionRoutine(YorkiSceneNames.Talk, TalkStagePosition, false, nextPhase));
     }
 
     public void PlaceStageForTalkScene()
@@ -98,9 +98,9 @@ public class SceneTransition : MonoBehaviour
     void PlaceStageForActiveScene()
     {
         string sceneName = SceneManager.GetActiveScene().name;
-        if (sceneName == "SceneA")
+        if (sceneName == YorkiSceneNames.Drawing)
             PlaceStageForSceneA();
-        else if (sceneName == "TalkScene")
+        else if (sceneName == YorkiSceneNames.Talk)
             PlaceStageForTalkScene();
     }
 
@@ -117,7 +117,7 @@ public class SceneTransition : MonoBehaviour
         RectTransform stage = FindCustomerStage();
         Vector2 startPosition = stage != null ? stage.anchoredPosition : (toSceneA ? TalkStagePosition : DrawingStagePosition);
 
-        CanvasGroup outgoingGroup = toSceneA ? FindCanvasGroup("DialogueBox") : FindCanvasGroup("RightPanel");
+        CanvasGroup outgoingGroup = toSceneA ? FindCanvasGroup(YorkiObjectNames.DialogueBox) : FindCanvasGroup(YorkiObjectNames.DrawingPanel);
         CanvasGroup incomingGroup = null;
         bool loaded = false;
 
@@ -144,7 +144,7 @@ public class SceneTransition : MonoBehaviour
                 SceneManager.LoadScene(targetScene);
                 yield return null;
 
-                incomingGroup = toSceneA ? FindCanvasGroup("RightPanel") : FindCanvasGroup("DialogueBox");
+                incomingGroup = toSceneA ? FindCanvasGroup(YorkiObjectNames.DrawingPanel) : FindCanvasGroup(YorkiObjectNames.DialogueBox);
                 if (incomingGroup != null)
                 {
                     incomingGroup.alpha = 0f;
@@ -184,7 +184,7 @@ public class SceneTransition : MonoBehaviour
         if (PersistentBootstrap.Instance != null && PersistentBootstrap.Instance.customerStage != null)
             return PersistentBootstrap.Instance.customerStage;
 
-        GameObject go = GameObject.Find("CustomerStage");
+        GameObject go = GameObject.Find(YorkiObjectNames.CustomerStage);
         return go != null ? go.GetComponent<RectTransform>() : null;
     }
 
@@ -197,7 +197,7 @@ public class SceneTransition : MonoBehaviour
             customer = Object.FindAnyObjectByType<CustomerDisplay>();
 
         if (customer == null) return;
-        customer.SetEmotion("neutral");
+        customer.SetEmotion(YorkiEmotionKeys.Neutral);
         customer.StopTalking();
     }
 

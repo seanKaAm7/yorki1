@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b12526e4f9cf4640a697eb93c7f4d600, type: 3}
+  m_Name: IntroMonologue
+  m_EditorClassIdentifier:
+  defaultSpeakerName: "요르키"
+  lines:
+  - speakerName:
+    emotion: thinking
+    text: "오늘도 이 거리 한복판에서 시작이다."
+    shake: 0
+  - speakerName:
+    emotion: thinking
+    text: "첫 손님이 오기 전에, 손부터 조금 풀어두자."
+    shake: 0

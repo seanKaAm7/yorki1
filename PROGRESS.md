@@ -10,7 +10,7 @@
 | SceneA 드로잉 씬 | 프로토타입 1차 구현 완료 |
 | TalkScene ↔ SceneA 전환 | 구현 완료, 전체 플레이 플로우 수동 검증 필요 |
 | 채점 / 반응 시스템 | 프로토타입 완료 |
-| 대사 데이터 분리 | CustomerEpisodeData 기반으로 추출 완료 |
+| 대사 데이터 분리 | 손님 대사는 CustomerEpisodeData, 첫 독백은 DialogueSequenceData 기반으로 추출 완료 |
 | 손님 큐 / 하루 루프 | 1차 구현 (고로 → 헤일리 → 윈터, 6초 텀, 페이드 전환). 정산 화면 없음 |
 | 대화 UI | 첫 독백 + 화자 이름 표시 1차 구현 |
 | 운영 HUD | TalkScene 좌측 상태 패널 + 우측 목표/예약 패널 1차 구현, 바 수치는 hover tooltip 표시 |
@@ -105,6 +105,8 @@
 
 완료:
 - [x] DialogueLineData (Serializable, speakerName 지원)
+- [x] DialogueSequenceData (ScriptableObject) — 첫 독백처럼 손님 외 대사 묶음의 기본 화자명 + 대사 배열
+- [x] IntroMonologue.asset — 첫 손님 등장 전 요르키 독백, Inspector에서 수정 가능
 - [x] CustomerEpisodeData (ScriptableObject) — 손님별 sprite 8종 + PreDraw/Good/Bad 대사 배열
 - [x] CustomerEpisode_01_Goro.asset (튜토리얼 아저씨)
 - [x] CustomerEpisode_02_Hailey.asset (기존 하드코딩 대사 이전)
@@ -112,6 +114,7 @@
 - [x] TalkSceneController가 currentEpisode 기반으로 대사 출력
 - [x] ApplyEpisodeSprites — 손님별 sprite를 CustomerDisplay에 자동 주입
 - [x] TalkScene 재로드 시 doomed 참조 사용해서 코루틴 죽던 버그 수정
+- [x] 대사 asset을 `Assets/Data/Dialogues` 아래 `CustomerEpisodes` / `Sequences`로 통합 정리
 
 남음:
 - [ ] 대사 풀 확장 + 조건 필터링 시스템 (방문 횟수/시간대/친밀도 등)
@@ -119,6 +122,8 @@
 ### Editor 빌더
 
 완료:
+- [x] `YorkiConstants.cs` 공용 문자열 상수화: 씬 이름, 주요 UI 오브젝트 이름, 감정 키, Resources 경로
+- [x] `YorkiEditorAssets.cs` 공용 에디터 경로 관리: 씬 저장 경로, 대사 asset 경로, UI 폰트 경로
 - [x] `TalkSceneBuilder.cs`
 - [x] `SceneABuilder.cs`
 - [x] 공통 폰트/스프라이트 유틸 `YorkiEditorAssets.cs`
