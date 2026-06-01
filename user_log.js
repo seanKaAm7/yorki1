@@ -1062,3 +1062,23 @@
             git diff --check clean.
 -----------------------------------------
 */
+/*
+-----------------------------------------
+[Log #112] [2026-06-01 15:41:06]
+ * 사용자: 플레이 테스트 중 쌓이는 초상화 기록을 비울 수 있도록 버튼 추가 요청
+ * 작업:
+         1) PortraitRecordRepository.ClearAllRecords() 추가.
+            Application.persistentDataPath/Yorki 아래 Portraits 폴더와 records.json을 함께 삭제하고
+            메모리 컬렉션도 빈 상태로 교체.
+         2) PortraitRecordsPanelController에 전체 삭제 버튼 처리 추가.
+            첫 클릭은 `정말 삭제?` 확인 문구만 표시하고 두 번째 클릭에서 실제 삭제.
+            기록이 없으면 버튼 비활성화, 삭제 직후 목록/미리보기/상세 내용 즉시 갱신.
+         3) TalkSceneBuilder.cs에 RecordsClearAllButton 생성 및 참조 연결 추가.
+            Yorki/Build Talk Scene 재실행으로 TalkScene.unity 반영.
+         4) 검증:
+            Unity refresh/compile 완료, TalkScene validate clean.
+            Play mode 재진입 시 프로젝트 런타임 오류 없음.
+            dotnet build Assembly-CSharp.csproj 및 Assembly-CSharp-Editor.csproj 순차 실행 경고 0 / 오류 0.
+            git diff --check clean.
+-----------------------------------------
+*/

@@ -501,6 +501,9 @@ public class TalkSceneBuilder
             new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(28f, -62f), new Vector2(290f, 24f));
         menu.recordsCloseButton = CreateButton(panel.transform, "RecordsCloseButton", font, "X", 17,
             new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-20f, -18f), new Vector2(34f, 34f));
+        recordsController.clearAllButton = CreateButton(panel.transform, "RecordsClearAllButton", font, "전체 삭제", 14,
+            new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-72f, -58f), new Vector2(112f, 32f));
+        recordsController.clearAllButtonText = recordsController.clearAllButton.GetComponentInChildren<Text>();
 
         CreateRecordsList(panel.transform, font, recordsController);
         CreateRecordDetail(panel.transform, font, recordsController);

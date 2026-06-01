@@ -71,6 +71,25 @@ public static class PortraitRecordRepository
         return Path.Combine(PortraitFolderPath, record.portraitFileName);
     }
 
+    public static bool ClearAllRecords()
+    {
+        try
+        {
+            if (Directory.Exists(PortraitFolderPath))
+                Directory.Delete(PortraitFolderPath, true);
+            if (File.Exists(RecordsFilePath))
+                File.Delete(RecordsFilePath);
+
+            collection = new PortraitRecordCollection();
+            return true;
+        }
+        catch (Exception exception)
+        {
+            Debug.LogWarning($"[PortraitRecordRepository] 작업 기록 전체 삭제 실패: {exception.Message}");
+            return false;
+        }
+    }
+
     static void EnsureLoaded()
     {
         if (collection != null)

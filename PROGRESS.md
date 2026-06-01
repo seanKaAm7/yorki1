@@ -131,6 +131,7 @@
 - [x] `YorkiSettingsService` - 전체 음량, 대사 속도, 전체 화면 PlayerPrefs 저장 및 적용
 - [x] `PortraitRecordRepository` - `Application.persistentDataPath/Yorki` 아래 PNG + JSON 기록 저장
 - [x] `PortraitRecordsPanelController` - 최신 기록 우선 목록, 미리보기, 상세 정보 표시
+- [x] 기록장 `전체 삭제` - 2단계 클릭 확인 후 PNG 폴더와 JSON 기록을 함께 제거
 - [x] `TalkSceneMenuController` - 설정/기록 버튼, 모달 열기/닫기, ESC/배경 클릭 처리
 
 ### Editor 빌더

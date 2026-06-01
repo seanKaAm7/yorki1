@@ -12,11 +12,20 @@ public class PortraitRecordsPanelController : MonoBehaviour
     public Text emptyText;
     public RawImage previewImage;
     public Text detailText;
+    public Button clearAllButton;
+    public Text clearAllButtonText;
 
     Texture2D previewTexture;
+    bool awaitingClearConfirmation;
+
+    void Awake()
+    {
+        clearAllButton?.onClick.AddListener(OnClearAllClicked);
+    }
 
     public void RefreshRecords()
     {
+        ResetClearConfirmation();
         ClearGeneratedButtons();
 
         var records = PortraitRecordRepository.Records;
@@ -26,6 +35,8 @@ public class PortraitRecordsPanelController : MonoBehaviour
         bool hasRecords = records.Count > 0;
         if (emptyText != null)
             emptyText.gameObject.SetActive(!hasRecords);
+        if (clearAllButton != null)
+            clearAllButton.interactable = hasRecords;
 
         if (!hasRecords)
         {
@@ -46,6 +57,33 @@ public class PortraitRecordsPanelController : MonoBehaviour
 
         ResizeContent(records.Count);
         ShowRecord(records[records.Count - 1]);
+    }
+
+    void OnClearAllClicked()
+    {
+        if (!awaitingClearConfirmation)
+        {
+            awaitingClearConfirmation = true;
+            SetClearAllButtonText("정말 삭제?");
+            return;
+        }
+
+        if (PortraitRecordRepository.ClearAllRecords())
+            RefreshRecords();
+        else
+            ResetClearConfirmation();
+    }
+
+    void ResetClearConfirmation()
+    {
+        awaitingClearConfirmation = false;
+        SetClearAllButtonText("전체 삭제");
+    }
+
+    void SetClearAllButtonText(string value)
+    {
+        if (clearAllButtonText != null)
+            clearAllButtonText.text = value;
     }
 
     void CreateRecordButton(PortraitRecordData record, int rowIndex)
@@ -151,6 +189,7 @@ public class PortraitRecordsPanelController : MonoBehaviour
 
     void OnDestroy()
     {
+        clearAllButton?.onClick.RemoveListener(OnClearAllClicked);
         ClearPreview();
     }
 

@@ -1,5 +1,15 @@
 /*
 ---------
+[2026-06-01] (v61)
+ * 기록장 전체 삭제 버튼 추가 - 기록 모달 우상단에서 테스트용 초상화 기록을 한 번에 정리
+ * 실수 방지 - 첫 클릭 시 `정말 삭제?`로 바뀌고 두 번째 클릭에서만 삭제 실행
+ * 로컬 파일 정리 - PortraitRecordRepository가 저장된 초상화 PNG 폴더와 records.json을 함께 제거
+ * 빈 기록 상태 처리 - 삭제 직후 목록, 미리보기, 상세 내용을 비우고 삭제 버튼 비활성화
+ * 검증 - Unity refresh/compile, Yorki/Build Talk Scene, TalkScene validate, Play mode 스모크 테스트, Assembly-CSharp / Assembly-CSharp-Editor 빌드 경고 0 오류 0, git diff --check clean
+---------
+*/
+/*
+---------
 [2026-06-01] (v60)
  * TalkScene 우상단 버튼 구현 - 설정/기록 버튼을 실제 모달로 연결하고 ESC, 배경 클릭, 닫기 버튼으로 닫을 수 있도록 구성
  * 설정 저장 추가 - 전체 음량, 대사 속도(느림/보통/빠름), 전체 화면 값을 PlayerPrefs에 보존하고 즉시 적용
