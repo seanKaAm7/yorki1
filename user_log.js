@@ -1102,3 +1102,24 @@
             git diff --check clean.
 -----------------------------------------
 */
+/*
+-----------------------------------------
+[Log #114] [2026-06-02 14:29:15]
+ * 사용자: TalkScene 플레이 화면에서 배경 상단 회색 여백 위로 HUD가 튀어나와 보이는 문제 제보
+ * 작업:
+         1) 원인 확인.
+            PersistentCanvas 아래 Background가 1330x720 고정 크기이고 preserveAspect=true라
+            16:9보다 세로로 긴 Game View에서 배경이 화면 전체를 덮지 못했음.
+         2) TalkSceneBuilder.cs 배경 생성 방식 변경.
+            CustomerStage를 PersistentCanvas 전체 stretch로 변경.
+            Background에 AspectRatioFitter AspectMode.EnvelopeParent를 추가하고 원본 sprite 비율을 적용.
+            화면 비율에 따라 가장자리를 조금 잘라내는 cover 방식으로 회색 여백 없이 채우도록 처리.
+         3) Yorki/Build Talk Scene 재실행으로 TalkScene.unity 반영.
+         4) 검증:
+            TalkScene.unity에서 CustomerStage stretch 및 Background AspectRatioFitter 직렬화 확인.
+            Unity refresh/compile 완료, TalkScene validate clean.
+            Play mode 진입 시 프로젝트 런타임 오류 없음.
+            dotnet build Assembly-CSharp.csproj 및 Assembly-CSharp-Editor.csproj 경고 0 / 오류 0.
+            git diff --check clean.
+-----------------------------------------
+*/

@@ -91,14 +91,15 @@ public class TalkSceneBuilder
         pScaler.matchWidthOrHeight  = 0.5f;
         pCanvasGO.AddComponent<GraphicRaycaster>();
 
-        // CustomerStage (빈 부모) — TalkScene 기본 위치 (0, 0)
+        // CustomerStage (빈 부모) — 화면 전체 크기, TalkScene 기본 위치 (0, 0)
         var stageGO = new GameObject(YorkiObjectNames.CustomerStage, typeof(RectTransform));
         stageGO.transform.SetParent(pCanvasGO.transform, false);
         var stageRT = stageGO.GetComponent<RectTransform>();
-        stageRT.anchorMin        = new Vector2(0.5f, 0.5f);
-        stageRT.anchorMax        = new Vector2(0.5f, 0.5f);
+        stageRT.anchorMin        = Vector2.zero;
+        stageRT.anchorMax        = Vector2.one;
         stageRT.pivot            = new Vector2(0.5f, 0.5f);
-        stageRT.sizeDelta        = Vector2.zero;
+        stageRT.offsetMin        = Vector2.zero;
+        stageRT.offsetMax        = Vector2.zero;
         stageRT.anchoredPosition = Vector2.zero;
 
         // Background (CustomerStage 자식)
@@ -106,10 +107,16 @@ public class TalkSceneBuilder
         bgGO.transform.SetParent(stageGO.transform, false);
         var bgImg = bgGO.AddComponent<Image>();
         bgImg.sprite         = AssetDatabase.LoadAssetAtPath<Sprite>(bgPath);
-        bgImg.preserveAspect = true;
+        bgImg.preserveAspect = false;
         var bgRT = bgGO.GetComponent<RectTransform>();
+        bgRT.anchorMin        = new Vector2(0.5f, 0.5f);
+        bgRT.anchorMax        = new Vector2(0.5f, 0.5f);
+        bgRT.pivot            = new Vector2(0.5f, 0.5f);
         bgRT.anchoredPosition = Vector2.zero;
-        bgRT.sizeDelta        = new Vector2(1330, 720);
+        bgRT.sizeDelta        = new Vector2(1280f, 720f);
+        var bgFitter = bgGO.AddComponent<AspectRatioFitter>();
+        bgFitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+        bgFitter.aspectRatio = bgImg.sprite != null ? bgImg.sprite.rect.width / bgImg.sprite.rect.height : 16f / 9f;
 
         // Customer (CustomerStage 자식)
         var customerGO  = new GameObject("Customer");

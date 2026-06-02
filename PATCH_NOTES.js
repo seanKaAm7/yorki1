@@ -1,5 +1,14 @@
 /*
 ---------
+[2026-06-02] (v63)
+ * TalkScene 상단 회색 여백 수정 - 고정 1330x720 배경 때문에 화면 비율에 따라 HUD 뒤로 빈 영역이 보이던 문제 해결
+ * 반응형 배경 처리 - CustomerStage를 화면 전체 stretch로 변경하고 Background에 AspectRatioFitter EnvelopeParent 적용
+ * 이미지 비율 보존 - 화면 크기에 따라 가장자리를 조금 잘라내는 cover 방식으로 배경 왜곡 없이 전체 화면 채움
+ * 검증 - Unity refresh/compile, Yorki/Build Talk Scene, TalkScene validate, stretch stage 및 AspectRatioFitter 직렬화 확인, Play mode 프로젝트 오류 없음, Assembly-CSharp / Assembly-CSharp-Editor 빌드 경고 0 오류 0, git diff --check clean
+---------
+*/
+/*
+---------
 [2026-06-02] (v62)
  * TalkScene 모달 렌더 순서 수정 - HUD 내부에 있던 HUD_ModalLayer를 SceneCanvas 최상단 sibling으로 분리해 대사창보다 앞에 표시
  * 기록장 빈 상태 문구 배치 수정 - `아직 완성한 초상화가 없습니다.`를 RecordPreviewBack 내부 중앙에 고정하고 폰트 크기 조정
