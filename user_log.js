@@ -1123,3 +1123,17 @@
             git diff --check clean.
 -----------------------------------------
 */
+/*
+-----------------------------------------
+[Log #115] [2026-06-02 14:41:33]
+ * 사용자: TalkScene HUD 시간 행에서 `10:30 /` 뒤 내용이 잘려 보이는 문제 제보
+ * 작업:
+         1) TalkSceneHUDController.cs 시간 행 표시 수정.
+            `현재 시각 / 영업 종료 시각` 형식을 제거하고 현재 시각만 표시하도록 변경.
+         2) 검증:
+            dotnet build Assembly-CSharp.csproj 경고 0 / 오류 0.
+            Unity refresh/compile 완료, TalkScene validate clean.
+            Play mode에서 missing script 경고 재발 없음.
+         3) 기존에 남아 있던 TalkScene.unity 직렬화 변경은 이번 커밋 범위에서 제외.
+-----------------------------------------
+*/

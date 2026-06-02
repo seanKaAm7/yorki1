@@ -1,5 +1,13 @@
 /*
 ---------
+[2026-06-02] (v64)
+ * TalkScene 시간 행 표시 정리 - 좁은 HUD 영역에서 `10:30 / 22:00`이 잘리던 문제를 해결
+ * 현재 시각 단독 표기 - 영업 종료 시각 구분자와 종료 시각을 제거하고 `10:30`처럼 현재 시각만 표시
+ * 검증 - Unity refresh/compile, TalkScene validate, Play mode 재확인, Assembly-CSharp 빌드 경고 0 오류 0
+---------
+*/
+/*
+---------
 [2026-06-02] (v63)
  * TalkScene 상단 회색 여백 수정 - 고정 1330x720 배경 때문에 화면 비율에 따라 HUD 뒤로 빈 영역이 보이던 문제 해결
  * 반응형 배경 처리 - CustomerStage를 화면 전체 stretch로 변경하고 Background에 AspectRatioFitter EnvelopeParent 적용

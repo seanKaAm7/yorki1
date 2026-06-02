@@ -42,8 +42,6 @@ public class TalkSceneHUDController : MonoBehaviour
         int dayIndex = gm != null ? gm.dayIndex : 7;
         int currentHour = gm != null ? gm.currentHour : 10;
         int currentMinute = gm != null ? gm.currentMinute : 30;
-        int closingHour = gm != null ? gm.closingHour : 22;
-        int closingMinute = gm != null ? gm.closingMinute : 0;
         int income = gm != null ? gm.todayEarnings : 0;
         int customersServed = gm != null ? gm.customersServed : 0;
         int goalTarget = ResolveGoalTarget(gm);
@@ -66,7 +64,7 @@ public class TalkSceneHUDController : MonoBehaviour
         SetText(weekdayText, "월요일");
 
         SetText(incomeValueText, $"€ {income:0}.00");
-        SetText(timeValueText, $"{FormatClock(currentHour, currentMinute)} / {FormatClock(closingHour, closingMinute)}");
+        SetText(timeValueText, FormatClock(currentHour, currentMinute));
 
         SetFill(energyFill, energy, maxEnergy);
         SetFill(reputationFill, reputation, 5f);
