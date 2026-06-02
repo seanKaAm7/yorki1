@@ -1,5 +1,13 @@
 /*
 ---------
+[2026-06-02] (v62)
+ * TalkScene 모달 렌더 순서 수정 - HUD 내부에 있던 HUD_ModalLayer를 SceneCanvas 최상단 sibling으로 분리해 대사창보다 앞에 표시
+ * 기록장 빈 상태 문구 배치 수정 - `아직 완성한 초상화가 없습니다.`를 RecordPreviewBack 내부 중앙에 고정하고 폰트 크기 조정
+ * 검증 - Unity refresh/compile, Yorki/Build Talk Scene, TalkScene validate, SceneCanvas sibling 및 preview 자식 관계 확인, Play mode 스모크 테스트, Assembly-CSharp / Assembly-CSharp-Editor 빌드 경고 0 오류 0, git diff --check clean
+---------
+*/
+/*
+---------
 [2026-06-01] (v61)
  * 기록장 전체 삭제 버튼 추가 - 기록 모달 우상단에서 테스트용 초상화 기록을 한 번에 정리
  * 실수 방지 - 첫 클릭 시 `정말 삭제?`로 바뀌고 두 번째 클릭에서만 삭제 실행

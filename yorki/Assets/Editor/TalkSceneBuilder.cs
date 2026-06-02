@@ -154,7 +154,7 @@ public class TalkSceneBuilder
         sCanvasGO.AddComponent<GraphicRaycaster>();
 
         Font uiFont = YorkiEditorAssets.LoadUIFont();
-        CreateHUD(sCanvasGO.transform, uiFont);
+        TalkSceneHUDController hud = CreateHUD(sCanvasGO.transform, uiFont);
 
         // DialogueBox — 어두운 반투명 박스
         var dlgGO     = new GameObject(YorkiObjectNames.DialogueBox);
@@ -220,6 +220,12 @@ public class TalkSceneBuilder
         arrowRT.pivot            = new Vector2(1f, 0f);
         arrowRT.anchoredPosition = new Vector2(-18f, 16f);
         arrowRT.sizeDelta        = new Vector2(20f, 20f);
+
+        // 모달은 대사창보다 나중에 렌더링되어야 한다.
+        // 일반 HUD는 기존 계층을 유지하고 모달 레이어만 SceneCanvas 최상단으로 분리한다.
+        var menu = hud.GetComponent<TalkSceneMenuController>();
+        menu.modalLayer.transform.SetParent(sCanvasGO.transform, false);
+        menu.modalLayer.transform.SetAsLastSibling();
 
         // SceneTransition — 전환 중 씬 로드 이후까지 살아있는 싱글턴
         var transitionGO = new GameObject(YorkiObjectNames.SceneTransition);
@@ -563,8 +569,8 @@ public class TalkSceneBuilder
 
         controller.detailText = CreateText(parent, "RecordDetailText", font, "", 16, HudTextColor, TextAnchor.UpperLeft,
             new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(628f, -108f), new Vector2(204f, 240f));
-        controller.emptyText = CreateText(parent, "RecordsEmptyText", font, "아직 완성한 초상화가 없습니다.", 17, HudMutedTextColor, TextAnchor.MiddleCenter,
-            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(350f, -210f), new Vector2(470f, 42f));
+        controller.emptyText = CreateText(previewBack.transform, "RecordsEmptyText", font, "아직 완성한 초상화가 없습니다.", 15, HudMutedTextColor, TextAnchor.MiddleCenter,
+            Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(-24f, -24f));
     }
 
     static Button CreateButton(Transform parent, string name, Font font, string label, int fontSize,

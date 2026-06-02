@@ -1082,3 +1082,23 @@
             git diff --check clean.
 -----------------------------------------
 */
+/*
+-----------------------------------------
+[Log #113] [2026-06-02 14:12:04]
+ * 사용자: 설정/기록 모달보다 대사창이 앞에 표시되고, 기록장 빈 상태 문구가 미리보기 네모 밖으로 벗어나는 문제 제보
+ * 작업:
+         1) TalkSceneBuilder.cs의 모달 계층 수정.
+            HUD_ModalLayer를 TalkSceneHUD 내부가 아니라 SceneCanvas의 최상단 sibling으로 옮겨
+            일반 HUD → DialogueBox → HUD_ModalLayer 순서로 렌더링되도록 변경.
+         2) RecordsEmptyText 배치 수정.
+            기록 패널 전체 기준 좌표 배치를 제거하고 RecordPreviewBack의 자식으로 이동.
+            미리보기 네모 내부 중앙 stretch 배치와 15px 폰트를 적용.
+         3) Yorki/Build Talk Scene 재실행으로 TalkScene.unity 반영.
+         4) 검증:
+            SceneCanvas sibling 순서 및 RecordPreviewBack 자식 관계 확인.
+            Unity refresh/compile 완료, TalkScene validate clean.
+            Play mode 재진입 시 프로젝트 런타임 오류 없음.
+            dotnet build Assembly-CSharp.csproj 및 Assembly-CSharp-Editor.csproj 경고 0 / 오류 0.
+            git diff --check clean.
+-----------------------------------------
+*/
