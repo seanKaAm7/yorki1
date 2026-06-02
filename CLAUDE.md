@@ -91,5 +91,6 @@ AI는 매 대화 시작 시 다음 절차를 **반드시** 수행하여 문맥�
 - 채점 알고리즘 (ScoreCalculator.cs) — 8x8 코스 그리드 + 슬라이딩 윈도우 ±2
 - 5단계 반응 시스템 (ReactionSystem.cs, ReactionUI.cs)
 - GameManager: Submit 채점 후 ResultGood / ResultBad TalkScene 복귀
+- 저녁 정산: 마지막 손님 결과 대사 후 수입/손님/만족/에너지/멘탈/재료 표시, 다음 날 큐 재시작
 - 씬 자동 빌드: Yorki/Build Talk Scene, Yorki/Build Scene A, Yorki/Build Drawing Scene, Yorki/Setup Game Scene
 - 유지보수 문서: `MAINTENANCE_PLAN.md`

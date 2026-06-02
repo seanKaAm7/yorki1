@@ -19,11 +19,14 @@ public class GameManager : MonoBehaviour
     [Header("하루 데이터")]
     public int todayEarnings = 0;
     public int customersServed = 0;
+    public int satisfiedCustomers = 0;
     public int mentalHealth = 5;
 
     [Header("하루 운영 HUD")]
     public string placeName = "Zum Goldenen Hahn";
     public int dayIndex = 7;
+    public int openingHour = 10;
+    public int openingMinute = 30;
     public int currentHour = 10;
     public int currentMinute = 30;
     public int closingHour = 22;
@@ -81,6 +84,8 @@ public class GameManager : MonoBehaviour
 
         todayEarnings += result.payment;
         customersServed++;
+        if (ReactionSystem.IsGoodResult(result.level))
+            satisfiedCustomers++;
         AdvanceDayMeters();
         if (result.mentalDamage) mentalHealth--;
 
@@ -113,5 +118,18 @@ public class GameManager : MonoBehaviour
         currentMinute = totalMinutes % 60;
         energy = Mathf.Max(0, energy - energyCostPerCustomer);
         materials = Mathf.Max(0, materials - materialCostPerCustomer);
+    }
+
+    public void BeginNextDay()
+    {
+        dayIndex++;
+        currentEpisodeIndex = 0;
+        todayEarnings = 0;
+        customersServed = 0;
+        satisfiedCustomers = 0;
+        currentHour = openingHour;
+        currentMinute = openingMinute;
+        energy = maxEnergy;
+        currentTalkPhase = TalkScenePhase.PreDraw;
     }
 }

@@ -314,6 +314,11 @@ public class TalkSceneController : MonoBehaviour
         if (GameManager.Instance == null || GameManager.Instance.CurrentEpisode == null)
         {
             Debug.Log("[TalkSceneController] 하루 종료 — 손님 모두 응대 완료");
+            TalkSceneMenuController menu = Object.FindAnyObjectByType<TalkSceneMenuController>();
+            if (menu != null)
+                menu.OpenDaySummary();
+            else
+                Debug.LogWarning("[TalkSceneController] 정산 화면을 표시할 TalkSceneMenuController를 찾지 못함");
             yield break;
         }
 
@@ -325,6 +330,46 @@ public class TalkSceneController : MonoBehaviour
         yield return FadeCustomerAndDialogueBox(0f, 1f, customerFadeDuration);
 
         // 6) PreDraw 다시 시작
+        phase = TalkScenePhase.PreDraw;
+        GameManager.currentTalkPhase = TalkScenePhase.PreDraw;
+        _lines = GetLinesForPhase(phase);
+        _index = 0;
+        _ended = false;
+        _typing = false;
+
+        if (_lines != null && _lines.Length > 0)
+            StartCoroutine(ShowLineRoutine(_index));
+        else
+            OnDialogueEnd();
+    }
+
+    public void BeginNextDay()
+    {
+        if (!_ended)
+            return;
+
+        StartCoroutine(BeginNextDayRoutine());
+    }
+
+    IEnumerator BeginNextDayRoutine()
+    {
+        if (GameManager.Instance == null)
+        {
+            Debug.LogWarning("[TalkSceneController] 다음 날을 시작할 GameManager를 찾지 못함");
+            yield break;
+        }
+
+        GameManager.Instance.BeginNextDay();
+        currentEpisode = GameManager.Instance.CurrentEpisode;
+        if (currentEpisode == null)
+        {
+            Debug.LogWarning("[TalkSceneController] 다음 날에 사용할 손님 에피소드가 없음");
+            yield break;
+        }
+
+        ApplyEpisodeSprites();
+        yield return FadeCustomerAndDialogueBox(0f, 1f, customerFadeDuration);
+
         phase = TalkScenePhase.PreDraw;
         GameManager.currentTalkPhase = TalkScenePhase.PreDraw;
         _lines = GetLinesForPhase(phase);

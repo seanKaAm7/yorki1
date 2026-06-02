@@ -20,6 +20,7 @@ public class TalkSceneMenuController : MonoBehaviour
     public Button modalDimButton;
     public Button settingsCloseButton;
     public Button recordsCloseButton;
+    public GameObject daySummaryPanel;
 
     [Header("Settings")]
     public Slider masterVolumeSlider;
@@ -32,6 +33,18 @@ public class TalkSceneMenuController : MonoBehaviour
     [Header("Records")]
     public PortraitRecordsPanelController recordsPanelController;
 
+    [Header("Day Summary")]
+    public Text daySummaryTitleText;
+    public Text daySummaryCustomersText;
+    public Text daySummaryIncomeText;
+    public Text daySummarySatisfiedText;
+    public Text daySummaryEnergyText;
+    public Text daySummaryMentalHealthText;
+    public Text daySummaryMaterialsText;
+    public Button daySummaryNextDayButton;
+
+    bool daySummaryLocked;
+
     void Awake()
     {
         YorkiSettingsService.Apply();
@@ -41,6 +54,7 @@ public class TalkSceneMenuController : MonoBehaviour
         modalDimButton?.onClick.AddListener(CloseMenu);
         settingsCloseButton?.onClick.AddListener(CloseMenu);
         recordsCloseButton?.onClick.AddListener(CloseMenu);
+        daySummaryNextDayButton?.onClick.AddListener(ProceedToNextDay);
         masterVolumeSlider?.onValueChanged.AddListener(SetMasterVolume);
         slowSpeedButton?.onClick.AddListener(() => SetDialogueSpeed(YorkiDialogueSpeed.Slow));
         normalSpeedButton?.onClick.AddListener(() => SetDialogueSpeed(YorkiDialogueSpeed.Normal));
@@ -59,7 +73,7 @@ public class TalkSceneMenuController : MonoBehaviour
 
     public void OpenSettings()
     {
-        if (!CanOpenMenu())
+        if (daySummaryLocked || !CanOpenMenu())
             return;
 
         OpenPanel(settingsPanel);
@@ -68,7 +82,7 @@ public class TalkSceneMenuController : MonoBehaviour
 
     public void OpenRecords()
     {
-        if (!CanOpenMenu())
+        if (daySummaryLocked || !CanOpenMenu())
             return;
 
         OpenPanel(recordsPanel);
@@ -77,6 +91,46 @@ public class TalkSceneMenuController : MonoBehaviour
 
     public void CloseMenu()
     {
+        if (daySummaryLocked)
+            return;
+
+        HideAllPanels();
+    }
+
+    public void OpenDaySummary()
+    {
+        hud?.HideStatTooltip();
+        daySummaryLocked = true;
+        IsAnyMenuOpen = true;
+        if (modalLayer != null)
+            modalLayer.SetActive(true);
+        if (settingsPanel != null)
+            settingsPanel.SetActive(false);
+        if (recordsPanel != null)
+            recordsPanel.SetActive(false);
+        if (daySummaryPanel != null)
+            daySummaryPanel.SetActive(true);
+
+        RefreshDaySummaryUI();
+    }
+
+    void ProceedToNextDay()
+    {
+        if (!daySummaryLocked)
+            return;
+
+        daySummaryLocked = false;
+        HideAllPanels();
+
+        TalkSceneController controller = Object.FindAnyObjectByType<TalkSceneController>();
+        if (controller != null)
+            controller.BeginNextDay();
+        else
+            Debug.LogWarning("[TalkSceneMenuController] 다음 날을 시작할 TalkSceneController를 찾지 못함");
+    }
+
+    void HideAllPanels()
+    {
         IsAnyMenuOpen = false;
         if (modalLayer != null)
             modalLayer.SetActive(false);
@@ -84,6 +138,8 @@ public class TalkSceneMenuController : MonoBehaviour
             settingsPanel.SetActive(false);
         if (recordsPanel != null)
             recordsPanel.SetActive(false);
+        if (daySummaryPanel != null)
+            daySummaryPanel.SetActive(false);
     }
 
     void OpenPanel(GameObject panel)
@@ -96,6 +152,8 @@ public class TalkSceneMenuController : MonoBehaviour
             settingsPanel.SetActive(panel == settingsPanel);
         if (recordsPanel != null)
             recordsPanel.SetActive(panel == recordsPanel);
+        if (daySummaryPanel != null)
+            daySummaryPanel.SetActive(false);
     }
 
     bool CanOpenMenu()
@@ -133,6 +191,21 @@ public class TalkSceneMenuController : MonoBehaviour
         RefreshSpeedButtons();
     }
 
+    void RefreshDaySummaryUI()
+    {
+        GameManager gm = GameManager.Instance;
+        if (gm == null)
+            return;
+
+        SetText(daySummaryTitleText, $"Day {gm.dayIndex} 정산");
+        SetText(daySummaryCustomersText, $"{gm.customersServed}명");
+        SetText(daySummaryIncomeText, $"€ {gm.todayEarnings:0}.00");
+        SetText(daySummarySatisfiedText, $"{gm.satisfiedCustomers} / {gm.customersServed}");
+        SetText(daySummaryEnergyText, $"{gm.energy} / {gm.maxEnergy}");
+        SetText(daySummaryMentalHealthText, $"{gm.mentalHealth}");
+        SetText(daySummaryMaterialsText, $"{gm.materials} / {gm.maxMaterials}");
+    }
+
     void RefreshMasterVolumeText()
     {
         if (masterVolumeValueText != null)
@@ -151,6 +224,12 @@ public class TalkSceneMenuController : MonoBehaviour
     {
         if (button != null && button.targetGraphic != null)
             button.targetGraphic.color = selected ? SpeedSelectedColor : SpeedIdleColor;
+    }
+
+    static void SetText(Text text, string value)
+    {
+        if (text != null)
+            text.text = value;
     }
 
     void OnDestroy()

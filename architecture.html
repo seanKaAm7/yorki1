@@ -55,7 +55,7 @@ body{background:var(--bg);color:var(--txt);font-family:-apple-system,'Segoe UI',
 <div class="hdr">
   <h1>Yorki, the Portraitist</h1>
   <span class="hdr-sep">—</span>
-  <span class="hdr-sub">Architecture &amp; Flows · Prototype v51</span>
+  <span class="hdr-sub">Architecture &amp; Flows · Prototype v65</span>
   <div class="hdr-hint">노드 호버 → 설명 표시 / 우측 FLOWS 클릭 → 경로 강조 및 단계 표시</div>
 </div>
 <div class="filters" id="filters">
@@ -78,7 +78,7 @@ body{background:var(--bg);color:var(--txt);font-family:-apple-system,'Segoe UI',
 
 <script>
 const DATA = {
-  "project":{"name":"Yorki, the Portraitist","subtitle":"Architecture & Flows","engine":"Unity 6000.4.0f1 · URP 2D","version":"Prototype v51"},
+  "project":{"name":"Yorki, the Portraitist","subtitle":"Architecture & Flows","engine":"Unity 6000.4.0f1 · URP 2D","version":"Prototype v65"},
   "nodeTypes":[
     {"id":"scene","label":"씬","color":"#4A9EFF"},
     {"id":"singleton","label":"싱글톤","color":"#f0a841"},
@@ -88,8 +88,8 @@ const DATA = {
     {"id":"ui","label":"UI 컴포넌트","color":"#95e06c"}
   ],
   "nodes":[
-    {"id":"talk_scene","label":"TalkScene","type":"scene","description":"대화 씬. 첫 시작 독백, 손님 PreDraw 대사, 제출 후 Good/Bad 결과 대사, 다음 손님 전환을 처리한다.","x":20,"y":40},
-    {"id":"talk_scene_ctrl","label":"TalkSceneController","type":"controller","description":"대사 타이핑, Enter/Space 진행, 첫 독백, 화자명 표시, 손님별 sprite 주입, 결과 대사 후 다음 손님 루프를 담당한다.","x":20,"y":155},
+    {"id":"talk_scene","label":"TalkScene","type":"scene","description":"대화 씬. 첫 시작 독백, 손님 PreDraw 대사, 제출 후 Good/Bad 결과 대사, 다음 손님 전환, 저녁 정산을 처리한다.","x":20,"y":40},
+    {"id":"talk_scene_ctrl","label":"TalkSceneController","type":"controller","description":"대사 타이핑, Enter/Space 진행, 첫 독백, 화자명 표시, 손님별 sprite 주입, 결과 대사 후 다음 손님 또는 정산 화면 전환을 담당한다.","x":20,"y":155},
     {"id":"dialogue_box","label":"DialogueBox","type":"ui","description":"어두운 반투명 대화창. SceneA 전환 때 사라지고, 손님 교체 때도 손님과 함께 페이드아웃/페이드인된다.","x":20,"y":270},
     {"id":"speaker_name","label":"SpeakerNameText","type":"ui","description":"대화창 상단 화자명. 대사별 speakerName이 비어 있으면 현재 손님 이름 또는 요르키 독백 이름을 자동 표시한다.","x":20,"y":385},
     {"id":"customer_display","label":"CustomerDisplay","type":"controller","description":"손님 표정, 말하기 프레임, 흔들림 연출을 제어한다. 에피소드가 바뀔 때 CustomerEpisodeData의 sprite 8종을 주입받는다.","x":20,"y":500},
@@ -97,7 +97,7 @@ const DATA = {
 
     {"id":"persistent_bootstrap","label":"PersistentBootstrap","type":"singleton","description":"씬 전환 중에도 유지되는 Canvas, CustomerStage, Background, CustomerDisplay 참조를 보존한다.","x":300,"y":40},
     {"id":"scene_transition","label":"SceneTransition","type":"singleton","description":"TalkScene과 SceneA 사이의 씬 로드, CustomerStage 슬라이드, DialogueBox/RightPanel 페이드를 담당한다.","x":300,"y":155},
-    {"id":"game_manager","label":"GameManager","type":"controller","description":"DontDestroyOnLoad 싱글턴. 현재 TalkScenePhase, 하루 수입/손님 수/멘탈, 에피소드 큐 인덱스, 첫 독백 표시 여부를 관리한다.","x":300,"y":270},
+    {"id":"game_manager","label":"GameManager","type":"controller","description":"DontDestroyOnLoad 싱글턴. 현재 TalkScenePhase, 하루 수입/손님 수/만족 결과/멘탈, 에피소드 큐 인덱스, 첫 독백 표시 여부와 다음 날 초기화를 관리한다.","x":300,"y":270},
     {"id":"episode_queue","label":"dayEpisodeQueue","type":"data","description":"하루 손님 순서. 현재 TalkScene은 고로 → 헤일리 → 윈터 순서로 CustomerEpisodeData를 시드한다.","x":300,"y":385},
     {"id":"customer_episode","label":"CustomerEpisodeData","type":"data","description":"손님별 식별자, 표시 이름, sprite 8종, PreDraw/Good/Bad 대사 배열을 담는 ScriptableObject.","x":300,"y":500},
     {"id":"dialogue_line","label":"DialogueLineData","type":"data","description":"대사 한 줄 데이터. speakerName, emotion, text, shake를 담고 비어 있는 speakerName은 컨트롤러가 자동 보완한다.","x":300,"y":615},
@@ -168,18 +168,19 @@ const DATA = {
        {"node":"game_manager","text":"currentCustomer가 비어 있으면 Resources/Customers/SampleCustomer를 fallback으로 사용한다."},
        {"node":"score_calculator","text":"8×8 격자와 ±2칸 위치 보정으로 플레이어 그림 점수를 계산한다."},
        {"node":"reaction_system","text":"점수를 만족도 5단계와 수입, 멘탈 피해 여부로 변환한다."},
-       {"node":"game_manager","text":"todayEarnings, customersServed, mentalHealth를 갱신하고 결과 페이즈를 ResultGood 또는 ResultBad로 정한다."},
+       {"node":"game_manager","text":"todayEarnings, customersServed, satisfiedCustomers, mentalHealth를 갱신하고 결과 페이즈를 ResultGood 또는 ResultBad로 정한다."},
        {"node":"scene_transition","text":"RightPanel을 페이드아웃하고 손님 stage를 TalkScene 위치로 되돌리며 TalkScene을 로드한다."},
        {"node":"talk_scene_ctrl","text":"현재 손님 에피소드에서 Good/Bad 결과 대사를 출력한다."}
      ]},
-    {"id":"next_customer","title":"결과 대사 → 다음 손님","description":"결과 대사가 끝난 뒤 손님과 대화창을 같이 숨기고 다음 손님으로 넘어가는 하루 루프",
+    {"id":"next_customer","title":"결과 대사 → 다음 손님 또는 정산","description":"결과 대사가 끝난 뒤 손님과 대화창을 같이 숨기고, 다음 손님으로 넘어가거나 마지막 손님이면 정산 후 다음 날을 시작하는 하루 루프",
      "path":["talk_scene_ctrl","dialogue_box","customer_display","game_manager","episode_queue","customer_episode","dialogue_line","speaker_name"],
      "steps":[
        {"node":"talk_scene_ctrl","text":"결과 대사가 끝나면 dialogueText와 speakerNameText를 비우고 NextCustomerRoutine을 시작한다."},
        {"node":"dialogue_box","text":"현재 손님 퇴장과 동시에 DialogueBox alpha도 1에서 0으로 페이드아웃된다."},
        {"node":"customer_display","text":"Customer Image alpha가 0이 되어 빈 좌석 구간을 만든다."},
        {"node":"game_manager","text":"AdvanceToNextEpisode로 큐 인덱스를 다음 손님으로 이동한다."},
-       {"node":"episode_queue","text":"현재 큐 순서는 고로 → 헤일리 → 윈터다. 마지막 이후에는 하루 종료 로그를 남긴다."},
+       {"node":"episode_queue","text":"현재 큐 순서는 고로 → 헤일리 → 윈터다. 마지막 이후에는 저녁 정산 모달을 표시한다."},
+       {"node":"game_manager","text":"정산 모달의 다음 날 버튼을 누르면 Day를 올리고 일일 수입/손님/만족 집계, 시각, 에너지, 큐 인덱스를 초기화한다."},
        {"node":"customer_episode","text":"다음 에피소드의 sprite 8종을 CustomerDisplay에 주입한다."},
        {"node":"dialogue_box","text":"다음 손님 페이드인과 함께 DialogueBox도 0에서 1로 다시 나타난다."},
        {"node":"dialogue_line","text":"새 손님의 PreDraw 대사를 0번부터 다시 출력한다."}
@@ -213,7 +214,7 @@ const DATA = {
        {"node":"score_calculator","text":"각 칸의 잉크 분포를 비교하고 ±2칸 슬라이딩 보정으로 가장 높은 점수를 선택한다."},
        {"node":"customer_data","text":"현재는 세 손님 모두 SampleCustomer 기준을 공유한다. 손님별 분리는 다음 작업이다."},
        {"node":"reaction_system","text":"점수를 VerySatisfied부터 Angry까지의 반응 단계로 평가한다."},
-       {"node":"game_manager","text":"평가 결과를 하루 수입, 손님 수, 멘탈 수치에 반영하고 TalkScene 결과 페이즈를 정한다."}
+       {"node":"game_manager","text":"평가 결과를 하루 수입, 손님 수, 만족 결과, 멘탈 수치에 반영하고 TalkScene 결과 페이즈를 정한다."}
      ]}
   ]
 };

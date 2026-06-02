@@ -125,8 +125,8 @@ public class TalkSceneBuilder
         customerImg.sprite         = AssetDatabase.LoadAssetAtPath<Sprite>(neutralIdlePath);
         customerImg.preserveAspect = true;
         var customerRT = customerGO.GetComponent<RectTransform>();
-        customerRT.anchoredPosition = new Vector2(-9.320013f, -29.144989f);
-        customerRT.sizeDelta        = new Vector2(652.1983f, 778.29f);
+        customerRT.anchoredPosition = new Vector2(-9.320013f, -107.3f);
+        customerRT.sizeDelta        = new Vector2(652.1983f, 797.34f);
 
         customerGO.AddComponent<FadeIn>();
 
@@ -178,7 +178,7 @@ public class TalkSceneBuilder
         dlgOutline.useGraphicAlpha = true;
         dlgGroup.alpha = 1f;
         var dlgRT = dlgGO.GetComponent<RectTransform>();
-        dlgRT.anchoredPosition = new Vector2(0f, -250f);
+        dlgRT.anchoredPosition = new Vector2(0f, -277.4f);
         dlgRT.sizeDelta        = new Vector2(820f, 160f);
 
         // SpeakerNameText
@@ -462,6 +462,7 @@ public class TalkSceneBuilder
 
         CreateSettingsPanel(modalLayer.transform, font, menu);
         CreateRecordsPanel(modalLayer.transform, font, menu);
+        CreateDaySummaryPanel(modalLayer.transform, font, menu);
         modalLayer.SetActive(false);
     }
 
@@ -521,6 +522,37 @@ public class TalkSceneBuilder
         CreateRecordsList(panel.transform, font, recordsController);
         CreateRecordDetail(panel.transform, font, recordsController);
         panel.gameObject.SetActive(false);
+    }
+
+    static void CreateDaySummaryPanel(Transform parent, Font font, TalkSceneMenuController menu)
+    {
+        var panel = CreatePanel(parent, "HUD_DaySummaryPanel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(500f, 470f));
+        panel.raycastTarget = true;
+        menu.daySummaryPanel = panel.gameObject;
+
+        menu.daySummaryTitleText = CreateText(panel.transform, "DaySummaryTitle", font, "Day 7 정산", 28, HudTextColor, TextAnchor.UpperCenter,
+            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -28f), new Vector2(-56f, 40f));
+        CreateText(panel.transform, "DaySummarySubtitle", font, "오늘 영업을 마쳤습니다.", 16, HudMutedTextColor, TextAnchor.UpperCenter,
+            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -75f), new Vector2(-56f, 28f));
+
+        menu.daySummaryCustomersText = CreateDaySummaryRow(panel.transform, font, "손님", "0명", 130f);
+        menu.daySummaryIncomeText = CreateDaySummaryRow(panel.transform, font, "수입", "€ 0.00", 172f);
+        menu.daySummarySatisfiedText = CreateDaySummaryRow(panel.transform, font, "만족한 손님", "0 / 0", 214f);
+        menu.daySummaryEnergyText = CreateDaySummaryRow(panel.transform, font, "남은 에너지", "0 / 100", 256f);
+        menu.daySummaryMentalHealthText = CreateDaySummaryRow(panel.transform, font, "멘탈", "5", 298f);
+        menu.daySummaryMaterialsText = CreateDaySummaryRow(panel.transform, font, "남은 재료", "0 / 20", 340f);
+
+        menu.daySummaryNextDayButton = CreateButton(panel.transform, "DaySummaryNextDayButton", font, "다음 날", 17,
+            new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 26f), new Vector2(180f, 46f));
+        panel.gameObject.SetActive(false);
+    }
+
+    static Text CreateDaySummaryRow(Transform parent, Font font, string label, string value, float topY)
+    {
+        CreateText(parent, $"DaySummaryLabel_{label}", font, label, 17, HudTextColor, TextAnchor.UpperLeft,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(56f, -topY), new Vector2(180f, 26f));
+        return CreateText(parent, $"DaySummaryValue_{label}", font, value, 17, HudTextColor, TextAnchor.UpperRight,
+            new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-56f, -topY), new Vector2(180f, 26f));
     }
 
     static void CreateRecordsList(Transform parent, Font font, PortraitRecordsPanelController controller)

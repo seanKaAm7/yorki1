@@ -1137,3 +1137,29 @@
          3) 기존에 남아 있던 TalkScene.unity 직렬화 변경은 이번 커밋 범위에서 제외.
 -----------------------------------------
 */
+/*
+-----------------------------------------
+[Log #116] [2026-06-02 15:53:00]
+ * 사용자: 머 하루정산 한다고 했나? 계획짜고 해봐
+ * 작업:
+         1) 기존 흐름 확인.
+            마지막 손님의 결과 대사 종료 후 TalkSceneController가 하루 종료 로그만 남기고 멈추던 지점을 정산 화면 진입점으로 사용.
+         2) GameManager 일일 집계 및 다음 날 초기화 추가.
+            satisfiedCustomers를 Submit 결과에 따라 집계하고 BeginNextDay()에서 Day 증가,
+            일일 수입/손님/만족 집계 초기화, 영업 시작 시각 복귀, 에너지 회복, 손님 큐 인덱스 초기화 처리.
+         3) TalkSceneMenuController 정산 모달 로직 추가.
+            오늘 손님 수, 수입, 만족한 손님 수, 남은 에너지, 멘탈, 남은 재료 표시.
+            정산 중에는 ESC와 배경 클릭 닫기를 막고 다음 날 버튼으로만 진행하도록 구성.
+         4) TalkSceneController 다음 날 재시작 연결.
+            다음 날 버튼 이후 고로 에피소드 sprite를 다시 적용하고 손님+대사창을 페이드인한 뒤 PreDraw 대사를 재시작.
+         5) TalkSceneBuilder 정산 패널 생성 추가.
+            HUD_DaySummaryPanel과 명세 행, 다음 날 버튼을 자동 생성하고 TalkScene.unity 재생성.
+            사용자 수동 조정 Customer / DialogueBox 좌표도 빌더 기본값에 반영.
+         6) 문서 동기화.
+            CLAUDE.md, PROGRESS.md, architecture.html, PATCH_NOTES.js 갱신.
+         7) 검증:
+            dotnet build Assembly-CSharp.csproj 및 Assembly-CSharp-Editor.csproj 경고 0 / 오류 0.
+            Unity refresh/compile 완료, Yorki/Build Talk Scene 실행, TalkScene validate clean.
+            정산 패널 참조와 수동 좌표 YAML 직렬화 확인, git diff --check clean.
+-----------------------------------------
+*/
