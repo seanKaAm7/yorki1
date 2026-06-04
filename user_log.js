@@ -1163,3 +1163,25 @@
             정산 패널 참조와 수동 좌표 YAML 직렬화 확인, git diff --check clean.
 -----------------------------------------
 */
+/*
+-----------------------------------------
+[Log #117] [2026-06-03 20:22:08]
+ * 사용자: [Image #1] 그림 그릴떄 뒷 화면이 저렇게 / [Image #1] 그림 그릴떄 뒷 화면이 저렇게 발란스가 안맞아
+ * 작업:
+         1) 원인 확인.
+            TalkScene 배경을 CustomerStage 전체 stretch로 바꾼 뒤에도 SceneTransition이 SceneA 진입 시
+            CustomerStage 전체를 (-320, 0)으로 이동하고 있었음.
+            그 결과 드로잉 화면에서 배경까지 왼쪽으로 밀려 화면 커버와 좌우 밸런스가 깨졌음.
+         2) SceneTransition.cs 수정.
+            CustomerStage는 항상 (0, 0)에 고정하고,
+            TalkScene/SceneA 전환에서는 CustomerDisplay의 RectTransform만
+            TalkCustomerPosition과 DrawingCustomerPosition 사이에서 이동하도록 변경.
+         3) 의도.
+            배경은 모든 화면 비율에서 계속 꽉 차게 유지하고,
+            손님만 오른쪽 작업대 UI에 맞춰 왼쪽으로 빠지도록 분리.
+         4) 검증:
+            dotnet build Assembly-CSharp.csproj 및 Assembly-CSharp-Editor.csproj 경고 0 / 오류 0.
+            Unity refresh/compile 완료, TalkScene validate clean.
+            콘솔 프로젝트 오류 없음, git diff --check clean.
+-----------------------------------------
+*/

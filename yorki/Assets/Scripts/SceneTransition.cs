@@ -6,8 +6,9 @@ public class SceneTransition : MonoBehaviour
 {
     public static SceneTransition Instance { get; private set; }
 
-    public static readonly Vector2 TalkStagePosition = Vector2.zero;
-    public static readonly Vector2 DrawingStagePosition = new Vector2(-320f, 0f);
+    public static readonly Vector2 StagePosition = Vector2.zero;
+    public static readonly Vector2 TalkCustomerPosition = new Vector2(-9.320013f, -107.3f);
+    public static readonly Vector2 DrawingCustomerPosition = new Vector2(-329.320013f, -107.3f);
 
     [Header("Settings")]
     public float duration = 0.7f;
@@ -69,7 +70,7 @@ public class SceneTransition : MonoBehaviour
     {
         if (IsTransitioning) return;
         ResetCustomerForDrawing();
-        StartCoroutine(TransitionRoutine(YorkiSceneNames.Drawing, DrawingStagePosition, true, TalkScenePhase.PreDraw));
+        StartCoroutine(TransitionRoutine(YorkiSceneNames.Drawing, DrawingCustomerPosition, true, TalkScenePhase.PreDraw));
     }
 
     public void SceneAToTalkScene(TalkScenePhase nextPhase) // SceneA에서 TalkScene으로 전환. 다음 대화 단계(nextPhase)를 인자로 받아서 씬이 로드될 때 GameManager.currentTalkPhase에 설정하도록 함.
@@ -77,21 +78,17 @@ public class SceneTransition : MonoBehaviour
         if (IsTransitioning) return;
 
         GameManager.currentTalkPhase = nextPhase;
-        StartCoroutine(TransitionRoutine(YorkiSceneNames.Talk, TalkStagePosition, false, nextPhase));
+        StartCoroutine(TransitionRoutine(YorkiSceneNames.Talk, TalkCustomerPosition, false, nextPhase));
     }
 
     public void PlaceStageForTalkScene()
     {
-        RectTransform stage = FindCustomerStage();
-        if (stage != null)
-            stage.anchoredPosition = TalkStagePosition;
+        PlaceStageAndCustomer(TalkCustomerPosition);
     }
 
     public void PlaceStageForSceneA()
     {
-        RectTransform stage = FindCustomerStage();
-        if (stage != null)
-            stage.anchoredPosition = DrawingStagePosition;
+        PlaceStageAndCustomer(DrawingCustomerPosition);
         ResetCustomerForDrawing();
     }
 
@@ -110,12 +107,15 @@ public class SceneTransition : MonoBehaviour
             PlaceStageForActiveScene();
     }
 
-    IEnumerator TransitionRoutine(string targetScene, Vector2 targetPosition, bool toSceneA, TalkScenePhase nextPhase) // 씬 전환 코루틴. targetScene으로 이동하면서 stage를 targetPosition으로 이동. toSceneA가 true면 TalkScene에서 SceneA로, false면 SceneA에서 TalkScene으로 전환. nextPhase는 씬이 로드된 후 GameManager.currentTalkPhase에 설정할 값.
+    IEnumerator TransitionRoutine(string targetScene, Vector2 targetCustomerPosition, bool toSceneA, TalkScenePhase nextPhase) // 씬 전환 코루틴. 배경 stage는 화면에 고정하고, 손님 RectTransform만 이동한다. toSceneA가 true면 TalkScene에서 SceneA로, false면 SceneA에서 TalkScene으로 전환. nextPhase는 씬이 로드된 후 GameManager.currentTalkPhase에 설정할 값.
     {
         IsTransitioning = true;
 
         RectTransform stage = FindCustomerStage();
-        Vector2 startPosition = stage != null ? stage.anchoredPosition : (toSceneA ? TalkStagePosition : DrawingStagePosition);
+        RectTransform customer = FindCustomerRect();
+        Vector2 startCustomerPosition = customer != null ? customer.anchoredPosition : (toSceneA ? TalkCustomerPosition : DrawingCustomerPosition);
+        if (stage != null)
+            stage.anchoredPosition = StagePosition;
 
         CanvasGroup outgoingGroup = toSceneA ? FindCanvasGroup(YorkiObjectNames.DialogueBox) : FindCanvasGroup(YorkiObjectNames.DrawingPanel);
         CanvasGroup incomingGroup = null;
@@ -132,7 +132,13 @@ public class SceneTransition : MonoBehaviour
                 stage = FindCustomerStage();
 
             if (stage != null)
-                stage.anchoredPosition = Vector2.LerpUnclamped(startPosition, targetPosition, eased);
+                stage.anchoredPosition = StagePosition;
+
+            if (customer == null)
+                customer = FindCustomerRect();
+
+            if (customer != null)
+                customer.anchoredPosition = Vector2.LerpUnclamped(startCustomerPosition, targetCustomerPosition, eased);
 
             if (outgoingGroup != null)
                 outgoingGroup.alpha = Mathf.Lerp(1f, 0f, Mathf.Clamp01(elapsed / fadeDuration));
@@ -159,7 +165,13 @@ public class SceneTransition : MonoBehaviour
             stage = FindCustomerStage();
 
         if (stage != null)
-            stage.anchoredPosition = targetPosition;
+            stage.anchoredPosition = StagePosition;
+
+        if (customer == null)
+            customer = FindCustomerRect();
+
+        if (customer != null)
+            customer.anchoredPosition = targetCustomerPosition;
 
         IsTransitioning = false;
     }
@@ -186,6 +198,28 @@ public class SceneTransition : MonoBehaviour
 
         GameObject go = GameObject.Find(YorkiObjectNames.CustomerStage);
         return go != null ? go.GetComponent<RectTransform>() : null;
+    }
+
+    RectTransform FindCustomerRect()
+    {
+        CustomerDisplay customer = null;
+        if (PersistentBootstrap.Instance != null)
+            customer = PersistentBootstrap.Instance.customerDisplay;
+        if (customer == null)
+            customer = Object.FindAnyObjectByType<CustomerDisplay>();
+
+        return customer != null ? customer.GetComponent<RectTransform>() : null;
+    }
+
+    void PlaceStageAndCustomer(Vector2 customerPosition)
+    {
+        RectTransform stage = FindCustomerStage();
+        if (stage != null)
+            stage.anchoredPosition = StagePosition;
+
+        RectTransform customer = FindCustomerRect();
+        if (customer != null)
+            customer.anchoredPosition = customerPosition;
     }
 
     void ResetCustomerForDrawing()

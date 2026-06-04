@@ -1,5 +1,14 @@
 /*
 ---------
+[2026-06-03] (v66)
+ * SceneA 드로잉 화면 배경 밸런스 수정 - 드로잉 전환 시 `CustomerStage` 전체가 왼쪽으로 밀려 배경 커버가 깨지던 문제 해결
+ * 배경/손님 이동 분리 - `CustomerStage`는 항상 화면 전체에 고정하고, SceneA에서는 손님 RectTransform만 왼쪽 작업 위치로 이동
+ * 전환 정합성 유지 - TalkScene 복귀 시 손님 위치를 TalkScene 기본 좌표로 되돌리고, 배경은 화면 고정 상태 유지
+ * 검증 - Assembly-CSharp / Assembly-CSharp-Editor 빌드 경고 0 오류 0, Unity refresh/compile, TalkScene validate clean, git diff --check clean
+---------
+*/
+/*
+---------
 [2026-06-02] (v65)
  * 저녁 정산 화면 1차 구현 - 마지막 손님의 결과 대사 종료 후 손님과 대사창을 숨기고 중앙 정산 모달 표시
  * 일일 명세 표시 - 오늘 손님 수, 수입, 만족한 손님 수, 남은 에너지, 멘탈, 남은 재료를 정산 화면에 연결
