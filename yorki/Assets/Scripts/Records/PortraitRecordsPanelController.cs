@@ -64,7 +64,7 @@ public class PortraitRecordsPanelController : MonoBehaviour
         if (!awaitingClearConfirmation)
         {
             awaitingClearConfirmation = true;
-            SetClearAllButtonText("정말 삭제?");
+            SetClearAllButtonText("정말 삭제하시겠습니까?");
             return;
         }
 
